@@ -54,4 +54,6 @@ dependencies {
 
     // 5. Glide (for images)
     implementation("com.github.bumptech.glide:glide:4.16.0")
+
+    implementation("androidx.cardview:cardview:1.0.0")
 }
