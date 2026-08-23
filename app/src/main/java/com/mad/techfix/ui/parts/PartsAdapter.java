@@ -1,4 +1,58 @@
 package com.mad.techfix.ui.parts;
 
-public class PartsAdapter {
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+import com.mad.techfix.R;
+import com.mad.techfix.data.local.database.SparePartEntity;
+import java.util.List;
+import com.mad.techfix.R;
+
+public class PartsAdapter extends RecyclerView.Adapter<PartsAdapter.ViewHolder> {
+
+    private List<SparePartEntity> partsList;
+
+    public PartsAdapter(List<SparePartEntity> partsList) {
+        this.partsList = partsList;
+    }
+
+    @NonNull
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_part, parent, false);
+        return new ViewHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        SparePartEntity part = partsList.get(position);
+        holder.tvPartName.setText(part.partName);
+        holder.tvCategory.setText("Category: " + part.category);
+        holder.tvQuantity.setText("Qty: " + part.quantity);
+        holder.tvPrice.setText("$" + part.unitPrice);
+    }
+
+    @Override
+    public int getItemCount() {
+        return partsList.size();
+    }
+
+    public void updateList(List<SparePartEntity> newList) {
+        this.partsList = newList;
+        notifyDataSetChanged();
+    }
+
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        TextView tvPartName, tvCategory, tvQuantity, tvPrice;
+        public ViewHolder(@NonNull View itemView) {
+            super(itemView);
+            tvPartName = itemView.findViewById(R.id.tvPartName);
+            tvCategory = itemView.findViewById(R.id.tvCategory);
+            tvQuantity = itemView.findViewById(R.id.tvQuantity);
+            tvPrice = itemView.findViewById(R.id.tvPrice);
+        }
+    }
 }
