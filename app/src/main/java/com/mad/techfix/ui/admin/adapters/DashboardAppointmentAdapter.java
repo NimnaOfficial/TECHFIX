@@ -68,6 +68,32 @@ public class DashboardAppointmentAdapter extends RecyclerView.Adapter<DashboardA
             String status = appointment.getStatus();
             tvStatusBadge.setText(status);
 
+            // Dynamic badge coloring
+            if (status != null) {
+                switch (status.toUpperCase()) {
+                    case "REQUESTED":
+                        tvStatusBadge.setBackgroundColor(android.graphics.Color.parseColor("#FF9800")); // Orange
+                        break;
+                    case "ASSIGNED":
+                    case "DEVICE_RECEIVED":
+                    case "DIAGNOSING":
+                    case "REPAIRING":
+                    case "TESTING":
+                        tvStatusBadge.setBackgroundColor(android.graphics.Color.parseColor("#1E88E5")); // Blue
+                        break;
+                    case "READY":
+                    case "COMPLETED":
+                        tvStatusBadge.setBackgroundColor(android.graphics.Color.parseColor("#4CAF50")); // Green
+                        break;
+                    case "CANCELLED":
+                        tvStatusBadge.setBackgroundColor(android.graphics.Color.parseColor("#F44336")); // Red
+                        break;
+                    default:
+                        tvStatusBadge.setBackgroundColor(android.graphics.Color.parseColor("#9E9E9E")); // Gray
+                        break;
+                }
+            }
+
             if ("REQUESTED".equalsIgnoreCase(status)) {
                 btnQuickAssign.setVisibility(View.VISIBLE);
                 btnQuickAssign.setOnClickListener(v -> {
