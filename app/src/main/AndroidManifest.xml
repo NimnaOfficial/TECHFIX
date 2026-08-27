@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Permission required for Retrofit API calls -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:allowBackup="true"
@@ -17,9 +17,14 @@
 
         <!-- Set SplashActivity as the starting activity -->
         <activity
-            android:name=".ui.auth.SplashActivity"
-            android:exported="true"
+            android:name=".MainActivity"
+            android:exported="false"
             android:windowSoftInputMode="adjustResize">
+        </activity>
+        <activity
+            android:name=".ui.admin.AdminActivity"
+            android:exported="true"
+            android:theme="@style/Theme.TECHFIX">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
