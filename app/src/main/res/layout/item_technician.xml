@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardBackgroundColor="#FFFFFF"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="12dp">
+
+        <ImageView
+            android:id="@+id/iv_avatar"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:backgroundTint="#1565C0"
+            android:background="@drawable/ic_launcher_background"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <LinearLayout
+            android:id="@+id/ll_info"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            app:layout_constraintStart_toEndOf="@id/iv_avatar"
+            app:layout_constraintEnd_toStartOf="@id/ll_status"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <TextView
+                android:id="@+id/tv_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Technician Name"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#212121" />
+
+            <TextView
+                android:id="@+id/tv_emp_code"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="EMP-001"
+                android:textSize="13sp"
+                android:textColor="#757575" />
+
+            <TextView
+                android:id="@+id/tv_specialization"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Hardware"
+                android:textSize="13sp"
+                android:textColor="#1565C0" />
+
+            <TextView
+                android:id="@+id/tv_branch_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Main Branch"
+                android:textSize="12sp"
+                android:textColor="#757575" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ll_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <View
+                android:id="@+id/v_status_dot"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:background="#4CAF50"
+                android:layout_marginEnd="4dp" />
+
+            <TextView
+                android:id="@+id/tv_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Available"
+                android:textSize="12sp"
+                android:textColor="#757575" />
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>

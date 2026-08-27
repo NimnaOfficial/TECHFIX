@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardBackgroundColor="#FFFFFF"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="2dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            
+            <TextView
+                android:id="@+id/tv_branch_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Branch Name"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#212121" />
+                
+            <TextView
+                android:id="@+id/tv_city_chip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="City"
+                android:textSize="12sp"
+                android:textColor="#1565C0"
+                android:background="#E3F2FD"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="4dp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_address"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Address Details"
+            android:textSize="14sp"
+            android:textColor="#757575"
+            android:drawableStart="@android:drawable/ic_menu_mylocation"
+            android:drawablePadding="4dp"
+            android:layout_marginTop="8dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp">
+            
+            <TextView
+                android:id="@+id/tv_phone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Phone"
+                android:textSize="14sp"
+                android:textColor="#757575"
+                android:drawableStart="@android:drawable/ic_menu_call"
+                android:drawablePadding="4dp"
+                android:layout_marginEnd="16dp" />
+                
+            <TextView
+                android:id="@+id/tv_email"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Email"
+                android:textSize="14sp"
+                android:textColor="#757575"
+                android:drawableStart="@android:drawable/ic_dialog_email"
+                android:drawablePadding="4dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp">
+            
+            <TextView
+                android:id="@+id/tv_opening_times"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="09:00 - 18:00"
+                android:textSize="14sp"
+                android:textColor="#757575"
+                android:drawableStart="@android:drawable/ic_menu_recent_history"
+                android:drawablePadding="4dp" />
+        </LinearLayout>
+        
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>
