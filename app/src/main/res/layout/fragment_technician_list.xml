@@ -4,101 +4,119 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#FFFFFF">
+    android:background="#F8F9FA">
 
-    <LinearLayout
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="16dp"
-        android:gravity="center_vertical"
-        android:background="#E3F2FD">
-        
-        <TextView
+        android:background="#F8F9FA"
+        app:elevation="0dp">
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Technicians"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:textColor="#0D47A1" />
-    </LinearLayout>
+            android:orientation="vertical"
+            android:padding="20dp">
 
-    <HorizontalScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:scrollbars="none"
-        android:paddingHorizontal="16dp"
-        android:paddingVertical="8dp">
-        
-        <com.google.android.material.chip.ChipGroup
-            android:id="@+id/chip_group_filter"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:singleSelection="true">
-            
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_all"
-                android:layout_width="wrap_content"
+            <TextView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="All"
-                style="@style/Widget.Material3.Chip.Filter"
-                android:checked="true" />
-                
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_available"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Available"
-                style="@style/Widget.Material3.Chip.Filter" />
-                
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_busy"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Busy"
-                style="@style/Widget.Material3.Chip.Filter" />
-                
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_off_duty"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Off Duty"
-                style="@style/Widget.Material3.Chip.Filter" />
-                
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_on_leave"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="On Leave"
-                style="@style/Widget.Material3.Chip.Filter" />
-                
-        </com.google.android.material.chip.ChipGroup>
-    </HorizontalScrollView>
+                android:text="Technician Roster"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:textColor="#0D47A1"
+                android:layout_marginBottom="16dp" />
 
-    <EditText
-        android:id="@+id/et_search"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginBottom="8dp"
-        android:background="#E3F2FD"
-        android:hint="Search Technicians..."
-        android:padding="12dp"
-        android:drawableStart="@android:drawable/ic_menu_search"
-        android:drawablePadding="8dp"
-        android:singleLine="true"
-        android:textColor="#212121" />
+            <!-- Search Bar -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:boxBackgroundColor="#FFFFFF"
+                app:boxCornerRadiusTopStart="12dp"
+                app:boxCornerRadiusTopEnd="12dp"
+                app:boxCornerRadiusBottomStart="12dp"
+                app:boxCornerRadiusBottomEnd="12dp"
+                app:boxStrokeWidth="0dp"
+                app:endIconMode="clear_text"
+                app:startIconDrawable="@android:drawable/ic_menu_search"
+                app:startIconTint="#757575">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_search"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Search by name or code..."
+                    android:inputType="text"
+                    android:textColor="#212121"
+                    android:textSize="16sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Status Filters -->
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="none"
+                android:layout_marginTop="12dp">
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/chip_group_filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:singleSelection="true"
+                    app:selectionRequired="true">
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chip_all"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="All Techs"
+                        android:checked="true"/>
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chip_available"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Available"
+                        app:chipIconTint="#4CAF50"/>
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chip_busy"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Busy"/>
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chip_off_duty"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Off Duty"/>
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chip_on_leave"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="On Leave"/>
+
+                </com.google.android.material.chip.ChipGroup>
+            </HorizontalScrollView>
+        </LinearLayout>
+    </com.google.android.material.appbar.AppBarLayout>
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_technicians"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
-            android:padding="8dp" />
+            android:padding="12dp" />
 
         <ProgressBar
             android:id="@+id/progress_bar"
@@ -107,13 +125,29 @@
             android:layout_gravity="center"
             android:visibility="gone" />
 
-        <TextView
-            android:id="@+id/tv_empty_state"
+        <LinearLayout
+            android:id="@+id/layout_empty_state"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="No technicians found."
             android:layout_gravity="center"
-            android:textColor="#757575"
-            android:visibility="gone" />
+            android:orientation="vertical"
+            android:gravity="center"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:src="@drawable/ic_technician"
+                app:tint="#BDBDBD"
+                android:layout_marginBottom="12dp"/>
+
+            <TextView
+                android:id="@+id/tv_empty_state"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="No technicians found."
+                android:textColor="#757575"
+                android:textSize="16sp" />
+        </LinearLayout>
     </FrameLayout>
 </LinearLayout>

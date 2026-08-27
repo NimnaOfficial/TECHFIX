@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF"
-    android:fillViewport="true">
+    android:orientation="vertical"
+    android:background="#F8F9FA">
 
-    <LinearLayout
+    <!-- App Bar -->
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:background="#0D47A1"
+        app:elevation="4dp">
 
-        <!-- Header -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="24dp">
+            android:padding="16dp"
+            android:gravity="center_vertical">
             
             <ImageButton
                 android:id="@+id/btn_back"
@@ -26,146 +26,153 @@
                 android:layout_height="48dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@android:drawable/ic_menu_revert"
-                app:tint="#0D47A1" />
-                
+                app:tint="#FFFFFF" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Technician Details"
-                android:textSize="22sp"
+                android:text="Technician Profile"
+                android:textSize="20sp"
                 android:textStyle="bold"
-                android:textColor="#0D47A1"
-                android:layout_marginStart="8dp" />
+                android:textColor="#FFFFFF"
+                android:layout_marginStart="16dp"/>
         </LinearLayout>
+    </com.google.android.material.appbar.AppBarLayout>
 
-        <!-- Profile Section -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:gravity="center_horizontal"
-            android:layout_marginBottom="24dp">
-            
-            <ImageView
-                android:id="@+id/iv_large_avatar"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:backgroundTint="#1565C0"
-                android:background="@drawable/ic_launcher_background"
-                android:layout_marginBottom="12dp" />
+            android:padding="20dp"
+            android:gravity="center_horizontal">
+
+            <!-- Avatar -->
+            <FrameLayout
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:background="@drawable/bg_circle_blue"
+                android:backgroundTint="#E3F2FD"
+                android:layout_marginBottom="16dp">
                 
+                <ImageView
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_technician"
+                    app:tint="#1565C0"/>
+            </FrameLayout>
+
             <TextView
                 android:id="@+id/tv_detail_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Technician Name"
-                android:textSize="22sp"
+                android:textSize="24sp"
                 android:textStyle="bold"
                 android:textColor="#212121" />
-                
+
             <TextView
                 android:id="@+id/tv_detail_emp_code"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="EMP-001"
                 android:textSize="14sp"
-                android:textColor="#757575" />
-        </LinearLayout>
+                android:textColor="#757575"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="24dp"/>
 
-        <!-- Info Card -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:cardBackgroundColor="#FFFFFF"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="2dp"
-            android:layout_marginBottom="24dp">
-            
+            <!-- Info Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="#FFFFFF"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:strokeWidth="0dp"
+                android:layout_marginBottom="24dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Information"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="#0D47A1"
+                        android:layout_marginBottom="16dp"/>
+
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="12dp">
+                        <TextView android:layout_width="120dp" android:layout_height="wrap_content" android:text="Specialization" android:textColor="#757575"/>
+                        <TextView android:id="@+id/tv_detail_specialization" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Hardware" android:textColor="#212121" android:textStyle="bold"/>
+                    </LinearLayout>
+
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="12dp">
+                        <TextView android:layout_width="120dp" android:layout_height="wrap_content" android:text="Assigned Branch" android:textColor="#757575"/>
+                        <TextView android:id="@+id/tv_detail_branch" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="BR-001" android:textColor="#212121" android:textStyle="bold"/>
+                    </LinearLayout>
+
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+                        <TextView android:layout_width="120dp" android:layout_height="wrap_content" android:text="Current Status" android:textColor="#757575"/>
+                        <TextView android:id="@+id/tv_detail_status" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="AVAILABLE" android:textColor="#4CAF50" android:textStyle="bold"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Skills Header -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="12dp">
                 
                 <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Approved Repair Skills"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="#212121" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_edit_skills"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Specialization: Hardware"
-                    android:id="@+id/tv_detail_specialization"
-                    android:textColor="#212121"
-                    android:textSize="16sp"
-                    android:layout_marginBottom="8dp" />
-                    
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Branch: Main Branch"
-                    android:id="@+id/tv_detail_branch"
-                    android:textColor="#212121"
-                    android:textSize="16sp"
-                    android:layout_marginBottom="8dp" />
-                    
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Status: Available"
-                    android:id="@+id/tv_detail_status"
-                    android:textColor="#212121"
-                    android:textSize="16sp"
-                    android:layout_marginBottom="8dp" />
-                    
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Hire Date: 2023-01-15"
-                    android:id="@+id/tv_detail_hire_date"
-                    android:textColor="#212121"
-                    android:textSize="16sp" />
+                    android:text="Edit Skills"
+                    app:icon="@android:drawable/ic_menu_edit"
+                    android:textColor="#1565C0"/>
             </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
 
-        <!-- Skills Section -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Assigned Services"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="#212121"
-            android:layout_marginBottom="8dp" />
-            
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_services"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:nestedScrollingEnabled="false" />
-            
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_edit_skills"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Edit Skills"
-            app:cornerRadius="8dp"
-            android:textColor="#FFFFFF"
-            android:backgroundTint="#1565C0"
-            android:layout_marginBottom="24dp" />
+            <!-- Skills List -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="#FFFFFF"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:strokeWidth="0dp"
+                android:layout_marginBottom="24dp">
 
-        <!-- Pending Appointments Section -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Pending Appointments"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="#212121"
-            android:layout_marginBottom="8dp" />
-            
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_pending_appointments"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:nestedScrollingEnabled="false" />
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recycler_services"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"
+                    android:padding="12dp"
+                    android:clipToPadding="false"/>
+            </com.google.android.material.card.MaterialCardView>
 
-    </LinearLayout>
-</ScrollView>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

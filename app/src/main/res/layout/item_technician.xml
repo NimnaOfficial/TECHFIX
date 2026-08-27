@@ -3,37 +3,45 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
+    android:layout_marginHorizontal="8dp"
+    android:layout_marginVertical="6dp"
     app:cardBackgroundColor="#FFFFFF"
     app:cardCornerRadius="12dp"
-    app:cardElevation="2dp">
+    app:cardElevation="2dp"
+    app:strokeWidth="0dp"
+    android:clickable="true"
+    android:focusable="true">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="12dp">
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:gravity="center_vertical">
 
-        <ImageView
-            android:id="@+id/iv_avatar"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:backgroundTint="#1565C0"
-            android:background="@drawable/ic_launcher_background"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
+        <!-- Avatar -->
+        <FrameLayout
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="@drawable/bg_circle_blue"
+            android:backgroundTint="#E3F2FD">
+            
+            <ImageView
+                android:id="@+id/iv_avatar"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_technician"
+                app:tint="#1565C0"/>
+        </FrameLayout>
 
+        <!-- Details -->
         <LinearLayout
-            android:id="@+id/ll_info"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:orientation="vertical"
-            android:layout_marginStart="12dp"
-            android:layout_marginEnd="12dp"
-            app:layout_constraintStart_toEndOf="@id/iv_avatar"
-            app:layout_constraintEnd_toStartOf="@id/ll_status"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent">
+            android:layout_marginStart="16dp">
 
             <TextView
                 android:id="@+id/tv_name"
@@ -49,51 +57,67 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="EMP-001"
-                android:textSize="13sp"
-                android:textColor="#757575" />
+                android:textSize="12sp"
+                android:textColor="#757575"
+                android:layout_marginTop="2dp"/>
 
             <TextView
                 android:id="@+id/tv_specialization"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Hardware"
+                android:text="Hardware Repair"
                 android:textSize="13sp"
-                android:textColor="#1565C0" />
-
+                android:textColor="#1565C0"
+                android:textStyle="bold"
+                android:layout_marginTop="6dp"/>
+                
             <TextView
                 android:id="@+id/tv_branch_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Main Branch"
+                android:text="Branch ID"
                 android:textSize="12sp"
-                android:textColor="#757575" />
+                android:textColor="#9E9E9E"
+                android:layout_marginTop="2dp"/>
+
         </LinearLayout>
 
+        <!-- Status -->
         <LinearLayout
-            android:id="@+id/ll_status"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent">
+            android:orientation="vertical"
+            android:gravity="end">
 
-            <View
-                android:id="@+id/v_status_dot"
-                android:layout_width="12dp"
-                android:layout_height="12dp"
-                android:background="#4CAF50"
-                android:layout_marginEnd="4dp" />
-
-            <TextView
-                android:id="@+id/tv_status"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Available"
-                android:textSize="12sp"
-                android:textColor="#757575" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="#F5F5F5"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="4dp"
+                app:cornerRadius="12dp"
+                android:backgroundTint="#F8F9FA">
+                
+                <View
+                    android:id="@+id/v_status_dot"
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:background="@drawable/bg_status_dot_available" />
+                    
+                <TextView
+                    android:id="@+id/tv_status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="AVAILABLE"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:textColor="#616161"
+                    android:layout_marginStart="6dp" />
+            </LinearLayout>
+
         </LinearLayout>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

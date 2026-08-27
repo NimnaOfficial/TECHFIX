@@ -4,14 +4,11 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginVertical="4dp"
-    android:clickable="true"
-    android:focusable="true"
-    android:foreground="?attr/selectableItemBackground"
     app:cardBackgroundColor="#FFFFFF"
     app:cardCornerRadius="8dp"
     app:cardElevation="0dp"
-    app:strokeWidth="1dp"
-    app:strokeColor="#E0E0E0">
+    app:strokeColor="#E0E0E0"
+    app:strokeWidth="1dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -24,15 +21,30 @@
             android:id="@+id/radio_select"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:clickable="false" />
+            android:buttonTint="#0D47A1"
+            android:clickable="false"/> <!-- Let the item view handle the click -->
+
+        <FrameLayout
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/bg_circle_blue"
+            android:backgroundTint="#E3F2FD"
+            android:layout_marginStart="8dp">
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_technician"
+                app:tint="#1565C0"/>
+        </FrameLayout>
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:orientation="vertical">
-            
+            android:orientation="vertical"
+            android:layout_marginStart="12dp">
+
             <TextView
                 android:id="@+id/tv_assignable_name"
                 android:layout_width="wrap_content"
@@ -41,22 +53,39 @@
                 android:textSize="15sp"
                 android:textStyle="bold"
                 android:textColor="#212121" />
-                
-            <TextView
-                android:id="@+id/tv_assignable_code"
+
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="EMP-001"
-                android:textSize="12sp"
-                android:textColor="#757575" />
+                android:orientation="horizontal"
+                android:layout_marginTop="2dp">
                 
-            <TextView
-                android:id="@+id/tv_assignable_specialization"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Specialization"
-                android:textSize="13sp"
-                android:textColor="#1565C0" />
+                <TextView
+                    android:id="@+id/tv_assignable_code"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="EMP-001"
+                    android:textSize="12sp"
+                    android:textColor="#757575"/>
+                    
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=" • "
+                    android:textSize="12sp"
+                    android:textColor="#9E9E9E"/>
+
+                <TextView
+                    android:id="@+id/tv_assignable_specialization"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Hardware"
+                    android:textSize="12sp"
+                    android:textColor="#1565C0"
+                    android:textStyle="bold"/>
+            </LinearLayout>
+
         </LinearLayout>
+
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
