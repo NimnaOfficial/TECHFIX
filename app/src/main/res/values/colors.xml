@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <!-- Pure Black & White -->
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+
+    <!-- Subtle grays for depth (so it's not too flat) -->
+    <color name="gray_dark">#1A1A1A</color>   <!-- Slightly lighter black for cards -->
+    <color name="gray_mid">#333333</color>    <!-- Dividers -->
+    <color name="gray_light">#888888</color>  <!-- Secondary text -->
+
+    <!-- Accent Color (Makes the UI pop - pure "Tech" vibe) -->
+    <color name="accent">#00D4FF</color>      <!-- Neon Cyan/Blue -->
 </resources>
