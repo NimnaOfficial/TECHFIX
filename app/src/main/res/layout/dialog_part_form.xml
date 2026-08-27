@@ -11,7 +11,7 @@
         android:id="@+id/tv_form_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Technician Details"
+        android:text="Spare Part Details"
         android:textSize="22sp"
         android:textStyle="bold"
         android:textColor="#0D47A1"
@@ -29,7 +29,7 @@
             android:orientation="vertical">
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_tech_user_id"
+                android:id="@+id/til_part_name"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -40,66 +40,20 @@
                 app:boxCornerRadiusBottomEnd="12dp"
                 app:boxStrokeColor="#1565C0"
                 app:hintTextColor="#1565C0"
-                app:startIconDrawable="@drawable/ic_person"
+                app:startIconDrawable="@drawable/ic_name"
                 app:startIconTint="#1565C0"
                 app:errorEnabled="true"
-                android:hint="User ID">
+                android:hint="Part Name">
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/et_tech_user_id"
+                    android:id="@+id/et_part_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textColor="#212121"
-                    android:hint="Required for Database"/>
+                    android:hint="e.g. iPhone 15 Display"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_tech_first_name"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                app:boxCornerRadiusTopStart="12dp"
-                app:boxCornerRadiusTopEnd="12dp"
-                app:boxCornerRadiusBottomStart="12dp"
-                app:boxCornerRadiusBottomEnd="12dp"
-                app:boxStrokeColor="#1565C0"
-                app:hintTextColor="#1565C0"
-                app:startIconDrawable="@drawable/ic_name"
-                app:startIconTint="#1565C0"
-                app:errorEnabled="true"
-                android:hint="First Name">
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/et_tech_first_name"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="#212121"/>
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_tech_last_name"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                app:boxCornerRadiusTopStart="12dp"
-                app:boxCornerRadiusTopEnd="12dp"
-                app:boxCornerRadiusBottomStart="12dp"
-                app:boxCornerRadiusBottomEnd="12dp"
-                app:boxStrokeColor="#1565C0"
-                app:hintTextColor="#1565C0"
-                app:startIconDrawable="@drawable/ic_name"
-                app:startIconTint="#1565C0"
-                app:errorEnabled="true"
-                android:hint="Last Name">
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/et_tech_last_name"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="#212121"/>
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_tech_code"
+                android:id="@+id/til_part_number"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -113,18 +67,18 @@
                 app:startIconDrawable="@drawable/ic_numbers"
                 app:startIconTint="#1565C0"
                 app:errorEnabled="true"
-                android:hint="Employee Code">
+                android:hint="Part Number">
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/et_tech_code"
+                    android:id="@+id/et_part_number"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textColor="#212121"
-                    android:hint="e.g. EMP-001"/>
+                    android:hint="e.g. DSP-IP15"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_tech_specialization"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:id="@+id/til_part_category"
+                style="@style/Widget.App.TextInputLayout.OutlinedBox.ExposedDropdownMenu.WhitePopup"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
@@ -134,44 +88,77 @@
                 app:boxCornerRadiusBottomEnd="12dp"
                 app:boxStrokeColor="#1565C0"
                 app:hintTextColor="#1565C0"
-                app:startIconDrawable="@drawable/ic_work"
-                app:startIconTint="#1565C0"
-                app:errorEnabled="true"
-                android:hint="Specialization">
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/et_tech_specialization"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="#212121"
-                    android:hint="e.g. Mobile Repair"/>
-            </com.google.android.material.textfield.TextInputLayout>
-            
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_tech_branch"
-                style="@style/Widget.App.TextInputLayout.OutlinedBox.ExposedDropdownMenu.WhitePopup"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:boxCornerRadiusTopStart="12dp"
-                app:boxCornerRadiusTopEnd="12dp"
-                app:boxCornerRadiusBottomStart="12dp"
-                app:boxCornerRadiusBottomEnd="12dp"
-                app:boxStrokeColor="#1565C0"
-                app:hintTextColor="#1565C0"
-                app:startIconDrawable="@drawable/ic_branch"
+                app:startIconDrawable="@drawable/ic_category"
                 app:startIconTint="#1565C0"
                 app:boxBackgroundColor="#FFFFFF"
                 app:errorEnabled="true"
-                android:hint="Branch">
+                android:hint="Category">
                 <AutoCompleteTextView
-                    android:id="@+id/et_tech_branch"
+                    android:id="@+id/et_part_description"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textColor="#000000"
                     android:padding="16dp"
-                    android:inputType="none"
-                    android:hint="Select Branch"/>
+                    android:inputType="none"/>
             </com.google.android.material.textfield.TextInputLayout>
+            
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/til_part_price"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:layout_marginEnd="4dp"
+                    app:boxCornerRadiusTopStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusBottomEnd="12dp"
+                    app:boxStrokeColor="#1565C0"
+                    app:hintTextColor="#1565C0"
+                    app:startIconDrawable="@drawable/ic_price"
+                    app:startIconTint="#1565C0"
+                    app:errorEnabled="true"
+                    android:hint="Unit Price (LKR)">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_part_price"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="#212121"
+                        android:inputType="numberDecimal"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/til_part_stock"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:layout_marginStart="4dp"
+                    app:boxCornerRadiusTopStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusBottomEnd="12dp"
+                    app:boxStrokeColor="#1565C0"
+                    app:hintTextColor="#1565C0"
+                    app:startIconDrawable="@drawable/ic_inventory"
+                    app:startIconTint="#1565C0"
+                    app:errorEnabled="true"
+                    android:hint="Min. Stock">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_part_stock"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="#212121"
+                        android:inputType="number"/>
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
 
         </LinearLayout>
     </ScrollView>
@@ -210,7 +197,7 @@
             android:id="@+id/btn_save"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Save"
+            android:text="Save Part"
             android:textColor="#FFFFFF"
             app:cornerRadius="8dp"
             app:backgroundTint="#0D47A1"/>

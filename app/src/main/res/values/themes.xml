@@ -11,4 +11,14 @@
         <item name="colorPrimary">@color/accent</item>
         <item name="colorOnPrimary">@color/black</item>
     </style>
+
+    <style name="Widget.App.TextInputLayout.OutlinedBox.ExposedDropdownMenu.WhitePopup" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.App.ExposedDropdownMenu</item>
+    </style>
+
+    <style name="ThemeOverlay.App.ExposedDropdownMenu" parent="">
+        <!-- This overrides the popup background color -->
+        <item name="colorSurface">@color/white</item>
+        <item name="colorOnSurface">@color/black</item>
+    </style>
 </resources>

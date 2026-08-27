@@ -14,9 +14,15 @@ import com.mad.techfix.R;
 public class PartsAdapter extends RecyclerView.Adapter<PartsAdapter.ViewHolder> {
 
     private List<SparePartEntity> partsList;
+    private OnPartClickListener listener;
 
-    public PartsAdapter(List<SparePartEntity> partsList) {
+    public interface OnPartClickListener {
+        void onPartClick(SparePartEntity part);
+    }
+
+    public PartsAdapter(List<SparePartEntity> partsList, OnPartClickListener listener) {
         this.partsList = partsList;
+        this.listener = listener;
     }
 
     @NonNull
@@ -29,15 +35,24 @@ public class PartsAdapter extends RecyclerView.Adapter<PartsAdapter.ViewHolder> 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         SparePartEntity part = partsList.get(position);
-        holder.tvPartName.setText(part.partName);
-        holder.tvCategory.setText("Category: " + part.category);
-        holder.tvQuantity.setText("Qty: " + part.quantity);
-        holder.tvPrice.setText("$" + part.unitPrice);
+        holder.tvPartName.setText(part.getName());
+        holder.tvCategory.setText("Category: " + part.getCategory());
+        holder.tvQuantity.setText("Qty: " + part.getQuantity());
+        holder.tvPrice.setText("$" + part.getPrice());
+
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) listener.onPartClick(part);
+        });
+        
+        holder.itemView.setOnLongClickListener(v -> {
+            if (listener != null) listener.onPartClick(part);
+            return true;
+        });
     }
 
     @Override
     public int getItemCount() {
-        return partsList.size();
+        return partsList == null ? 0 : partsList.size();
     }
 
     public void updateList(List<SparePartEntity> newList) {

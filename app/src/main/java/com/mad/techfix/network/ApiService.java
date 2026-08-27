@@ -35,6 +35,15 @@ public interface ApiService {
     @GET("api/spare-parts")
     Call<ApiResponse<List<SparePart>>> getSpareParts(@Header("Authorization") String auth);
 
+    @POST("api/spare-parts")
+    Call<ApiResponse<SparePart>> createSparePart(@Header("Authorization") String auth, @Body SparePart part);
+
+    @PUT("api/spare-parts/{id}")
+    Call<ApiResponse<SparePart>> updateSparePart(@Header("Authorization") String auth, @Path("id") String partId, @Body SparePart part);
+
+    @retrofit2.http.DELETE("api/spare-parts/{id}")
+    Call<ApiResponse<Object>> deleteSparePart(@Header("Authorization") String auth, @Path("id") String partId);
+
     // ==========================================
     // 3. REPAIR HISTORY (YOUR MODULE)
     // ==========================================

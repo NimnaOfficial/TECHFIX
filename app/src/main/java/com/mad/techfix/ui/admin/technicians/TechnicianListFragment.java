@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.mad.techfix.R;
 import com.mad.techfix.models.admin.Technician;
 import com.mad.techfix.ui.admin.adapters.TechnicianAdapter;
@@ -69,6 +70,7 @@ public class TechnicianListFragment extends Fragment {
         setupFilters();
         observeViewModel();
         viewModel.loadTechnicians();
+        viewModel.loadBranches(); // Pre-load branches for the Combobox
     }
 
     private void showAddTechnicianDialog(@Nullable Technician tech) {
@@ -80,22 +82,64 @@ public class TechnicianListFragment extends Fragment {
         dialog.show();
 
         TextView tvTitle = view.findViewById(R.id.tv_form_title);
+        
+        TextInputLayout tilUserId = view.findViewById(R.id.til_tech_user_id);
+        TextInputLayout tilFirstName = view.findViewById(R.id.til_tech_first_name);
+        TextInputLayout tilLastName = view.findViewById(R.id.til_tech_last_name);
+        TextInputLayout tilCode = view.findViewById(R.id.til_tech_code);
+        TextInputLayout tilSpecialization = view.findViewById(R.id.til_tech_specialization);
+        TextInputLayout tilBranch = view.findViewById(R.id.til_tech_branch);
+
+        TextInputEditText etUserId = view.findViewById(R.id.et_tech_user_id);
         TextInputEditText etFirstName = view.findViewById(R.id.et_tech_first_name);
         TextInputEditText etLastName = view.findViewById(R.id.et_tech_last_name);
         TextInputEditText etCode = view.findViewById(R.id.et_tech_code);
         TextInputEditText etSpecialization = view.findViewById(R.id.et_tech_specialization);
-        TextInputEditText etBranch = view.findViewById(R.id.et_tech_branch);
+        android.widget.AutoCompleteTextView etBranch = view.findViewById(R.id.et_tech_branch);
+        
         View btnSave = view.findViewById(R.id.btn_save);
         View btnCancel = view.findViewById(R.id.btn_cancel);
         View btnDelete = view.findViewById(R.id.btn_delete);
 
+        // Clear errors as user types
+        etUserId.addTextChangedListener(new SimpleTextWatcher(tilUserId));
+        etFirstName.addTextChangedListener(new SimpleTextWatcher(tilFirstName));
+        etLastName.addTextChangedListener(new SimpleTextWatcher(tilLastName));
+        etBranch.addTextChangedListener(new SimpleTextWatcher(tilBranch));
+
+        // Setup Branch Combobox
+        List<com.mad.techfix.models.admin.Branch> branchList = viewModel.getBranches().getValue();
+        List<String> branchOptions = new ArrayList<>();
+        if (branchList != null && !branchList.isEmpty()) {
+            for (com.mad.techfix.models.admin.Branch b : branchList) {
+                branchOptions.add(b.getId() + " - " + b.getName());
+            }
+        } else {
+            branchOptions.add("No branches found - Add a branch first");
+        }
+        
+        android.widget.ArrayAdapter<String> branchAdapter = new android.widget.ArrayAdapter<>(requireContext(), android.R.layout.simple_dropdown_item_1line, branchOptions);
+        etBranch.setAdapter(branchAdapter);
+
         if (tech != null) {
             tvTitle.setText("Edit Technician");
+            etUserId.setText(tech.getUserId());
             etFirstName.setText(tech.getFirstName());
             etLastName.setText(tech.getLastName());
             etCode.setText(tech.getEmployeeCode());
             etSpecialization.setText(tech.getSpecialization());
-            etBranch.setText(tech.getBranchId());
+            
+            // Re-map the selected branch formatting if editing
+            String displayBranch = tech.getBranchId();
+            if (branchList != null) {
+                for (com.mad.techfix.models.admin.Branch b : branchList) {
+                    if (b.getId().equals(tech.getBranchId())) {
+                        displayBranch = b.getId() + " - " + b.getName();
+                        break;
+                    }
+                }
+            }
+            etBranch.setText(displayBranch, false);
             btnDelete.setVisibility(View.VISIBLE);
         }
 
@@ -109,12 +153,31 @@ public class TechnicianListFragment extends Fragment {
         });
 
         btnSave.setOnClickListener(v -> {
+            String userIdStr = etUserId.getText() != null ? etUserId.getText().toString().trim() : "";
+            String firstNameStr = etFirstName.getText() != null ? etFirstName.getText().toString().trim() : "";
+            String lastNameStr = etLastName.getText() != null ? etLastName.getText().toString().trim() : "";
+            String branchRawStr = etBranch.getText() != null ? etBranch.getText().toString().trim() : "";
+
+            boolean isValid = true;
+            if (userIdStr.isEmpty()) { tilUserId.setError("User ID is required"); isValid = false; }
+            if (firstNameStr.isEmpty()) { tilFirstName.setError("First name is required"); isValid = false; }
+            if (lastNameStr.isEmpty()) { tilLastName.setError("Last name is required"); isValid = false; }
+            if (branchRawStr.isEmpty() || branchRawStr.startsWith("No branches")) { tilBranch.setError("Valid Branch is required"); isValid = false; }
+
+            if (!isValid) return;
+
+            String branchIdStr = branchRawStr;
+            if (branchRawStr.contains(" - ")) {
+                branchIdStr = branchRawStr.split(" - ")[0]; // Extract the ID
+            }
+
             Technician t = tech != null ? tech : new Technician();
-            t.setFirstName(etFirstName.getText().toString());
-            t.setLastName(etLastName.getText().toString());
+            t.setUserId(userIdStr);
+            t.setFirstName(firstNameStr);
+            t.setLastName(lastNameStr);
             t.setEmployeeCode(etCode.getText().toString());
             t.setSpecialization(etSpecialization.getText().toString());
-            t.setBranchId(etBranch.getText().toString());
+            t.setBranchId(branchIdStr);
             
             if (tech == null) {
                 t.setAvailabilityStatus("AVAILABLE");
@@ -184,7 +247,8 @@ public class TechnicianListFragment extends Fragment {
 
         viewModel.getCrudSuccess().observe(getViewLifecycleOwner(), success -> {
             if (success != null && success) {
-                Toast.makeText(getContext(), "Success!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Operation Successful!", Toast.LENGTH_SHORT).show();
+                viewModel.loadTechnicians(); // Crucial: Reload list!
             }
         });
     }
@@ -212,5 +276,16 @@ public class TechnicianListFragment extends Fragment {
             layoutEmptyState.setVisibility(View.GONE);
             recyclerTechnicians.setVisibility(View.VISIBLE);
         }
+    }
+
+    // Helper TextWatcher to clear errors
+    private static class SimpleTextWatcher implements TextWatcher {
+        private final TextInputLayout til;
+        public SimpleTextWatcher(TextInputLayout til) { this.til = til; }
+        @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+        @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+            til.setError(null);
+        }
+        @Override public void afterTextChanged(Editable s) {}
     }
 }
