@@ -28,29 +28,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_tech_user_id"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                app:boxCornerRadiusTopStart="12dp"
-                app:boxCornerRadiusTopEnd="12dp"
-                app:boxCornerRadiusBottomStart="12dp"
-                app:boxCornerRadiusBottomEnd="12dp"
-                app:boxStrokeColor="#1565C0"
-                app:hintTextColor="#1565C0"
-                app:startIconDrawable="@drawable/ic_person"
-                app:startIconTint="#1565C0"
-                app:errorEnabled="true"
-                android:hint="User ID">
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/et_tech_user_id"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="#212121"
-                    android:hint="Required for Database"/>
-            </com.google.android.material.textfield.TextInputLayout>
+
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/til_tech_first_name"

@@ -75,6 +75,14 @@ public class BranchListFragment extends Fragment {
         TextInputEditText etOpening = view.findViewById(R.id.et_branch_opening);
         TextInputEditText etClosing = view.findViewById(R.id.et_branch_closing);
         
+        etOpening.setFocusable(false);
+        etOpening.setClickable(true);
+        etOpening.setOnClickListener(v -> showTimePicker(etOpening, "Select Opening Time"));
+
+        etClosing.setFocusable(false);
+        etClosing.setClickable(true);
+        etClosing.setOnClickListener(v -> showTimePicker(etClosing, "Select Closing Time"));
+
         View btnSave = view.findViewById(R.id.btn_save);
         View btnCancel = view.findViewById(R.id.btn_cancel);
         View btnDelete = view.findViewById(R.id.btn_delete);
@@ -156,5 +164,25 @@ public class BranchListFragment extends Fragment {
                 viewModel.loadBranches(); // Reload list on DB update
             }
         });
+    }
+
+    private void showTimePicker(com.google.android.material.textfield.TextInputEditText editText, String title) {
+        com.google.android.material.timepicker.MaterialTimePicker picker =
+            new com.google.android.material.timepicker.MaterialTimePicker.Builder()
+                .setTimeFormat(com.google.android.material.timepicker.TimeFormat.CLOCK_12H)
+                .setHour(9)
+                .setMinute(0)
+                .setTitleText(title)
+                .build();
+        
+        picker.addOnPositiveButtonClickListener(v -> {
+            int hour = picker.getHour();
+            int minute = picker.getMinute();
+            String amPm = hour >= 12 ? "PM" : "AM";
+            int displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
+            editText.setText(String.format(java.util.Locale.getDefault(), "%02d:%02d %s", displayHour, minute, amPm));
+        });
+        
+        picker.show(getParentFragmentManager(), "TIME_PICKER");
     }
 }

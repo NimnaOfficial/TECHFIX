@@ -81,31 +81,22 @@ public class TechnicianListFragment extends Fragment {
         dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         dialog.show();
 
+
         TextView tvTitle = view.findViewById(R.id.tv_form_title);
-        
-        TextInputLayout tilUserId = view.findViewById(R.id.til_tech_user_id);
         TextInputLayout tilFirstName = view.findViewById(R.id.til_tech_first_name);
         TextInputLayout tilLastName = view.findViewById(R.id.til_tech_last_name);
         TextInputLayout tilCode = view.findViewById(R.id.til_tech_code);
         TextInputLayout tilSpecialization = view.findViewById(R.id.til_tech_specialization);
         TextInputLayout tilBranch = view.findViewById(R.id.til_tech_branch);
 
-        TextInputEditText etUserId = view.findViewById(R.id.et_tech_user_id);
         TextInputEditText etFirstName = view.findViewById(R.id.et_tech_first_name);
         TextInputEditText etLastName = view.findViewById(R.id.et_tech_last_name);
         TextInputEditText etCode = view.findViewById(R.id.et_tech_code);
         TextInputEditText etSpecialization = view.findViewById(R.id.et_tech_specialization);
         android.widget.AutoCompleteTextView etBranch = view.findViewById(R.id.et_tech_branch);
-        
         View btnSave = view.findViewById(R.id.btn_save);
         View btnCancel = view.findViewById(R.id.btn_cancel);
         View btnDelete = view.findViewById(R.id.btn_delete);
-
-        // Clear errors as user types
-        etUserId.addTextChangedListener(new SimpleTextWatcher(tilUserId));
-        etFirstName.addTextChangedListener(new SimpleTextWatcher(tilFirstName));
-        etLastName.addTextChangedListener(new SimpleTextWatcher(tilLastName));
-        etBranch.addTextChangedListener(new SimpleTextWatcher(tilBranch));
 
         // Setup Branch Combobox
         List<com.mad.techfix.models.admin.Branch> branchList = viewModel.getBranches().getValue();
@@ -123,7 +114,6 @@ public class TechnicianListFragment extends Fragment {
 
         if (tech != null) {
             tvTitle.setText("Edit Technician");
-            etUserId.setText(tech.getUserId());
             etFirstName.setText(tech.getFirstName());
             etLastName.setText(tech.getLastName());
             etCode.setText(tech.getEmployeeCode());
@@ -153,18 +143,13 @@ public class TechnicianListFragment extends Fragment {
         });
 
         btnSave.setOnClickListener(v -> {
-            String userIdStr = etUserId.getText() != null ? etUserId.getText().toString().trim() : "";
             String firstNameStr = etFirstName.getText() != null ? etFirstName.getText().toString().trim() : "";
             String lastNameStr = etLastName.getText() != null ? etLastName.getText().toString().trim() : "";
             String branchRawStr = etBranch.getText() != null ? etBranch.getText().toString().trim() : "";
 
-            boolean isValid = true;
-            if (userIdStr.isEmpty()) { tilUserId.setError("User ID is required"); isValid = false; }
-            if (firstNameStr.isEmpty()) { tilFirstName.setError("First name is required"); isValid = false; }
-            if (lastNameStr.isEmpty()) { tilLastName.setError("Last name is required"); isValid = false; }
-            if (branchRawStr.isEmpty() || branchRawStr.startsWith("No branches")) { tilBranch.setError("Valid Branch is required"); isValid = false; }
-
-            if (!isValid) return;
+            if (firstNameStr.isEmpty()) { etFirstName.setError("First name is required"); etFirstName.requestFocus(); return; }
+            if (lastNameStr.isEmpty()) { etLastName.setError("Last name is required"); etLastName.requestFocus(); return; }
+            if (branchRawStr.isEmpty() || branchRawStr.startsWith("No branches")) { etBranch.setError("Valid Branch is required"); etBranch.requestFocus(); return; }
 
             String branchIdStr = branchRawStr;
             if (branchRawStr.contains(" - ")) {
@@ -172,7 +157,7 @@ public class TechnicianListFragment extends Fragment {
             }
 
             Technician t = tech != null ? tech : new Technician();
-            t.setUserId(userIdStr);
+            if (tech != null) { t.setUserId(tech.getUserId()); } // Keep existing user ID if editing
             t.setFirstName(firstNameStr);
             t.setLastName(lastNameStr);
             t.setEmployeeCode(etCode.getText().toString());
