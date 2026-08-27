@@ -4,30 +4,28 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.mad.techfix.R;
-import com.mad.techfix.Branch; // Assuming Branch model exists in root package or will be created
-
+import com.mad.techfix.models.admin.Branch;
+import java.util.ArrayList;
 import java.util.List;
 
 public class BranchAdapter extends RecyclerView.Adapter<BranchAdapter.BranchViewHolder> {
-    private List<Branch> branchList;
-    private OnBranchClickListener listener;
+
+    private List<Branch> branchList = new ArrayList<>();
+    private final OnBranchClickListener listener;
 
     public interface OnBranchClickListener {
         void onBranchClick(Branch branch);
     }
 
-    public BranchAdapter(List<Branch> branchList, OnBranchClickListener listener) {
-        this.branchList = branchList;
+    public BranchAdapter(OnBranchClickListener listener) {
         this.listener = listener;
     }
 
-    public void updateData(List<Branch> newList) {
-        this.branchList = newList;
+    public void updateData(List<Branch> newBranches) {
+        this.branchList = newBranches;
         notifyDataSetChanged();
     }
 
@@ -46,33 +44,36 @@ public class BranchAdapter extends RecyclerView.Adapter<BranchAdapter.BranchView
 
     @Override
     public int getItemCount() {
-        return branchList != null ? branchList.size() : 0;
+        return branchList == null ? 0 : branchList.size();
     }
 
     static class BranchViewHolder extends RecyclerView.ViewHolder {
-        TextView tvBranchName, tvAddress, tvPhone, tvEmail, tvTime, tvCityChip;
+        private final TextView tvBranchName;
+        private final TextView tvCityChip;
+        private final TextView tvAddress;
+        private final TextView tvPhone;
+        private final TextView tvEmail;
+        private final TextView tvOpeningTimes;
 
         public BranchViewHolder(@NonNull View itemView) {
             super(itemView);
-            tvBranchName = itemView.findViewById(R.id.tvBranchName);
-            tvAddress = itemView.findViewById(R.id.tvAddress);
-            tvPhone = itemView.findViewById(R.id.tvPhone);
-            tvEmail = itemView.findViewById(R.id.tvEmail);
-            tvTime = itemView.findViewById(R.id.tvTime);
-            tvCityChip = itemView.findViewById(R.id.tvCityChip);
+            tvBranchName = itemView.findViewById(R.id.tv_branch_name);
+            tvCityChip = itemView.findViewById(R.id.tv_city_chip);
+            tvAddress = itemView.findViewById(R.id.tv_address);
+            tvPhone = itemView.findViewById(R.id.tv_phone);
+            tvEmail = itemView.findViewById(R.id.tv_email);
+            tvOpeningTimes = itemView.findViewById(R.id.tv_opening_times);
         }
 
         public void bind(Branch branch, OnBranchClickListener listener) {
-            if (tvBranchName != null) tvBranchName.setText(branch.getName());
-            if (tvAddress != null) tvAddress.setText(branch.getAddress()); 
-            if (tvPhone != null) tvPhone.setText(branch.getPhone());
-            if (tvEmail != null) tvEmail.setText(branch.getEmail());
-            if (tvTime != null) {
-                String open = branch.getOpeningTime() != null ? branch.getOpeningTime() : "";
-                String close = branch.getClosingTime() != null ? branch.getClosingTime() : "";
-                tvTime.setText(open + " - " + close);
-            }
-            if (tvCityChip != null) tvCityChip.setText(branch.getCity());
+            tvBranchName.setText(branch.getName());
+            tvCityChip.setText(branch.getCity());
+            tvAddress.setText(branch.getFullAddress());
+            tvPhone.setText(branch.getPhone());
+            tvEmail.setText(branch.getEmail());
+            
+            String times = branch.getOpeningTime() + " - " + branch.getClosingTime();
+            tvOpeningTimes.setText(times);
 
             itemView.setOnClickListener(v -> {
                 if (listener != null) {

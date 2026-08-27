@@ -1,35 +1,33 @@
 package com.mad.techfix.ui.admin.adapters;
 
-import android.graphics.Color;
-import android.graphics.drawable.GradientDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.mad.techfix.R;
-import com.mad.techfix.Technician;
-
+import com.mad.techfix.models.admin.Technician;
+import java.util.ArrayList;
 import java.util.List;
 
 public class TechnicianAdapter extends RecyclerView.Adapter<TechnicianAdapter.TechnicianViewHolder> {
-    private List<Technician> technicianList;
-    private OnTechnicianClickListener listener;
+
+    private List<Technician> technicianList = new ArrayList<>();
+    private final OnTechnicianClickListener listener;
 
     public interface OnTechnicianClickListener {
         void onTechnicianClick(Technician technician);
     }
 
-    public TechnicianAdapter(List<Technician> technicianList, OnTechnicianClickListener listener) {
-        this.technicianList = technicianList;
+    public TechnicianAdapter(OnTechnicianClickListener listener) {
         this.listener = listener;
     }
 
-    public void updateData(List<Technician> newList) {
-        this.technicianList = newList;
+    public void updateData(List<Technician> newTechnicians) {
+        this.technicianList = newTechnicians;
         notifyDataSetChanged();
     }
 
@@ -42,75 +40,54 @@ public class TechnicianAdapter extends RecyclerView.Adapter<TechnicianAdapter.Te
 
     @Override
     public void onBindViewHolder(@NonNull TechnicianViewHolder holder, int position) {
-        holder.bind(technicianList.get(position), listener);
+        Technician technician = technicianList.get(position);
+        holder.bind(technician, listener);
     }
 
     @Override
     public int getItemCount() {
-        return technicianList != null ? technicianList.size() : 0;
+        return technicianList == null ? 0 : technicianList.size();
     }
 
     static class TechnicianViewHolder extends RecyclerView.ViewHolder {
-        TextView tvAvatar, tvFullName, tvEmployeeCode, tvSpecialization, tvBranchName, tvStatus, tvStatusDot;
+        private final ImageView ivAvatar;
+        private final TextView tvName;
+        private final TextView tvEmpCode;
+        private final TextView tvSpecialization;
+        private final TextView tvBranchName;
+        private final View vStatusDot;
+        private final TextView tvStatus;
 
         public TechnicianViewHolder(@NonNull View itemView) {
             super(itemView);
-            tvAvatar = itemView.findViewById(R.id.tvAvatar);
-            tvFullName = itemView.findViewById(R.id.tvFullName);
-            tvEmployeeCode = itemView.findViewById(R.id.tvEmployeeCode);
-            tvSpecialization = itemView.findViewById(R.id.tvSpecialization);
-            tvBranchName = itemView.findViewById(R.id.tvBranchName);
-            tvStatus = itemView.findViewById(R.id.tvStatus);
-            tvStatusDot = itemView.findViewById(R.id.tvStatusDot);
+            ivAvatar = itemView.findViewById(R.id.iv_avatar);
+            tvName = itemView.findViewById(R.id.tv_name);
+            tvEmpCode = itemView.findViewById(R.id.tv_emp_code);
+            tvSpecialization = itemView.findViewById(R.id.tv_specialization);
+            tvBranchName = itemView.findViewById(R.id.tv_branch_name);
+            vStatusDot = itemView.findViewById(R.id.v_status_dot);
+            tvStatus = itemView.findViewById(R.id.tv_status);
         }
 
         public void bind(Technician technician, OnTechnicianClickListener listener) {
-            String name = technician.getFullName();
-            if (tvFullName != null) tvFullName.setText(name);
-            if (tvEmployeeCode != null) tvEmployeeCode.setText(technician.getEmployeeCode());
-            if (tvSpecialization != null) tvSpecialization.setText(technician.getSpecialization());
-            
-            // Using branchId if branchName is not directly available, but casting safely
-            if (tvBranchName != null) {
-                tvBranchName.setText(technician.getBranchId() != null ? String.valueOf(technician.getBranchId()) : "");
-            }
-            
-            String status = technician.getStatus();
-            if (tvStatus != null) {
-                tvStatus.setText(status != null ? status : "");
-            }
+            tvName.setText(technician.getFullName());
+            tvEmpCode.setText(technician.getEmployeeCode());
+            tvSpecialization.setText(technician.getSpecialization());
+            tvBranchName.setText("Branch: " + technician.getBranchId());
 
-            if (tvAvatar != null && name != null && !name.isEmpty()) {
-                tvAvatar.setText(name.substring(0, 1).toUpperCase());
-                tvAvatar.setTextColor(Color.WHITE);
-                GradientDrawable bgShape = new GradientDrawable();
-                bgShape.setShape(GradientDrawable.OVAL);
-                bgShape.setColor(0xFF1565C0);
-                tvAvatar.setBackground(bgShape);
+            String status = technician.getAvailabilityStatus();
+            tvStatus.setText(status != null ? status : "UNKNOWN");
+            
+            // Set status dot background
+            int dotResId = R.drawable.bg_status_dot_available;
+            if ("BUSY".equalsIgnoreCase(status)) {
+                dotResId = R.drawable.bg_status_dot_busy;
+            } else if ("OFF_DUTY".equalsIgnoreCase(status)) {
+                dotResId = R.drawable.bg_status_dot_off_duty;
+            } else if ("ON_LEAVE".equalsIgnoreCase(status)) {
+                dotResId = R.drawable.bg_status_dot_on_leave;
             }
-
-            if (tvStatusDot != null && status != null) {
-                GradientDrawable dotShape = new GradientDrawable();
-                dotShape.setShape(GradientDrawable.OVAL);
-                switch (status.toUpperCase()) {
-                    case "AVAILABLE":
-                        dotShape.setColor(0xFF4CAF50);
-                        break;
-                    case "BUSY":
-                        dotShape.setColor(0xFFF44336);
-                        break;
-                    case "OFF_DUTY":
-                        dotShape.setColor(0xFF9E9E9E);
-                        break;
-                    case "ON_LEAVE":
-                        dotShape.setColor(0xFFFF9800);
-                        break;
-                    default:
-                        dotShape.setColor(0xFF9E9E9E);
-                        break;
-                }
-                tvStatusDot.setBackground(dotShape);
-            }
+            vStatusDot.setBackgroundResource(dotResId);
 
             itemView.setOnClickListener(v -> {
                 if (listener != null) {

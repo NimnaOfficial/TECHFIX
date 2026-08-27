@@ -10,55 +10,87 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import com.mad.techfix.R;
-import com.mad.techfix.ui.admin.AdminViewModel;
-import java.util.ArrayList;
+import com.mad.techfix.models.admin.Service;
+import com.mad.techfix.ui.admin.adapters.ServiceCheckboxAdapter;
+import com.mad.techfix.viewmodel.AdminViewModel;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class EditSkillsDialogFragment extends DialogFragment {
 
     private AdminViewModel viewModel;
-    private int technicianId;
-    
+    private ServiceCheckboxAdapter adapter;
+    private String technicianId;
+
+    public static EditSkillsDialogFragment newInstance(String technicianId) {
+        EditSkillsDialogFragment fragment = new EditSkillsDialogFragment();
+        Bundle args = new Bundle();
+        args.putString("technicianId", technicianId);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            technicianId = getArguments().getString("technicianId");
+        }
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.dialog_edit_skills, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        
         viewModel = new ViewModelProvider(requireActivity()).get(AdminViewModel.class);
 
-        if (getArguments() != null) {
-            technicianId = getArguments().getInt("technicianId");
-        }
+        RecyclerView recyclerServices = view.findViewById(R.id.recycler_all_services);
+        Button btnCancel = view.findViewById(R.id.btn_cancel);
+        Button btnSave = view.findViewById(R.id.btn_save);
 
-        viewModel.loadAllServices();
-        viewModel.loadTechnicianServices(technicianId);
+        recyclerServices.setLayoutManager(new LinearLayoutManager(getContext()));
+        adapter = new ServiceCheckboxAdapter();
+        recyclerServices.setAdapter(adapter);
 
-        Button btnSave = view.findViewById(R.id.btn_save_skills);
-
-        viewModel.getAllServices().observe(getViewLifecycleOwner(), allServices -> {
-            // Populate checkboxes
-        });
-
-        viewModel.getTechnicianServices().observe(getViewLifecycleOwner(), techServices -> {
-            // Pre-check checkboxes based on current skills
-        });
+        btnCancel.setOnClickListener(v -> dismiss());
 
         btnSave.setOnClickListener(v -> {
-            List<Integer> selectedServiceIds = new ArrayList<>();
-            // Collect checked service IDs from UI
-            viewModel.updateTechnicianServices(technicianId, selectedServiceIds);
+            List<String> selectedIds = adapter.getSelectedServiceIds();
+            viewModel.updateTechnicianServices(technicianId, selectedIds);
+        });
+
+        // We need both all services and the technician's current services to setup the checkboxes correctly
+        viewModel.getAllServices().observe(getViewLifecycleOwner(), allServices -> {
+            if (allServices != null) {
+                // Fetch current ones
+                viewModel.getTechnicianServices().observe(getViewLifecycleOwner(), techServices -> {
+                    if (techServices != null) {
+                        Set<String> assignedIds = new HashSet<>();
+                        for (Service s : techServices) {
+                            assignedIds.add(s.getId());
+                        }
+                        adapter.updateData(allServices, assignedIds);
+                    }
+                });
+            }
         });
 
         viewModel.getSkillUpdateSuccess().observe(getViewLifecycleOwner(), success -> {
             if (success != null && success) {
-                Toast.makeText(getContext(), "Skills saved", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Skills updated", Toast.LENGTH_SHORT).show();
                 dismiss();
             }
         });
+
+        viewModel.loadAllServices();
+        viewModel.loadTechnicianServices(technicianId);
     }
 }

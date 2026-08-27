@@ -1,3 +1,27 @@
+# Built application files
+*.apk
+*.apks
+*.aab
+*.aar
+*.dex
+*.class
+
+# Gradle files
+.gradle/
+build/
+*/build/
+
+# Local configuration file (sdk path, etc)
+local.properties
+
+# Log Files
+*.log
+
+# Android Studio captures folder
+captures/
+.navigation/
+
+# IntelliJ / Android Studio
 *.iml
 .gradle
 /mem3/*

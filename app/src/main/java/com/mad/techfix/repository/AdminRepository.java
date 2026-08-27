@@ -7,11 +7,14 @@ import com.mad.techfix.data.local.database.AdminDao;
 import com.mad.techfix.data.local.database.AppDatabase;
 import com.mad.techfix.data.local.database.BranchEntity;
 import com.mad.techfix.data.local.database.TechnicianEntity;
+import com.mad.techfix.models.ApiResponse;
 import com.mad.techfix.models.Appointment;
-import com.mad.techfix.models.Branch;
-import com.mad.techfix.models.DashboardResponse;
-import com.mad.techfix.models.Service;
-import com.mad.techfix.models.Technician;
+import com.mad.techfix.models.admin.AssignTechnicianRequest;
+import com.mad.techfix.models.admin.Branch;
+import com.mad.techfix.models.admin.DashboardResponse;
+import com.mad.techfix.models.admin.Service;
+import com.mad.techfix.models.admin.Technician;
+import com.mad.techfix.models.admin.UpdateTechServicesRequest;
 import com.mad.techfix.network.AdminApiService;
 import com.mad.techfix.network.RetrofitClient;
 
@@ -43,51 +46,45 @@ public class AdminRepository {
         mainHandler = new Handler(Looper.getMainLooper());
     }
 
-    public void fetchDashboard(String token, AdminCallback<DashboardResponse.DashboardData> callback) {
-        apiService.getDashboard("Bearer " + token).enqueue(new Callback<DashboardResponse.DashboardData>() {
+    // --- Dashboard ---
+    public void getDashboardData(String token, AdminCallback<DashboardResponse.DashboardData> callback) {
+        apiService.getDashboard(token).enqueue(new Callback<ApiResponse<DashboardResponse.DashboardData>>() {
             @Override
-            public void onResponse(Call<DashboardResponse.DashboardData> call, Response<DashboardResponse.DashboardData> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    callback.onSuccess(response.body());
+            public void onResponse(Call<ApiResponse<DashboardResponse.DashboardData>> call, Response<ApiResponse<DashboardResponse.DashboardData>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                    callback.onSuccess(response.body().getData());
                 } else {
                     callback.onError("Failed to fetch dashboard data");
                 }
             }
 
             @Override
-            public void onFailure(Call<DashboardResponse.DashboardData> call, Throwable t) {
-                callback.onError(t.getMessage());
+            public void onFailure(Call<ApiResponse<DashboardResponse.DashboardData>> call, Throwable t) {
+                callback.onError(t.getMessage() != null ? t.getMessage() : "Network error");
             }
         });
     }
 
-    public void fetchBranches(String token, AdminCallback<List<Branch>> callback) {
-        apiService.getBranches("Bearer " + token).enqueue(new Callback<List<Branch>>() {
+    // --- Branches ---
+    public void getBranches(String token, AdminCallback<List<Branch>> callback) {
+        apiService.getBranches(token).enqueue(new Callback<ApiResponse<List<Branch>>>() {
             @Override
-            public void onResponse(Call<List<Branch>> call, Response<List<Branch>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    List<Branch> branches = response.body();
-                    
+            public void onResponse(Call<ApiResponse<List<Branch>>> call, Response<ApiResponse<List<Branch>>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                    List<Branch> branches = response.body().getData();
+                    // Cache to Room
                     executorService.execute(() -> {
                         List<BranchEntity> entities = new ArrayList<>();
                         for (Branch b : branches) {
-                            // Assuming Branch has required getters. Fallbacks used to match entity constructor
                             entities.add(new BranchEntity(
-                                b.getId(),
-                                b.getName(),
-                                b.getAddress(),
-                                b.getCity(),
-                                b.getLatitude(),
-                                b.getLongitude(),
-                                b.getPhone(),
-                                b.getEmail(),
-                                b.getOpeningTime(),
-                                b.getClosingTime()
+                                b.getId(), b.getName(), b.getAddress(), b.getCity(),
+                                b.getLatitude(), b.getLongitude(), b.getPhone(),
+                                b.getEmail(), b.getOpeningTime(), b.getClosingTime()
                             ));
                         }
+                        adminDao.deleteAllBranches();
                         adminDao.insertBranches(entities);
                     });
-                    
                     callback.onSuccess(branches);
                 } else {
                     callback.onError("Failed to fetch branches");
@@ -95,54 +92,53 @@ public class AdminRepository {
             }
 
             @Override
-            public void onFailure(Call<List<Branch>> call, Throwable t) {
-                callback.onError(t.getMessage());
+            public void onFailure(Call<ApiResponse<List<Branch>>> call, Throwable t) {
+                callback.onError(t.getMessage() != null ? t.getMessage() : "Network error");
             }
         });
     }
 
-    public void fetchBranchDetails(String token, String branchId, AdminCallback<Branch> callback) {
-        apiService.getBranchDetails("Bearer " + token, branchId).enqueue(new Callback<Branch>() {
+    // --- Branch Details ---
+    public void getBranchDetails(String token, String branchId, AdminCallback<Branch> callback) {
+        apiService.getBranchDetails(token, branchId).enqueue(new Callback<ApiResponse<Branch>>() {
             @Override
-            public void onResponse(Call<Branch> call, Response<Branch> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    callback.onSuccess(response.body());
+            public void onResponse(Call<ApiResponse<Branch>> call, Response<ApiResponse<Branch>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                    callback.onSuccess(response.body().getData());
                 } else {
                     callback.onError("Failed to fetch branch details");
                 }
             }
 
             @Override
-            public void onFailure(Call<Branch> call, Throwable t) {
-                callback.onError(t.getMessage());
+            public void onFailure(Call<ApiResponse<Branch>> call, Throwable t) {
+                callback.onError(t.getMessage() != null ? t.getMessage() : "Network error");
             }
         });
     }
 
-    public void fetchTechnicians(String token, AdminCallback<List<Technician>> callback) {
-        apiService.getTechnicians("Bearer " + token).enqueue(new Callback<List<Technician>>() {
+    // --- Technicians ---
+    public void getTechnicians(String token, AdminCallback<List<Technician>> callback) {
+        apiService.getTechnicians(token).enqueue(new Callback<ApiResponse<List<Technician>>>() {
             @Override
-            public void onResponse(Call<List<Technician>> call, Response<List<Technician>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    List<Technician> technicians = response.body();
-                    
+            public void onResponse(Call<ApiResponse<List<Technician>>> call, Response<ApiResponse<List<Technician>>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                    List<Technician> technicians = response.body().getData();
+                    // Cache to Room
                     executorService.execute(() -> {
                         List<TechnicianEntity> entities = new ArrayList<>();
                         for (Technician t : technicians) {
                             entities.add(new TechnicianEntity(
-                                t.getId(),
-                                t.getEmployeeCode(),
-                                t.getFirstName(),
-                                t.getLastName(),
+                                t.getId(), t.getEmployeeCode(),
+                                t.getFirstName(), t.getLastName(),
                                 t.getSpecialization(),
-                                t.getStatus(),
-                                t.getBranchId(),
-                                t.getBranchName()
+                                t.getAvailabilityStatus(),
+                                t.getBranchId(), ""
                             ));
                         }
+                        adminDao.deleteAllTechnicians();
                         adminDao.insertTechnicians(entities);
                     });
-                    
                     callback.onSuccess(technicians);
                 } else {
                     callback.onError("Failed to fetch technicians");
@@ -150,35 +146,38 @@ public class AdminRepository {
             }
 
             @Override
-            public void onFailure(Call<List<Technician>> call, Throwable t) {
-                callback.onError(t.getMessage());
+            public void onFailure(Call<ApiResponse<List<Technician>>> call, Throwable t) {
+                callback.onError(t.getMessage() != null ? t.getMessage() : "Network error");
             }
         });
     }
 
-    public void fetchTechnicianServices(String token, String techId, AdminCallback<List<Service>> callback) {
-        apiService.getTechnicianServices("Bearer " + token, techId).enqueue(new Callback<List<Service>>() {
+    // --- Technician Services ---
+    public void getTechnicianServices(String token, String techId, AdminCallback<List<Service>> callback) {
+        apiService.getTechnicianServices(token, techId).enqueue(new Callback<ApiResponse<List<Service>>>() {
             @Override
-            public void onResponse(Call<List<Service>> call, Response<List<Service>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    callback.onSuccess(response.body());
+            public void onResponse(Call<ApiResponse<List<Service>>> call, Response<ApiResponse<List<Service>>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                    callback.onSuccess(response.body().getData());
                 } else {
                     callback.onError("Failed to fetch technician services");
                 }
             }
 
             @Override
-            public void onFailure(Call<List<Service>> call, Throwable t) {
-                callback.onError(t.getMessage());
+            public void onFailure(Call<ApiResponse<List<Service>>> call, Throwable t) {
+                callback.onError(t.getMessage() != null ? t.getMessage() : "Network error");
             }
         });
     }
 
+    // --- Update Technician Services ---
     public void updateTechnicianServices(String token, String techId, List<String> serviceIds, AdminCallback<Void> callback) {
-        apiService.updateTechnicianServices("Bearer " + token, techId, serviceIds).enqueue(new Callback<Void>() {
+        UpdateTechServicesRequest request = new UpdateTechServicesRequest(serviceIds);
+        apiService.updateTechnicianServices(token, techId, request).enqueue(new Callback<ApiResponse<Object>>() {
             @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                if (response.isSuccessful()) {
+            public void onResponse(Call<ApiResponse<Object>> call, Response<ApiResponse<Object>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
                     callback.onSuccess(null);
                 } else {
                     callback.onError("Failed to update technician services");
@@ -186,17 +185,19 @@ public class AdminRepository {
             }
 
             @Override
-            public void onFailure(Call<Void> call, Throwable t) {
-                callback.onError(t.getMessage());
+            public void onFailure(Call<ApiResponse<Object>> call, Throwable t) {
+                callback.onError(t.getMessage() != null ? t.getMessage() : "Network error");
             }
         });
     }
 
+    // --- Assign Technician ---
     public void assignTechnician(String token, String appointmentId, String technicianId, AdminCallback<Void> callback) {
-        apiService.assignTechnician("Bearer " + token, appointmentId, technicianId).enqueue(new Callback<Void>() {
+        AssignTechnicianRequest request = new AssignTechnicianRequest(technicianId);
+        apiService.assignTechnician(token, appointmentId, request).enqueue(new Callback<ApiResponse<Object>>() {
             @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                if (response.isSuccessful()) {
+            public void onResponse(Call<ApiResponse<Object>> call, Response<ApiResponse<Object>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
                     callback.onSuccess(null);
                 } else {
                     callback.onError("Failed to assign technician");
@@ -204,48 +205,51 @@ public class AdminRepository {
             }
 
             @Override
-            public void onFailure(Call<Void> call, Throwable t) {
-                callback.onError(t.getMessage());
+            public void onFailure(Call<ApiResponse<Object>> call, Throwable t) {
+                callback.onError(t.getMessage() != null ? t.getMessage() : "Network error");
             }
         });
     }
 
-    public void fetchAllAppointments(String token, AdminCallback<List<Appointment>> callback) {
-        apiService.getAllAppointments("Bearer " + token).enqueue(new Callback<List<Appointment>>() {
+    // --- All Appointments ---
+    public void getAllAppointments(String token, AdminCallback<List<Appointment>> callback) {
+        apiService.getAllAppointments(token).enqueue(new Callback<ApiResponse<List<Appointment>>>() {
             @Override
-            public void onResponse(Call<List<Appointment>> call, Response<List<Appointment>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    callback.onSuccess(response.body());
+            public void onResponse(Call<ApiResponse<List<Appointment>>> call, Response<ApiResponse<List<Appointment>>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                    callback.onSuccess(response.body().getData());
                 } else {
-                    callback.onError("Failed to fetch all appointments");
+                    callback.onError("Failed to fetch appointments");
                 }
             }
 
             @Override
-            public void onFailure(Call<List<Appointment>> call, Throwable t) {
-                callback.onError(t.getMessage());
+            public void onFailure(Call<ApiResponse<List<Appointment>>> call, Throwable t) {
+                callback.onError(t.getMessage() != null ? t.getMessage() : "Network error");
             }
         });
     }
 
-    public void fetchAllServices(String token, AdminCallback<List<Service>> callback) {
-        apiService.getAllServices("Bearer " + token).enqueue(new Callback<List<Service>>() {
+    // --- All Services ---
+    public void getAllServices(String token, AdminCallback<List<Service>> callback) {
+        apiService.getAllServices(token).enqueue(new Callback<ApiResponse<List<Service>>>() {
             @Override
-            public void onResponse(Call<List<Service>> call, Response<List<Service>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    callback.onSuccess(response.body());
+            public void onResponse(Call<ApiResponse<List<Service>>> call, Response<ApiResponse<List<Service>>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                    callback.onSuccess(response.body().getData());
                 } else {
-                    callback.onError("Failed to fetch all services");
+                    callback.onError("Failed to fetch services");
                 }
             }
 
             @Override
-            public void onFailure(Call<List<Service>> call, Throwable t) {
-                callback.onError(t.getMessage());
+            public void onFailure(Call<ApiResponse<List<Service>>> call, Throwable t) {
+                callback.onError(t.getMessage() != null ? t.getMessage() : "Network error");
             }
         });
     }
 
+    // --- Cached Data (Room) ---
     public List<TechnicianEntity> getCachedTechnicians() {
         return adminDao.getAllTechnicians();
     }
