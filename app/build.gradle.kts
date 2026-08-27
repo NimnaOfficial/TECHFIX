@@ -43,6 +43,7 @@ dependencies {
 
     // 2. Room Database (Pure Java - using annotationProcessor, NOT kapt)
     implementation("androidx.room:room-runtime:2.6.1")
+    implementation(libs.activity.ktx)
     annotationProcessor("androidx.room:room-compiler:2.6.1")
 
     // 3. Retrofit (Internet)
