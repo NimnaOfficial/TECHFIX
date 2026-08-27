@@ -1,11 +1,14 @@
 package com.mad.techfix.ui.admin.adapters;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import com.google.android.material.button.MaterialButton;
 import com.mad.techfix.R;
 import com.mad.techfix.models.admin.Branch;
 import java.util.ArrayList;
@@ -54,6 +57,7 @@ public class BranchAdapter extends RecyclerView.Adapter<BranchAdapter.BranchView
         private final TextView tvPhone;
         private final TextView tvEmail;
         private final TextView tvOpeningTimes;
+        private final MaterialButton btnMapDirections;
 
         public BranchViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -63,6 +67,7 @@ public class BranchAdapter extends RecyclerView.Adapter<BranchAdapter.BranchView
             tvPhone = itemView.findViewById(R.id.tv_phone);
             tvEmail = itemView.findViewById(R.id.tv_email);
             tvOpeningTimes = itemView.findViewById(R.id.tv_opening_times);
+            btnMapDirections = itemView.findViewById(R.id.btn_map_directions);
         }
 
         public void bind(Branch branch, OnBranchClickListener listener) {
@@ -74,6 +79,21 @@ public class BranchAdapter extends RecyclerView.Adapter<BranchAdapter.BranchView
             
             String times = branch.getOpeningTime() + " - " + branch.getClosingTime();
             tvOpeningTimes.setText(times);
+
+            // Setup Google Maps Intent
+            btnMapDirections.setOnClickListener(v -> {
+                String uriStr = "geo:" + branch.getLatitude() + "," + branch.getLongitude() 
+                        + "?q=" + branch.getLatitude() + "," + branch.getLongitude() + "(" + branch.getName() + ")";
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uriStr));
+                intent.setPackage("com.google.android.apps.maps");
+                if (intent.resolveActivity(itemView.getContext().getPackageManager()) != null) {
+                    itemView.getContext().startActivity(intent);
+                } else {
+                    // Fallback to browser if Maps app isn't installed
+                    Intent fallback = new Intent(Intent.ACTION_VIEW, Uri.parse("https://maps.google.com/?q=" + branch.getLatitude() + "," + branch.getLongitude()));
+                    itemView.getContext().startActivity(fallback);
+                }
+            });
 
             itemView.setOnClickListener(v -> {
                 if (listener != null) {

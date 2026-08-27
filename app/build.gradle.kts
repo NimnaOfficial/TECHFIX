@@ -1,5 +1,6 @@
 plugins {
-    id("com.android.application") version "8.5.0"}
+    id("com.android.application") version "9.2.1"
+}
 
 android {
     namespace = "com.mad.techfix"
@@ -35,10 +36,10 @@ dependencies {
     implementation("com.google.android.material:material:1.11.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
 
-    // 1. CameraX (Photo Capture)
-    implementation("androidx.camera:camera-camera2:1.3.0")
-    implementation("androidx.camera:camera-lifecycle:1.3.0")
-    implementation("androidx.camera:camera-view:1.3.0")
+    // 1. CameraX (Photo Capture) - UPDATED TO 1.4.0 FOR 16 KB PAGE ALIGNMENT
+    implementation("androidx.camera:camera-camera2:1.4.0")
+    implementation("androidx.camera:camera-lifecycle:1.4.0")
+    implementation("androidx.camera:camera-view:1.4.0")
 
     // 2. Room Database (Pure Java - using annotationProcessor, NOT kapt)
     implementation("androidx.room:room-runtime:2.6.1")

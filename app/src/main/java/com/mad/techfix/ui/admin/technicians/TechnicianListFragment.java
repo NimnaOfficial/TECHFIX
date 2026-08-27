@@ -8,7 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.TextView;
+import android.widget.LinearLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -33,7 +33,7 @@ public class TechnicianListFragment extends Fragment {
 
     private RecyclerView recyclerTechnicians;
     private ProgressBar progressBar;
-    private TextView tvEmptyState;
+    private LinearLayout layoutEmptyState;
     private EditText etSearch;
     private ChipGroup chipGroupFilter;
 
@@ -49,7 +49,7 @@ public class TechnicianListFragment extends Fragment {
 
         recyclerTechnicians = view.findViewById(R.id.recycler_technicians);
         progressBar = view.findViewById(R.id.progress_bar);
-        tvEmptyState = view.findViewById(R.id.tv_empty_state);
+        layoutEmptyState = view.findViewById(R.id.layout_empty_state);
         etSearch = view.findViewById(R.id.et_search);
         chipGroupFilter = view.findViewById(R.id.chip_group_filter);
 
@@ -123,7 +123,11 @@ public class TechnicianListFragment extends Fragment {
         List<Technician> filtered = new ArrayList<>();
         for (Technician t : allTechnicians) {
             boolean matchesStatus = currentStatusFilter.equals("ALL") || currentStatusFilter.equalsIgnoreCase(t.getAvailabilityStatus());
-            boolean matchesSearch = t.getFullName() != null && t.getFullName().toLowerCase().contains(currentSearchQuery);
+            
+            String name = t.getFullName() != null ? t.getFullName().toLowerCase() : "";
+            String code = t.getEmployeeCode() != null ? t.getEmployeeCode().toLowerCase() : "";
+            boolean matchesSearch = name.contains(currentSearchQuery) || code.contains(currentSearchQuery);
+            
             if (matchesStatus && matchesSearch) {
                 filtered.add(t);
             }
@@ -132,10 +136,10 @@ public class TechnicianListFragment extends Fragment {
         adapter.updateData(filtered);
         
         if (filtered.isEmpty()) {
-            tvEmptyState.setVisibility(View.VISIBLE);
+            layoutEmptyState.setVisibility(View.VISIBLE);
             recyclerTechnicians.setVisibility(View.GONE);
         } else {
-            tvEmptyState.setVisibility(View.GONE);
+            layoutEmptyState.setVisibility(View.GONE);
             recyclerTechnicians.setVisibility(View.VISIBLE);
         }
     }

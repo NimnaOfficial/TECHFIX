@@ -1,12 +1,12 @@
 package com.mad.techfix.ui.admin.technicians;
 
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
-import android.widget.ListView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,8 +18,6 @@ import com.google.android.material.button.MaterialButton;
 import com.mad.techfix.R;
 import com.mad.techfix.models.admin.Service;
 import com.mad.techfix.viewmodel.AdminViewModel;
-import java.util.ArrayList;
-import java.util.List;
 
 public class TechnicianDetailFragment extends Fragment {
 
@@ -70,7 +68,6 @@ public class TechnicianDetailFragment extends Fragment {
         TextView tvSpecialization = view.findViewById(R.id.tv_detail_specialization);
         TextView tvBranch = view.findViewById(R.id.tv_detail_branch);
         TextView tvStatus = view.findViewById(R.id.tv_detail_status);
-        TextView tvHireDate = view.findViewById(R.id.tv_detail_hire_date);
         RecyclerView recyclerServices = view.findViewById(R.id.recycler_services);
         MaterialButton btnEditSkills = view.findViewById(R.id.btn_edit_skills);
 
@@ -81,32 +78,44 @@ public class TechnicianDetailFragment extends Fragment {
         tvSpecialization.setText(specialization);
         tvBranch.setText("Branch: " + branchId);
         tvStatus.setText(status);
-        tvHireDate.setText("Hired: " + hireDate);
+        
+        // Dynamically color the status
+        if ("AVAILABLE".equalsIgnoreCase(status)) {
+            tvStatus.setTextColor(Color.parseColor("#4CAF50")); // Green
+        } else if ("BUSY".equalsIgnoreCase(status)) {
+            tvStatus.setTextColor(Color.parseColor("#F44336")); // Red
+        } else if ("OFF_DUTY".equalsIgnoreCase(status)) {
+            tvStatus.setTextColor(Color.parseColor("#9E9E9E")); // Gray
+        } else if ("ON_LEAVE".equalsIgnoreCase(status)) {
+            tvStatus.setTextColor(Color.parseColor("#FF9800")); // Orange
+        }
 
         btnEditSkills.setOnClickListener(v -> {
             EditSkillsDialogFragment dialog = EditSkillsDialogFragment.newInstance(technicianId);
             dialog.show(getParentFragmentManager(), "EditSkillsDialog");
         });
 
-        // Set up basic services list
+        // Setup better list for services
         recyclerServices.setLayoutManager(new LinearLayoutManager(getContext()));
         
         viewModel.getTechnicianServices().observe(getViewLifecycleOwner(), services -> {
             if (services != null) {
-                // simple anonymous adapter just for text
                 recyclerServices.setAdapter(new RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                     @NonNull
                     @Override
                     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                         TextView tv = new TextView(parent.getContext());
-                        tv.setPadding(32, 16, 32, 16);
-                        tv.setTextSize(16f);
+                        tv.setPadding(32, 24, 32, 24);
+                        tv.setTextSize(15f);
+                        tv.setTextColor(Color.parseColor("#424242"));
+                        tv.setCompoundDrawablesWithIntrinsicBounds(android.R.drawable.presence_online, 0, 0, 0);
+                        tv.setCompoundDrawablePadding(24);
                         return new RecyclerView.ViewHolder(tv) {};
                     }
 
                     @Override
                     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-                        ((TextView) holder.itemView).setText("• " + services.get(position).getName());
+                        ((TextView) holder.itemView).setText(services.get(position).getName());
                     }
 
                     @Override
@@ -117,6 +126,14 @@ public class TechnicianDetailFragment extends Fragment {
             }
         });
 
+        // Trigger network loads
         viewModel.loadTechnicianServices(technicianId);
+        
+        // Listen for when skills dialog finishes saving, so we auto-refresh the UI
+        viewModel.getSkillUpdateSuccess().observe(getViewLifecycleOwner(), success -> {
+            if (success != null && success) {
+                viewModel.loadTechnicianServices(technicianId);
+            }
+        });
     }
 }
