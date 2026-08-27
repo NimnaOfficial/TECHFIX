@@ -1,12 +1,58 @@
-*.iml
-.gradle
-/mem3/*
-/local.properties
-/.idea/*
-.DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
+# Built application files
+*.apk
+*.apks
+*.aab
+*.aar
+*.dex
+*.class
+
+# Gradle files
+.gradle/
+build/
+*/build/
+
+# Local configuration file (sdk path, etc)
 local.properties
-.gitignore
+
+# Log Files
+*.log
+
+# Android Studio captures folder
+captures/
+.navigation/
+
+# IntelliJ / Android Studio
+*.iml
+.idea/
+workspace.xml
+tasks.xml
+gradle.xml
+dictionaries
+vcs.xml
+caches/
+
+# Keystore files (CRITICAL FOR SECURITY)
+*.jks
+*.keystore
+*keystore.properties
+key.properties
+
+# External native build folders
+.externalNativeBuild/
+.cxx/
+
+# NDK
+obj/
+jniLibs/
+
+# OS-specific files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Project-specific ignores (preserved from your original file)
+/mem3/

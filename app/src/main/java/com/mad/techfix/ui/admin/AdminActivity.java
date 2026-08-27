@@ -3,33 +3,29 @@ package com.mad.techfix.ui.admin;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.mad.techfix.R;
-import com.mad.techfix.ui.admin.dashboard.AdminDashboardFragment;
 import com.mad.techfix.ui.admin.branches.BranchListFragment;
+import com.mad.techfix.ui.admin.dashboard.AdminDashboardFragment;
 import com.mad.techfix.ui.admin.technicians.TechnicianListFragment;
 
 public class AdminActivity extends AppCompatActivity {
 
-    private BottomNavigationView bottomNavigationView;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(Bundle savedInstanceState);
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin);
 
-        bottomNavigationView = findViewById(R.id.bottom_navigation);
-        
-        bottomNavigationView.setOnItemSelectedListener(item -> {
-            int itemId = item.getItemId();
-            if (itemId == R.id.nav_dashboard) {
+        BottomNavigationView bottomNav = findViewById(R.id.bottom_nav);
+        bottomNav.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.nav_dashboard) {
                 loadFragment(new AdminDashboardFragment());
                 return true;
-            } else if (itemId == R.id.nav_branches) {
+            } else if (id == R.id.nav_branches) {
                 loadFragment(new BranchListFragment());
                 return true;
-            } else if (itemId == R.id.nav_technicians) {
+            } else if (id == R.id.nav_technicians) {
                 loadFragment(new TechnicianListFragment());
                 return true;
             }
@@ -37,22 +33,14 @@ public class AdminActivity extends AppCompatActivity {
         });
 
         if (savedInstanceState == null) {
-            bottomNavigationView.setSelectedItemId(R.id.nav_dashboard);
+            bottomNav.setSelectedItemId(R.id.nav_dashboard);
         }
     }
 
     private void loadFragment(Fragment fragment) {
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.fragment_container, fragment);
-        transaction.commit();
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
-            getSupportFragmentManager().popBackStack();
-        } else {
-            super.onBackPressed();
-        }
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, fragment)
+                .commit();
     }
 }

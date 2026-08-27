@@ -4,9 +4,9 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -15,42 +15,58 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.mad.techfix.R;
-import com.mad.techfix.ui.admin.AdminViewModel;
+import com.mad.techfix.ui.admin.adapters.DashboardAppointmentAdapter;
+import com.mad.techfix.ui.admin.assignment.AssignTechnicianBottomSheet;
+import com.mad.techfix.viewmodel.AdminViewModel;
+import java.text.NumberFormat;
 import java.util.Locale;
 
 public class AdminDashboardFragment extends Fragment {
 
     private AdminViewModel viewModel;
-    private TextView tvTotalAppointments, tvPendingAppointments, tvCompletedAppointments, tvTotalRevenue;
-    private RecyclerView rvAppointments;
-    private ProgressBar progressBar;
-    private SwipeRefreshLayout swipeRefresh;
+    private DashboardAppointmentAdapter adapter;
 
+    private TextView tvTotalRevenue, tvPendingRequests, tvActiveRepairs, tvAvailableTechs, tvEmpty;
+    private SwipeRefreshLayout swipeRefresh;
+    private ProgressBar progressBar;
+    private RecyclerView recyclerRecentAppointments;
+
+    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_admin_dashboard, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        
         viewModel = new ViewModelProvider(requireActivity()).get(AdminViewModel.class);
 
-        tvTotalAppointments = view.findViewById(R.id.tv_total_appointments);
-        tvPendingAppointments = view.findViewById(R.id.tv_pending_appointments);
-        tvCompletedAppointments = view.findViewById(R.id.tv_completed_appointments);
         tvTotalRevenue = view.findViewById(R.id.tv_total_revenue);
-        rvAppointments = view.findViewById(R.id.rv_appointments);
-        progressBar = view.findViewById(R.id.progress_bar);
+        tvPendingRequests = view.findViewById(R.id.tv_pending_requests);
+        tvActiveRepairs = view.findViewById(R.id.tv_active_repairs);
+        tvAvailableTechs = view.findViewById(R.id.tv_available_techs);
+        tvEmpty = view.findViewById(R.id.tv_empty);
         swipeRefresh = view.findViewById(R.id.swipe_refresh);
+        progressBar = view.findViewById(R.id.progress_bar);
+        recyclerRecentAppointments = view.findViewById(R.id.recycler_recent_appointments);
 
-        rvAppointments.setLayoutManager(new LinearLayoutManager(getContext()));
+        ImageButton btnRefresh = view.findViewById(R.id.btn_refresh);
 
-        swipeRefresh.setOnRefreshListener(() -> {
-            loadData();
-            swipeRefresh.setRefreshing(false);
+        recyclerRecentAppointments.setLayoutManager(new LinearLayoutManager(getContext()));
+        adapter = new DashboardAppointmentAdapter(appointment -> {
+            AssignTechnicianBottomSheet bottomSheet = AssignTechnicianBottomSheet.newInstance(
+                    appointment.getId(),
+                    appointment.getBranch_id(),
+                    appointment.getAppointment_number(),
+                    "Service",
+                    "Branch"
+            );
+            bottomSheet.show(getParentFragmentManager(), "AssignBottomSheet");
         });
+        recyclerRecentAppointments.setAdapter(adapter);
+
+        swipeRefresh.setOnRefreshListener(this::loadData);
+        btnRefresh.setOnClickListener(v -> loadData());
 
         observeViewModel();
         loadData();
@@ -62,28 +78,29 @@ public class AdminDashboardFragment extends Fragment {
     }
 
     private void observeViewModel() {
+        viewModel.getIsLoading().observe(getViewLifecycleOwner(), isLoading -> {
+            swipeRefresh.setRefreshing(isLoading);
+            progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+        });
+
         viewModel.getDashboardData().observe(getViewLifecycleOwner(), data -> {
             if (data != null) {
-                tvTotalAppointments.setText(String.valueOf(data.getTotalAppointments()));
-                tvPendingAppointments.setText(String.valueOf(data.getPendingAppointments()));
-                tvCompletedAppointments.setText(String.valueOf(data.getCompletedAppointments()));
-                tvTotalRevenue.setText(String.format(Locale.getDefault(), "LKR %,.2f", data.getTotalRevenue()));
+                NumberFormat format = NumberFormat.getCurrencyInstance(new Locale("en", "LK"));
+                tvTotalRevenue.setText(format.format(data.getTotalRevenue()));
+                tvPendingRequests.setText(String.valueOf(data.getPendingRequests()));
+                tvActiveRepairs.setText(String.valueOf(data.getActiveRepairs()));
+                tvAvailableTechs.setText(String.valueOf(data.getAvailableTechnicians()));
             }
         });
 
         viewModel.getAllAppointments().observe(getViewLifecycleOwner(), appointments -> {
-            if (appointments != null) {
-                // Populate adapter here
-            }
-        });
-
-        viewModel.getIsLoading().observe(getViewLifecycleOwner(), isLoading -> {
-            progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
-        });
-
-        viewModel.getErrorMessage().observe(getViewLifecycleOwner(), error -> {
-            if (error != null && !error.isEmpty()) {
-                Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show();
+            if (appointments != null && !appointments.isEmpty()) {
+                adapter.updateData(appointments);
+                tvEmpty.setVisibility(View.GONE);
+                recyclerRecentAppointments.setVisibility(View.VISIBLE);
+            } else {
+                tvEmpty.setVisibility(View.VISIBLE);
+                recyclerRecentAppointments.setVisibility(View.GONE);
             }
         });
     }
