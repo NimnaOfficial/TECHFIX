@@ -46,11 +46,7 @@
                 app:startIconTint="#1565C0"
                 app:errorEnabled="true"
                 android:hint="First Name">
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/et_tech_first_name"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="#212121"/>
+                <com.google.android.material.textfield.TextInputEditText android:id="@+id/et_tech_first_name" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#212121" android:hint="e.g. John" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -69,11 +65,7 @@
                 app:startIconTint="#1565C0"
                 app:errorEnabled="true"
                 android:hint="Last Name">
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/et_tech_last_name"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="#212121"/>
+                <com.google.android.material.textfield.TextInputEditText android:id="@+id/et_tech_last_name" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#212121" android:hint="e.g. Doe" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -148,7 +140,7 @@
                     android:textColor="#000000"
                     android:padding="16dp"
                     android:inputType="none"
-                    android:hint="Select Branch"/>
+                    />
             </com.google.android.material.textfield.TextInputLayout>
 
         </LinearLayout>
@@ -195,3 +187,5 @@
     </LinearLayout>
 
 </LinearLayout>
+
+

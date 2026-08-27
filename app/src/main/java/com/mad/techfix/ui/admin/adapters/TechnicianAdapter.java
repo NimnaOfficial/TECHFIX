@@ -18,13 +18,24 @@ public class TechnicianAdapter extends RecyclerView.Adapter<TechnicianAdapter.Te
     private List<Technician> technicianList = new ArrayList<>();
     private final OnTechnicianClickListener clickListener;
     private final OnTechnicianLongClickListener longClickListener;
+    private OnTechnicianDeleteClickListener deleteClickListener;
 
     public interface OnTechnicianClickListener {
         void onTechnicianClick(Technician technician);
     }
 
+    public interface OnTechnicianDeleteClickListener {
+        void onTechnicianDeleteClick(Technician technician);
+    }
+
     public interface OnTechnicianLongClickListener {
         void onTechnicianLongClick(Technician technician);
+    }
+
+    public TechnicianAdapter(OnTechnicianClickListener clickListener, OnTechnicianLongClickListener longClickListener, OnTechnicianDeleteClickListener deleteClickListener) {
+        this.clickListener = clickListener;
+        this.longClickListener = longClickListener;
+        this.deleteClickListener = deleteClickListener;
     }
 
     public TechnicianAdapter(OnTechnicianClickListener clickListener, OnTechnicianLongClickListener longClickListener) {
@@ -46,7 +57,7 @@ public class TechnicianAdapter extends RecyclerView.Adapter<TechnicianAdapter.Te
 
     @Override
     public void onBindViewHolder(@NonNull TechnicianViewHolder holder, int position) {
-        holder.bind(technicianList.get(position), clickListener, longClickListener);
+        holder.bind(technicianList.get(position), clickListener, longClickListener, deleteClickListener);
     }
 
     @Override
@@ -61,6 +72,7 @@ public class TechnicianAdapter extends RecyclerView.Adapter<TechnicianAdapter.Te
         private final TextView tvBranch;
         private final View statusIndicator;
         private final TextView tvStatusBadge;
+        private final android.widget.ImageButton btnQuickDelete;
 
         public TechnicianViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -70,9 +82,10 @@ public class TechnicianAdapter extends RecyclerView.Adapter<TechnicianAdapter.Te
             tvBranch = itemView.findViewById(R.id.tv_branch_name);
             statusIndicator = itemView.findViewById(R.id.v_status_dot);
             tvStatusBadge = itemView.findViewById(R.id.tv_status);
+            btnQuickDelete = itemView.findViewById(R.id.btn_quick_delete);
         }
 
-        public void bind(Technician technician, OnTechnicianClickListener clickListener, OnTechnicianLongClickListener longClickListener) {
+        public void bind(Technician technician, OnTechnicianClickListener clickListener, OnTechnicianLongClickListener longClickListener, OnTechnicianDeleteClickListener deleteClickListener) {
             tvName.setText(technician.getFullName());
             tvCode.setText(technician.getEmployeeCode());
             tvSpecialization.setText(technician.getSpecialization());
@@ -99,6 +112,12 @@ public class TechnicianAdapter extends RecyclerView.Adapter<TechnicianAdapter.Te
                 if (clickListener != null) clickListener.onTechnicianClick(technician);
             });
 
+            if (btnQuickDelete != null) {
+                btnQuickDelete.setOnClickListener(v -> {
+                    if (deleteClickListener != null) deleteClickListener.onTechnicianDeleteClick(technician);
+                });
+            }
+
             itemView.setOnLongClickListener(v -> {
                 if (longClickListener != null) longClickListener.onTechnicianLongClick(technician);
                 return true;
@@ -106,3 +125,4 @@ public class TechnicianAdapter extends RecyclerView.Adapter<TechnicianAdapter.Te
         }
     }
 }
+

@@ -62,7 +62,7 @@ public class TechnicianListFragment extends Fragment {
         fabAdd = view.findViewById(R.id.fab_add_technician);
 
         recyclerTechnicians.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new TechnicianAdapter(this::openTechnicianDetail, this::showAddTechnicianDialog);
+        adapter = new TechnicianAdapter(this::openTechnicianDetail, this::showAddTechnicianDialog, this::confirmDeleteTechnician);
         recyclerTechnicians.setAdapter(adapter);
 
         fabAdd.setOnClickListener(v -> showAddTechnicianDialog(null));
@@ -174,6 +174,15 @@ public class TechnicianListFragment extends Fragment {
         });
     }
 
+    private void confirmDeleteTechnician(Technician tech) {
+        new android.app.AlertDialog.Builder(requireContext())
+            .setTitle("Remove Technician")
+            .setMessage("Are you sure you want to completely remove this technician?")
+            .setPositiveButton("Remove", (dialog, which) -> viewModel.deleteTechnician(tech.getId()))
+            .setNegativeButton("Cancel", null)
+            .show();
+    }
+
     private void openTechnicianDetail(Technician tech) {
         TechnicianDetailFragment fragment = TechnicianDetailFragment.newInstance(
                 tech.getId(),
@@ -274,3 +283,4 @@ public class TechnicianListFragment extends Fragment {
         @Override public void afterTextChanged(Editable s) {}
     }
 }
+

@@ -173,6 +173,18 @@
                     android:clipToPadding="false"/>
             </com.google.android.material.card.MaterialCardView>
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_delete_technician"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="Remove Technician"
+                android:textColor="#D32F2F"
+                app:backgroundTint="#FFEBEE"
+                app:cornerRadius="12dp"
+                app:icon="@android:drawable/ic_menu_delete"
+                app:iconTint="#D32F2F"
+                android:layout_marginBottom="24dp"/>
+
         </LinearLayout>
     </ScrollView>
 </LinearLayout>
