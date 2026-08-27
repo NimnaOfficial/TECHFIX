@@ -63,5 +63,16 @@
             android:textColor="#9E9E9E"
             android:textSize="16sp"
             android:visibility="gone" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_add_branch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="24dp"
+            android:contentDescription="Add Branch"
+            android:src="@android:drawable/ic_input_add"
+            app:backgroundTint="#0D47A1"
+            app:tint="#FFFFFF" />
     </FrameLayout>
 </LinearLayout>

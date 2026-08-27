@@ -9,13 +9,18 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.chip.ChipGroup;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.textfield.TextInputEditText;
 import com.mad.techfix.R;
 import com.mad.techfix.models.admin.Technician;
 import com.mad.techfix.ui.admin.adapters.TechnicianAdapter;
@@ -36,6 +41,7 @@ public class TechnicianListFragment extends Fragment {
     private LinearLayout layoutEmptyState;
     private EditText etSearch;
     private ChipGroup chipGroupFilter;
+    private FloatingActionButton fabAdd;
 
     @Nullable
     @Override
@@ -52,14 +58,72 @@ public class TechnicianListFragment extends Fragment {
         layoutEmptyState = view.findViewById(R.id.layout_empty_state);
         etSearch = view.findViewById(R.id.et_search);
         chipGroupFilter = view.findViewById(R.id.chip_group_filter);
+        fabAdd = view.findViewById(R.id.fab_add_technician);
 
         recyclerTechnicians.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new TechnicianAdapter(this::openTechnicianDetail);
+        adapter = new TechnicianAdapter(this::openTechnicianDetail, this::showAddTechnicianDialog);
         recyclerTechnicians.setAdapter(adapter);
+
+        fabAdd.setOnClickListener(v -> showAddTechnicianDialog(null));
 
         setupFilters();
         observeViewModel();
         viewModel.loadTechnicians();
+    }
+
+    private void showAddTechnicianDialog(@Nullable Technician tech) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        View view = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_technician_form, null);
+        builder.setView(view);
+        AlertDialog dialog = builder.create();
+        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        dialog.show();
+
+        TextView tvTitle = view.findViewById(R.id.tv_form_title);
+        TextInputEditText etFirstName = view.findViewById(R.id.et_tech_first_name);
+        TextInputEditText etLastName = view.findViewById(R.id.et_tech_last_name);
+        TextInputEditText etCode = view.findViewById(R.id.et_tech_code);
+        TextInputEditText etSpecialization = view.findViewById(R.id.et_tech_specialization);
+        TextInputEditText etBranch = view.findViewById(R.id.et_tech_branch);
+        View btnSave = view.findViewById(R.id.btn_save);
+        View btnCancel = view.findViewById(R.id.btn_cancel);
+        View btnDelete = view.findViewById(R.id.btn_delete);
+
+        if (tech != null) {
+            tvTitle.setText("Edit Technician");
+            etFirstName.setText(tech.getFirstName());
+            etLastName.setText(tech.getLastName());
+            etCode.setText(tech.getEmployeeCode());
+            etSpecialization.setText(tech.getSpecialization());
+            etBranch.setText(tech.getBranchId());
+            btnDelete.setVisibility(View.VISIBLE);
+        }
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+        
+        btnDelete.setOnClickListener(v -> {
+            if (tech != null) {
+                viewModel.deleteTechnician(tech.getId());
+                dialog.dismiss();
+            }
+        });
+
+        btnSave.setOnClickListener(v -> {
+            Technician t = tech != null ? tech : new Technician();
+            t.setFirstName(etFirstName.getText().toString());
+            t.setLastName(etLastName.getText().toString());
+            t.setEmployeeCode(etCode.getText().toString());
+            t.setSpecialization(etSpecialization.getText().toString());
+            t.setBranchId(etBranch.getText().toString());
+            
+            if (tech == null) {
+                t.setAvailabilityStatus("AVAILABLE");
+                viewModel.createTechnician(t);
+            } else {
+                viewModel.updateTechnician(t.getId(), t);
+            }
+            dialog.dismiss();
+        });
     }
 
     private void openTechnicianDetail(Technician tech) {
@@ -115,6 +179,12 @@ public class TechnicianListFragment extends Fragment {
             if (technicians != null) {
                 allTechnicians = technicians;
                 applyFilters();
+            }
+        });
+
+        viewModel.getCrudSuccess().observe(getViewLifecycleOwner(), success -> {
+            if (success != null && success) {
+                Toast.makeText(getContext(), "Success!", Toast.LENGTH_SHORT).show();
             }
         });
     }

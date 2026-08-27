@@ -104,4 +104,26 @@ public class AdminDashboardFragment extends Fragment {
             }
         });
     }
+
+    // --- REALTIME ACTIVE DASHBOARD LOGIC ---
+    private final android.os.Handler autoRefreshHandler = new android.os.Handler(android.os.Looper.getMainLooper());
+    private final Runnable autoRefreshRunnable = new Runnable() {
+        @Override
+        public void run() {
+            loadData();
+            autoRefreshHandler.postDelayed(this, 10000); // 10 seconds auto-refresh
+        }
+    };
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        autoRefreshHandler.post(autoRefreshRunnable); // Start realtime tracking
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        autoRefreshHandler.removeCallbacks(autoRefreshRunnable); // Pause when hidden
+    }
 }

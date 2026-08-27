@@ -45,4 +45,24 @@ public interface AdminApiService {
 
     @GET("api/services")
     Call<ApiResponse<List<Service>>> getAllServices(@Header("Authorization") String auth);
+
+    // --- Branch CRUD ---
+    @retrofit2.http.POST("api/branches")
+    Call<ApiResponse<Branch>> createBranch(@Header("Authorization") String auth, @Body Branch branch);
+
+    @PUT("api/branches/{id}")
+    Call<ApiResponse<Branch>> updateBranch(@Header("Authorization") String auth, @Path("id") String branchId, @Body Branch branch);
+
+    @retrofit2.http.DELETE("api/branches/{id}")
+    Call<ApiResponse<Object>> deleteBranch(@Header("Authorization") String auth, @Path("id") String branchId);
+
+    // --- Technician CRUD ---
+    @retrofit2.http.POST("api/technicians")
+    Call<ApiResponse<Technician>> createTechnician(@Header("Authorization") String auth, @Body Technician technician);
+
+    @PUT("api/technicians/{id}")
+    Call<ApiResponse<Technician>> updateTechnician(@Header("Authorization") String auth, @Path("id") String technicianId, @Body Technician technician);
+
+    @retrofit2.http.DELETE("api/technicians/{id}")
+    Call<ApiResponse<Object>> deleteTechnician(@Header("Authorization") String auth, @Path("id") String technicianId);
 }
