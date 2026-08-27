@@ -23,36 +23,14 @@ captures/
 
 # IntelliJ / Android Studio
 *.iml
-.idea/
-workspace.xml
-tasks.xml
-gradle.xml
-dictionaries
-vcs.xml
-caches/
-
-# Keystore files (CRITICAL FOR SECURITY)
-*.jks
-*.keystore
-*keystore.properties
-key.properties
-
-# External native build folders
-.externalNativeBuild/
-.cxx/
-
-# NDK
-obj/
-jniLibs/
-
-# OS-specific files
+.gradle
+/mem3/*
+/local.properties
+/.idea/*
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# Project-specific ignores (preserved from your original file)
-/mem3/
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+.gitignore
