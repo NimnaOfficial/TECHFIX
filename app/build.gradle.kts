@@ -57,5 +57,8 @@ dependencies {
 
     implementation("androidx.cardview:cardview:1.0.0")
 
+    // SwipeRefreshLayout (for pull-to-refresh)
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+
     implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
 }
