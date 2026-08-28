@@ -42,6 +42,9 @@ public class AdminActivity extends AppCompatActivity {
             if (id == R.id.nav_dashboard) {
                 loadFragment(new AdminDashboardFragment());
                 return true;
+                        } else if (id == R.id.nav_appointments) {
+                loadFragment(new com.mad.techfix.ui.admin.appointments.AppointmentsFragment());
+                return true;
             } else if (id == R.id.nav_branches) {
                 loadFragment(new BranchListFragment());
                 return true;
@@ -141,6 +144,7 @@ public class AdminActivity extends AppCompatActivity {
         });
     }
 }
+
 
 
 

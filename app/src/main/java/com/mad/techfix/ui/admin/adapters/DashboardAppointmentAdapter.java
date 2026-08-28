@@ -96,15 +96,23 @@ public class DashboardAppointmentAdapter extends RecyclerView.Adapter<DashboardA
 
             if ("REQUESTED".equalsIgnoreCase(status)) {
                 btnQuickAssign.setVisibility(View.VISIBLE);
-                btnQuickAssign.setOnClickListener(v -> {
-                    if (listener != null) {
-                        listener.onAssignClick(appointment);
-                    }
-                });
+                btnQuickAssign.setText("Assign Tech");
             } else {
                 btnQuickAssign.setVisibility(View.GONE);
             }
+            
+            // Allow whole card to be clicked to view details
+            itemView.setOnClickListener(v -> {
+                if (listener != null) {
+                    listener.onAssignClick(appointment);
+                }
+            });
+            
+            btnQuickAssign.setOnClickListener(v -> {
+                if (listener != null) {
+                    listener.onAssignClick(appointment);
+                }
+            });
         }
     }
 }
-
