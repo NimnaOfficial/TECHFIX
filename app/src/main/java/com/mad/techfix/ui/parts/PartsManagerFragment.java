@@ -81,16 +81,16 @@ public class PartsManagerFragment extends Fragment {
         android.widget.TextView tvTitle = dialogView.findViewById(R.id.tv_form_title);
         
         TextInputLayout tilName = dialogView.findViewById(R.id.til_part_name);
-        TextInputLayout tilNumber = dialogView.findViewById(R.id.til_part_number);
+        TextInputLayout tilNumber = dialogView.findViewById(R.id.til_part_sku);
         TextInputLayout tilDesc = dialogView.findViewById(R.id.til_part_category);
         TextInputLayout tilPrice = dialogView.findViewById(R.id.til_part_price);
-        TextInputLayout tilStock = dialogView.findViewById(R.id.til_part_stock);
+        TextInputLayout tilStock = dialogView.findViewById(R.id.til_part_quantity);
 
         com.google.android.material.textfield.TextInputEditText etName = dialogView.findViewById(R.id.et_part_name);
-        com.google.android.material.textfield.TextInputEditText etNumber = dialogView.findViewById(R.id.et_part_number);
-        android.widget.AutoCompleteTextView etDesc = dialogView.findViewById(R.id.et_part_description);
+        com.google.android.material.textfield.TextInputEditText etNumber = dialogView.findViewById(R.id.et_part_sku);
+        android.widget.AutoCompleteTextView etDesc = dialogView.findViewById(R.id.et_part_category);
         com.google.android.material.textfield.TextInputEditText etPrice = dialogView.findViewById(R.id.et_part_price);
-        com.google.android.material.textfield.TextInputEditText etStock = dialogView.findViewById(R.id.et_part_stock);
+        com.google.android.material.textfield.TextInputEditText etStock = dialogView.findViewById(R.id.et_part_quantity);
         
         View btnSave = dialogView.findViewById(R.id.btn_save);
         View btnCancel = dialogView.findViewById(R.id.btn_cancel);
@@ -304,3 +304,4 @@ public class PartsManagerFragment extends Fragment {
         @Override public void afterTextChanged(Editable s) {}
     }
 }
+

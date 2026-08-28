@@ -169,3 +169,4 @@ public class AdminDashboardFragment extends Fragment {
         autoRefreshHandler.removeCallbacks(autoRefreshRunnable); // Pause when hidden
     }
 }
+

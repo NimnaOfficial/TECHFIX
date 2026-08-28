@@ -2,7 +2,7 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#1E1E2C"
+    android:background="?android:attr/colorBackground"
     android:fillViewport="true">
 
     <LinearLayout
@@ -16,7 +16,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Create Account"
-            android:textColor="#FFFFFF"
+            android:textColor="?android:attr/textColorPrimary"
             android:textSize="28sp"
             android:textStyle="bold"
             android:layout_marginBottom="24dp" />
@@ -26,10 +26,10 @@
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:hint="First Name"
-            android:textColorHint="#A0A0A0"
-            android:textColor="#FFFFFF"
+            android:textColorHint="?android:attr/textColorSecondary"
+            android:textColor="?android:attr/textColorPrimary"
             android:padding="12dp"
-            android:background="#2D2D3F"
+            android:background="?attr/colorSurface"
             android:layout_marginBottom="12dp" />
 
         <EditText
@@ -37,10 +37,10 @@
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:hint="Last Name"
-            android:textColorHint="#A0A0A0"
-            android:textColor="#FFFFFF"
+            android:textColorHint="?android:attr/textColorSecondary"
+            android:textColor="?android:attr/textColorPrimary"
             android:padding="12dp"
-            android:background="#2D2D3F"
+            android:background="?attr/colorSurface"
             android:layout_marginBottom="12dp" />
 
         <EditText
@@ -48,11 +48,11 @@
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:hint="Email Address"
-            android:textColorHint="#A0A0A0"
-            android:textColor="#FFFFFF"
+            android:textColorHint="?android:attr/textColorSecondary"
+            android:textColor="?android:attr/textColorPrimary"
             android:inputType="textEmailAddress"
             android:padding="12dp"
-            android:background="#2D2D3F"
+            android:background="?attr/colorSurface"
             android:layout_marginBottom="12dp" />
 
         <EditText
@@ -60,11 +60,11 @@
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:hint="Phone Number"
-            android:textColorHint="#A0A0A0"
-            android:textColor="#FFFFFF"
+            android:textColorHint="?android:attr/textColorSecondary"
+            android:textColor="?android:attr/textColorPrimary"
             android:inputType="phone"
             android:padding="12dp"
-            android:background="#2D2D3F"
+            android:background="?attr/colorSurface"
             android:layout_marginBottom="12dp" />
 
         <EditText
@@ -72,11 +72,11 @@
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:hint="Password"
-            android:textColorHint="#A0A0A0"
-            android:textColor="#FFFFFF"
+            android:textColorHint="?android:attr/textColorSecondary"
+            android:textColor="?android:attr/textColorPrimary"
             android:inputType="textPassword"
             android:padding="12dp"
-            android:background="#2D2D3F"
+            android:background="?attr/colorSurface"
             android:layout_marginBottom="24dp" />
 
         <Button
@@ -85,17 +85,22 @@
             android:layout_height="50dp"
             android:text="REGISTER"
             android:textSize="16sp"
-            android:backgroundTint="#6C5CE7"
-            android:textColor="#FFFFFF" />
+            android:backgroundTint="?attr/colorPrimary"
+            android:textColor="?android:attr/textColorPrimary" />
 
         <TextView
             android:id="@+id/tvLogin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Already have an account? Log In"
-            android:textColor="#6C5CE7"
+            android:textColor="?android:attr/textColorPrimary"
             android:layout_marginTop="16dp"
             android:padding="8dp" />
 
     </LinearLayout>
 </ScrollView>
+
+
+
+
+

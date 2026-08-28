@@ -30,6 +30,9 @@ public interface AdminDao {
     @Query("DELETE FROM local_technicians")
     void deleteAllTechnicians();
 
+    @Query("DELETE FROM local_technicians WHERE id = :id")
+    void deleteTechnicianById(String id);
+
     @Query("SELECT * FROM local_branches")
     List<BranchEntity> getAllBranches();
 

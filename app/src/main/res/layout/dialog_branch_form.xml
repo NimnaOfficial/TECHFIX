@@ -14,13 +14,18 @@
         android:text="Branch Details"
         android:textSize="22sp"
         android:textStyle="bold"
-        android:textColor="#0D47A1"
-        android:layout_marginBottom="16dp"/>
-
-    <ScrollView
+        android:textColor="?android:attr/textColorPrimary"/>
+        
+    <TextView
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:text="Enter the details below to save."
+        android:textSize="14sp"
+        android:textColor="?android:attr/textColorSecondary"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="24dp"/>
+
+    <ScrollView android:layout_width="match_parent" android:layout_height="wrap_content"
         android:fillViewport="true">
         
         <LinearLayout
@@ -29,113 +34,125 @@
             android:orientation="vertical">
 
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_branch_name"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                app:boxCornerRadiusTopStart="12dp"
-                app:boxCornerRadiusTopEnd="12dp"
-                app:boxCornerRadiusBottomStart="12dp"
-                app:boxCornerRadiusBottomEnd="12dp"
-                app:boxStrokeColor="#1565C0"
-                app:hintTextColor="#1565C0"
+                android:layout_marginBottom="16dp"
+                app:boxCornerRadiusTopStart="16dp"
+                app:boxCornerRadiusTopEnd="16dp"
+                app:boxCornerRadiusBottomStart="16dp"
+                app:boxCornerRadiusBottomEnd="16dp"
+                app:boxStrokeColor="?attr/colorPrimary"
+                app:hintTextColor="?attr/colorPrimary"
                 app:startIconDrawable="@drawable/ic_branch"
-                app:startIconTint="#1565C0"
-                app:expandedHintEnabled="false"
-                android:hint="Branch Name">
+                app:startIconTint="?attr/colorPrimary"
+                app:errorEnabled="true"
+                android:hint="Branch Name"
+                app:placeholderText="e.g., Downtown Fix">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_branch_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="#212121"
-                    android:hint="e.g. Colombo Branch"/>
+                    android:textColor="?android:attr/textColorPrimary"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_branch_address"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                app:boxCornerRadiusTopStart="12dp"
-                app:boxCornerRadiusTopEnd="12dp"
-                app:boxCornerRadiusBottomStart="12dp"
-                app:boxCornerRadiusBottomEnd="12dp"
-                app:boxStrokeColor="#1565C0"
-                app:hintTextColor="#1565C0"
+                android:layout_marginBottom="16dp"
+                app:boxCornerRadiusTopStart="16dp"
+                app:boxCornerRadiusTopEnd="16dp"
+                app:boxCornerRadiusBottomStart="16dp"
+                app:boxCornerRadiusBottomEnd="16dp"
+                app:boxStrokeColor="?attr/colorPrimary"
+                app:hintTextColor="?attr/colorPrimary"
                 app:startIconDrawable="@drawable/ic_location"
-                app:startIconTint="#1565C0"
-                app:expandedHintEnabled="false"
-                android:hint="Full Address">
-                <com.google.android.material.textfield.TextInputEditText android:id="@+id/et_branch_address" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#212121" android:hint="e.g. 123 Main Street" />
+                app:startIconTint="?attr/colorPrimary"
+                app:errorEnabled="true"
+                android:hint="Address"
+                app:placeholderText="e.g., 123 Tech Lane, Colombo">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_branch_address"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="?android:attr/textColorPrimary"/>
             </com.google.android.material.textfield.TextInputLayout>
-
+            
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_branch_city"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                app:boxCornerRadiusTopStart="12dp"
-                app:boxCornerRadiusTopEnd="12dp"
-                app:boxCornerRadiusBottomStart="12dp"
-                app:boxCornerRadiusBottomEnd="12dp"
-                app:boxStrokeColor="#1565C0"
-                app:hintTextColor="#1565C0"
+                android:layout_marginBottom="16dp"
+                app:boxCornerRadiusTopStart="16dp"
+                app:boxCornerRadiusTopEnd="16dp"
+                app:boxCornerRadiusBottomStart="16dp"
+                app:boxCornerRadiusBottomEnd="16dp"
+                app:boxStrokeColor="?attr/colorPrimary"
+                app:hintTextColor="?attr/colorPrimary"
                 app:startIconDrawable="@drawable/ic_location"
-                app:startIconTint="#1565C0"
-                app:expandedHintEnabled="false"
-                android:hint="City">
+                app:startIconTint="?attr/colorPrimary"
+                app:errorEnabled="true"
+                android:hint="City"
+                app:placeholderText="e.g., Colombo">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_branch_city"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="#212121"
-                    android:hint="e.g. Colombo"/>
+                    android:textColor="?android:attr/textColorPrimary"/>
             </com.google.android.material.textfield.TextInputLayout>
-            
+
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_branch_phone"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                app:boxCornerRadiusTopStart="12dp"
-                app:boxCornerRadiusTopEnd="12dp"
-                app:boxCornerRadiusBottomStart="12dp"
-                app:boxCornerRadiusBottomEnd="12dp"
-                app:boxStrokeColor="#1565C0"
-                app:hintTextColor="#1565C0"
+                android:layout_marginBottom="16dp"
+                app:boxCornerRadiusTopStart="16dp"
+                app:boxCornerRadiusTopEnd="16dp"
+                app:boxCornerRadiusBottomStart="16dp"
+                app:boxCornerRadiusBottomEnd="16dp"
+                app:boxStrokeColor="?attr/colorPrimary"
+                app:hintTextColor="?attr/colorPrimary"
                 app:startIconDrawable="@drawable/ic_phone"
-                app:startIconTint="#1565C0"
-                app:expandedHintEnabled="false"
-                android:hint="Phone Number">
+                app:startIconTint="?attr/colorPrimary"
+                app:errorEnabled="true"
+                android:hint="Phone Number"
+                app:placeholderText="e.g., +94 77 123 4567">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_branch_phone"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="#212121"
-                    android:inputType="phone" android:hint="e.g. 0771234567" />
+                    android:textColor="?android:attr/textColorPrimary"
+                    android:inputType="phone"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_branch_email"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                app:boxCornerRadiusTopStart="12dp"
-                app:boxCornerRadiusTopEnd="12dp"
-                app:boxCornerRadiusBottomStart="12dp"
-                app:boxCornerRadiusBottomEnd="12dp"
-                app:boxStrokeColor="#1565C0"
-                app:hintTextColor="#1565C0"
+                android:layout_marginBottom="16dp"
+                app:boxCornerRadiusTopStart="16dp"
+                app:boxCornerRadiusTopEnd="16dp"
+                app:boxCornerRadiusBottomStart="16dp"
+                app:boxCornerRadiusBottomEnd="16dp"
+                app:boxStrokeColor="?attr/colorPrimary"
+                app:hintTextColor="?attr/colorPrimary"
                 app:startIconDrawable="@drawable/ic_email"
-                app:startIconTint="#1565C0"
-                app:expandedHintEnabled="false"
-                android:hint="Email Address">
+                app:startIconTint="?attr/colorPrimary"
+                app:errorEnabled="false"
+                android:hint="Email (Optional)"
+                app:placeholderText="e.g., downtown@techfix.com">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_branch_email"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="#212121"
-                    android:inputType="textEmailAddress" android:hint="e.g. branch@techfix.com" />
+                    android:textColor="?android:attr/textColorPrimary"
+                    android:inputType="textEmailAddress"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <LinearLayout
@@ -148,80 +165,21 @@
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
-                    android:layout_marginEnd="4dp"
-                    app:boxCornerRadiusTopStart="12dp"
-                    app:boxCornerRadiusTopEnd="12dp"
-                    app:boxCornerRadiusBottomStart="12dp"
-                    app:boxCornerRadiusBottomEnd="12dp"
-                    app:boxStrokeColor="#1565C0"
-                    app:hintTextColor="#1565C0"
-                    app:startIconDrawable="@drawable/ic_location"
-                    app:startIconTint="#1565C0"
-                    app:expandedHintEnabled="false"
-                    android:hint="Latitude">
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/et_branch_lat"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textColor="#212121"
-                        android:inputType="numberDecimal|numberSigned" android:hint="e.g. 6.9271" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
-                    android:layout_marginStart="4dp"
-                    app:boxCornerRadiusTopStart="12dp"
-                    app:boxCornerRadiusTopEnd="12dp"
-                    app:boxCornerRadiusBottomStart="12dp"
-                    app:boxCornerRadiusBottomEnd="12dp"
-                    app:boxStrokeColor="#1565C0"
-                    app:hintTextColor="#1565C0"
-                    app:startIconDrawable="@drawable/ic_location"
-                    app:startIconTint="#1565C0"
-                    app:expandedHintEnabled="false"
-                    android:hint="Longitude">
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/et_branch_lng"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textColor="#212121"
-                        android:inputType="numberDecimal|numberSigned" android:hint="e.g. 79.8612" />
-                </com.google.android.material.textfield.TextInputLayout>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
                     android:layout_marginBottom="16dp"
-                    android:layout_marginEnd="4dp"
-                    app:boxCornerRadiusTopStart="12dp"
-                    app:boxCornerRadiusTopEnd="12dp"
-                    app:boxCornerRadiusBottomStart="12dp"
-                    app:boxCornerRadiusBottomEnd="12dp"
-                    app:boxStrokeColor="#1565C0"
-                    app:hintTextColor="#1565C0"
-                    app:startIconDrawable="@drawable/ic_time"
-                    app:startIconTint="#1565C0"
-                    app:expandedHintEnabled="false"
-                    android:hint="Opening Time">
+                    app:boxCornerRadiusTopStart="16dp"
+                    app:boxCornerRadiusTopEnd="16dp"
+                    app:boxCornerRadiusBottomStart="16dp"
+                    app:boxCornerRadiusBottomEnd="16dp"
+                    app:boxStrokeColor="?attr/colorPrimary"
+                    app:hintTextColor="?attr/colorPrimary"
+                    android:hint="Opening Time"
+                    app:placeholderText="09:00 AM">
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/et_branch_opening"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textColor="#212121"
-                        android:hint="e.g. 09:00 AM"/>
+                        android:textColor="?android:attr/textColorPrimary"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -229,24 +187,82 @@
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
                     android:layout_marginBottom="16dp"
-                    android:layout_marginStart="4dp"
-                    app:boxCornerRadiusTopStart="12dp"
-                    app:boxCornerRadiusTopEnd="12dp"
-                    app:boxCornerRadiusBottomStart="12dp"
-                    app:boxCornerRadiusBottomEnd="12dp"
-                    app:boxStrokeColor="#1565C0"
-                    app:hintTextColor="#1565C0"
-                    app:startIconDrawable="@drawable/ic_time"
-                    app:startIconTint="#1565C0"
-                    app:expandedHintEnabled="false"
-                    android:hint="Closing Time">
+                    app:boxCornerRadiusTopStart="16dp"
+                    app:boxCornerRadiusTopEnd="16dp"
+                    app:boxCornerRadiusBottomStart="16dp"
+                    app:boxCornerRadiusBottomEnd="16dp"
+                    app:boxStrokeColor="?attr/colorPrimary"
+                    app:hintTextColor="?attr/colorPrimary"
+                    android:hint="Closing Time"
+                    app:placeholderText="06:00 PM">
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/et_branch_closing"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textColor="#212121"
-                        android:hint="e.g. 06:00 PM"/>
+                        android:textColor="?android:attr/textColorPrimary"/>
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+
+            <!-- Map Coordinates (Optional) -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Location Coordinates"
+                android:textSize="12sp"
+                android:textColor="?android:attr/textColorSecondary"
+                android:layout_marginBottom="8dp"/>
+                
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginBottom="24dp"
+                    app:boxCornerRadiusTopStart="16dp"
+                    app:boxCornerRadiusTopEnd="16dp"
+                    app:boxCornerRadiusBottomStart="16dp"
+                    app:boxCornerRadiusBottomEnd="16dp"
+                    app:boxStrokeColor="?attr/colorPrimary"
+                    app:hintTextColor="?attr/colorPrimary"
+                    android:hint="Latitude"
+                    app:placeholderText="6.9271">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_branch_lat"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="?android:attr/textColorPrimary"
+                        android:inputType="numberDecimal|numberSigned"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginBottom="24dp"
+                    app:boxCornerRadiusTopStart="16dp"
+                    app:boxCornerRadiusTopEnd="16dp"
+                    app:boxCornerRadiusBottomStart="16dp"
+                    app:boxCornerRadiusBottomEnd="16dp"
+                    app:boxStrokeColor="?attr/colorPrimary"
+                    app:hintTextColor="?attr/colorPrimary"
+                    android:hint="Longitude"
+                    app:placeholderText="79.8612">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_branch_lng"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="?android:attr/textColorPrimary"
+                        android:inputType="numberDecimal|numberSigned"/>
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
 
@@ -266,7 +282,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Delete"
-            android:textColor="#F44336"
+            android:textColor="@color/status_error"
             android:visibility="gone"/>
 
         <Space
@@ -280,19 +296,20 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Cancel"
-            android:textColor="#757575"
+            android:textColor="?android:attr/textColorSecondary"
             android:layout_marginEnd="16dp"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_save"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Save Branch"
-            android:textColor="#FFFFFF"
-            app:cornerRadius="8dp"
-            app:backgroundTint="#0D47A1"/>
+            android:text="Save Details"
+            android:textColor="?attr/colorOnPrimary"
+            app:cornerRadius="12dp"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp"
+            app:backgroundTint="?attr/colorPrimary"/>
     </LinearLayout>
 
 </LinearLayout>
-
 

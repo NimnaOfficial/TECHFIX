@@ -13,7 +13,7 @@
     <View
         android:layout_width="40dp"
         android:layout_height="4dp"
-        android:background="#E0E0E0"
+        android:background="@color/app_divider"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="24dp" />
 
@@ -23,7 +23,7 @@
         android:text="Assign Technician"
         android:textSize="22sp"
         android:textStyle="bold"
-        android:textColor="#0D47A1"
+        android:textColor="?android:attr/textColorPrimary"
         android:layout_marginBottom="4dp"/>
 
     <LinearLayout
@@ -36,7 +36,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="For Appt: "
-            android:textColor="#757575"/>
+            android:textColor="?android:attr/textColorPrimary"/>
             
         <TextView
             android:id="@+id/tv_assign_appt_no"
@@ -44,7 +44,7 @@
             android:layout_height="wrap_content"
             android:text="#APT-001"
             android:textStyle="bold"
-            android:textColor="#212121"
+            android:textColor="?android:attr/textColorPrimary"
             android:layout_marginEnd="16dp"/>
     </LinearLayout>
 
@@ -53,7 +53,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_marginBottom="20dp"
-        android:background="#F8F9FA"
+        android:background="?android:attr/colorBackground"
         android:padding="12dp"
         app:cornerRadius="8dp">
 
@@ -62,8 +62,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical">
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Service Required" android:textSize="12sp" android:textColor="#9E9E9E"/>
-            <TextView android:id="@+id/tv_assign_service" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Screen Replacement" android:textSize="14sp" android:textColor="#212121" android:textStyle="bold"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Service Required" android:textSize="12sp" android:textColor="?android:attr/textColorPrimary"/>
+            <TextView android:id="@+id/tv_assign_service" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Screen Replacement" android:textSize="14sp" android:textColor="?android:attr/textColorPrimary" android:textStyle="bold"/>
         </LinearLayout>
 
         <LinearLayout
@@ -71,8 +71,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical">
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Branch Location" android:textSize="12sp" android:textColor="#9E9E9E"/>
-            <TextView android:id="@+id/tv_assign_branch" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Colombo Branch" android:textSize="14sp" android:textColor="#212121" android:textStyle="bold"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Branch Location" android:textSize="12sp" android:textColor="?android:attr/textColorPrimary"/>
+            <TextView android:id="@+id/tv_assign_branch" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Colombo Branch" android:textSize="14sp" android:textColor="?android:attr/textColorPrimary" android:textStyle="bold"/>
         </LinearLayout>
     </LinearLayout>
 
@@ -82,7 +82,7 @@
         android:text="Eligible Available Technicians"
         android:textSize="14sp"
         android:textStyle="bold"
-        android:textColor="#424242"
+        android:textColor="?android:attr/textColorPrimary"
         android:layout_marginBottom="8dp"/>
 
     <androidx.recyclerview.widget.RecyclerView
@@ -103,7 +103,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Cancel"
-            android:textColor="#757575"
+            android:textColor="?attr/colorOnPrimary"
             android:layout_marginEnd="16dp"/>
 
         <com.google.android.material.button.MaterialButton
@@ -112,7 +112,12 @@
             android:layout_height="wrap_content"
             android:text="Dispatch Technician"
             app:cornerRadius="8dp"
-            app:backgroundTint="#0D47A1"/>
+            app:backgroundTint="?attr/colorPrimary"/>
     </LinearLayout>
 
 </LinearLayout>
+
+
+
+
+

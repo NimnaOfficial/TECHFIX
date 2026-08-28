@@ -94,3 +94,4 @@ public class EditSkillsDialogFragment extends DialogFragment {
         viewModel.loadTechnicianServices(technicianId);
     }
 }
+

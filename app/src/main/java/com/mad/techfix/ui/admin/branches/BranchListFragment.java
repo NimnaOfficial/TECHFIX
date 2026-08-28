@@ -126,12 +126,12 @@ public class BranchListFragment extends Fragment {
             b.setAddress(addressStr);
             b.setCity(cityStr);
             b.setPhone(phoneStr);
-            b.setEmail(etEmail.getText().toString());
-            b.setOpeningTime(etOpening.getText().toString());
-            b.setClosingTime(etClosing.getText().toString());
+            b.setEmail((etEmail.getText() != null ? etEmail.getText().toString().trim() : ""));
+            b.setOpeningTime((etOpening.getText() != null ? etOpening.getText().toString().trim() : ""));
+            b.setClosingTime((etClosing.getText() != null ? etClosing.getText().toString().trim() : ""));
             
-            try { b.setLatitude(Double.parseDouble(etLat.getText().toString())); } catch(Exception ignored){}
-            try { b.setLongitude(Double.parseDouble(etLng.getText().toString())); } catch(Exception ignored){}
+            try { b.setLatitude(Double.parseDouble((etLat.getText() != null ? etLat.getText().toString().trim() : "0"))); } catch(Exception ignored){}
+            try { b.setLongitude(Double.parseDouble((etLng.getText() != null ? etLng.getText().toString().trim() : "0"))); } catch(Exception ignored){}
 
             if (branch == null) {
                 viewModel.createBranch(b);
@@ -186,3 +186,4 @@ public class BranchListFragment extends Fragment {
         picker.show(getParentFragmentManager(), "TIME_PICKER");
     }
 }
+

@@ -126,3 +126,4 @@ public class TechnicianAdapter extends RecyclerView.Adapter<TechnicianAdapter.Te
     }
 }
 
+

@@ -77,3 +77,4 @@ public class AppointmentDetailBottomSheet extends BottomSheetDialogFragment {
         });
     }
 }
+

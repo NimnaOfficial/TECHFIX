@@ -84,3 +84,4 @@ public class ServiceCheckboxAdapter extends RecyclerView.Adapter<ServiceCheckbox
         }
     }
 }
+

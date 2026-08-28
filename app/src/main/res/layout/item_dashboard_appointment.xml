@@ -8,7 +8,7 @@
     app:cardBackgroundColor="?attr/colorSurface"
     app:cardCornerRadius="12dp"
     app:cardElevation="2dp"
-    app:strokeColor="#E0E0E0"
+    app:strokeColor="@color/app_divider"
     app:strokeWidth="1dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -32,7 +32,7 @@
                 android:text="#APT-001"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                android:textColor="#0D47A1" />
+                android:textColor="?android:attr/textColorPrimary" />
 
             <TextView
                 android:id="@+id/tv_appt_date"
@@ -63,8 +63,8 @@
                 android:text="REQUESTED"
                 android:textSize="11sp"
                 android:textStyle="bold"
-                android:textColor="#FFFFFF"
-                android:background="#FF9800"
+                android:textColor="?android:attr/textColorPrimary"
+                android:background="@color/status_warning"
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="4dp"
                 app:cornerRadius="4dp"
@@ -77,12 +77,17 @@
                 android:layout_height="40dp"
                 android:text="Dispatch"
                 android:textSize="12sp"
-                android:textColor="#1565C0"
+                android:textColor="?attr/colorOnPrimary"
                 app:icon="@android:drawable/ic_menu_send"
-                app:iconTint="#1565C0"
+                app:iconTint="?attr/colorPrimary"
                 app:iconSize="16dp" />
 
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>
+
+
+
+
+
 

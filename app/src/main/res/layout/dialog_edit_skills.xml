@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="#FFFFFF"
+    android:background="?attr/colorSurface"
     android:padding="24dp">
 
     <TextView
@@ -13,7 +13,7 @@
         android:text="Update Repair Skills"
         android:textSize="22sp"
         android:textStyle="bold"
-        android:textColor="#0D47A1"
+        android:textColor="?android:attr/textColorPrimary"
         android:layout_marginBottom="8dp"/>
 
     <TextView
@@ -21,7 +21,7 @@
         android:layout_height="wrap_content"
         android:text="Select the specific repair services this technician is qualified to perform."
         android:textSize="14sp"
-        android:textColor="#757575"
+        android:textColor="?android:attr/textColorPrimary"
         android:layout_marginBottom="24dp"/>
 
     <androidx.recyclerview.widget.RecyclerView
@@ -30,7 +30,7 @@
         android:layout_height="300dp"
         android:scrollbars="vertical"
         android:layout_marginBottom="24dp"
-        android:background="#F8F9FA"
+        android:background="?android:attr/colorBackground"
         android:padding="8dp"/>
 
     <LinearLayout
@@ -45,7 +45,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Cancel"
-            android:textColor="#757575"
+            android:textColor="?attr/colorOnPrimary"
             android:layout_marginEnd="16dp"/>
 
         <com.google.android.material.button.MaterialButton
@@ -54,7 +54,12 @@
             android:layout_height="wrap_content"
             android:text="Save Skills"
             app:cornerRadius="8dp"
-            app:backgroundTint="#1565C0"/>
+            app:backgroundTint="?attr/colorPrimary"/>
     </LinearLayout>
 
 </LinearLayout>
+
+
+
+
+
