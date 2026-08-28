@@ -43,7 +43,7 @@ dependencies {
     // 2. Room Database (Pure Java - using annotationProcessor, NOT kapt)
     implementation("androidx.room:room-runtime:2.6.1")
     annotationProcessor("androidx.room:room-compiler:2.6.1")
-
+6
     // 3. Retrofit (Internet)
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
