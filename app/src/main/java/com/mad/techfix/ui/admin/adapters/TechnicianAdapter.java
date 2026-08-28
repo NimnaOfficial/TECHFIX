@@ -16,14 +16,31 @@ import java.util.List;
 public class TechnicianAdapter extends RecyclerView.Adapter<TechnicianAdapter.TechnicianViewHolder> {
 
     private List<Technician> technicianList = new ArrayList<>();
-    private final OnTechnicianClickListener listener;
+    private final OnTechnicianClickListener clickListener;
+    private final OnTechnicianLongClickListener longClickListener;
+    private OnTechnicianDeleteClickListener deleteClickListener;
 
     public interface OnTechnicianClickListener {
         void onTechnicianClick(Technician technician);
     }
 
-    public TechnicianAdapter(OnTechnicianClickListener listener) {
-        this.listener = listener;
+    public interface OnTechnicianDeleteClickListener {
+        void onTechnicianDeleteClick(Technician technician);
+    }
+
+    public interface OnTechnicianLongClickListener {
+        void onTechnicianLongClick(Technician technician);
+    }
+
+    public TechnicianAdapter(OnTechnicianClickListener clickListener, OnTechnicianLongClickListener longClickListener, OnTechnicianDeleteClickListener deleteClickListener) {
+        this.clickListener = clickListener;
+        this.longClickListener = longClickListener;
+        this.deleteClickListener = deleteClickListener;
+    }
+
+    public TechnicianAdapter(OnTechnicianClickListener clickListener, OnTechnicianLongClickListener longClickListener) {
+        this.clickListener = clickListener;
+        this.longClickListener = longClickListener;
     }
 
     public void updateData(List<Technician> newTechnicians) {
@@ -40,8 +57,7 @@ public class TechnicianAdapter extends RecyclerView.Adapter<TechnicianAdapter.Te
 
     @Override
     public void onBindViewHolder(@NonNull TechnicianViewHolder holder, int position) {
-        Technician technician = technicianList.get(position);
-        holder.bind(technician, listener);
+        holder.bind(technicianList.get(position), clickListener, longClickListener, deleteClickListener);
     }
 
     @Override
@@ -50,50 +66,63 @@ public class TechnicianAdapter extends RecyclerView.Adapter<TechnicianAdapter.Te
     }
 
     static class TechnicianViewHolder extends RecyclerView.ViewHolder {
-        private final ImageView ivAvatar;
         private final TextView tvName;
-        private final TextView tvEmpCode;
+        private final TextView tvCode;
         private final TextView tvSpecialization;
-        private final TextView tvBranchName;
-        private final View vStatusDot;
-        private final TextView tvStatus;
+        private final TextView tvBranch;
+        private final View statusIndicator;
+        private final TextView tvStatusBadge;
+        private final android.widget.ImageButton btnQuickDelete;
 
         public TechnicianViewHolder(@NonNull View itemView) {
             super(itemView);
-            ivAvatar = itemView.findViewById(R.id.iv_avatar);
             tvName = itemView.findViewById(R.id.tv_name);
-            tvEmpCode = itemView.findViewById(R.id.tv_emp_code);
+            tvCode = itemView.findViewById(R.id.tv_emp_code);
             tvSpecialization = itemView.findViewById(R.id.tv_specialization);
-            tvBranchName = itemView.findViewById(R.id.tv_branch_name);
-            vStatusDot = itemView.findViewById(R.id.v_status_dot);
-            tvStatus = itemView.findViewById(R.id.tv_status);
+            tvBranch = itemView.findViewById(R.id.tv_branch_name);
+            statusIndicator = itemView.findViewById(R.id.v_status_dot);
+            tvStatusBadge = itemView.findViewById(R.id.tv_status);
+            btnQuickDelete = itemView.findViewById(R.id.btn_quick_delete);
         }
 
-        public void bind(Technician technician, OnTechnicianClickListener listener) {
+        public void bind(Technician technician, OnTechnicianClickListener clickListener, OnTechnicianLongClickListener longClickListener, OnTechnicianDeleteClickListener deleteClickListener) {
             tvName.setText(technician.getFullName());
-            tvEmpCode.setText(technician.getEmployeeCode());
+            tvCode.setText(technician.getEmployeeCode());
             tvSpecialization.setText(technician.getSpecialization());
-            tvBranchName.setText("Branch: " + technician.getBranchId());
+            tvBranch.setText("Branch: " + technician.getBranchId());
 
             String status = technician.getAvailabilityStatus();
-            tvStatus.setText(status != null ? status : "UNKNOWN");
-            
-            // Set status dot background
-            int dotResId = R.drawable.bg_status_dot_available;
-            if ("BUSY".equalsIgnoreCase(status)) {
-                dotResId = R.drawable.bg_status_dot_busy;
+            tvStatusBadge.setText(status != null ? status : "UNKNOWN");
+
+            if ("AVAILABLE".equalsIgnoreCase(status)) {
+                statusIndicator.setBackgroundResource(R.drawable.bg_status_dot_available);
+                tvStatusBadge.setTextColor(itemView.getContext().getResources().getColor(android.R.color.holo_green_dark));
+            } else if ("BUSY".equalsIgnoreCase(status)) {
+                statusIndicator.setBackgroundResource(R.drawable.bg_status_dot_busy);
+                tvStatusBadge.setTextColor(itemView.getContext().getResources().getColor(android.R.color.holo_red_dark));
             } else if ("OFF_DUTY".equalsIgnoreCase(status)) {
-                dotResId = R.drawable.bg_status_dot_off_duty;
+                statusIndicator.setBackgroundResource(R.drawable.bg_status_dot_off_duty);
+                tvStatusBadge.setTextColor(itemView.getContext().getResources().getColor(android.R.color.darker_gray));
             } else if ("ON_LEAVE".equalsIgnoreCase(status)) {
-                dotResId = R.drawable.bg_status_dot_on_leave;
+                statusIndicator.setBackgroundResource(R.drawable.bg_status_dot_on_leave);
+                tvStatusBadge.setTextColor(itemView.getContext().getResources().getColor(android.R.color.holo_orange_dark));
             }
-            vStatusDot.setBackgroundResource(dotResId);
 
             itemView.setOnClickListener(v -> {
-                if (listener != null) {
-                    listener.onTechnicianClick(technician);
-                }
+                if (clickListener != null) clickListener.onTechnicianClick(technician);
+            });
+
+            if (btnQuickDelete != null) {
+                btnQuickDelete.setOnClickListener(v -> {
+                    if (deleteClickListener != null) deleteClickListener.onTechnicianDeleteClick(technician);
+                });
+            }
+
+            itemView.setOnLongClickListener(v -> {
+                if (longClickListener != null) longClickListener.onTechnicianLongClick(technician);
+                return true;
             });
         }
     }
 }
+

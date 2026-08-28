@@ -249,6 +249,80 @@ public class AdminRepository {
         });
     }
 
+    // --- Branch CRUD ---
+    public void createBranch(String token, Branch branch, AdminCallback<Branch> callback) {
+        apiService.createBranch(token, branch).enqueue(new Callback<ApiResponse<Branch>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<Branch>> call, Response<ApiResponse<Branch>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) callback.onSuccess(response.body().getData());
+                else callback.onError("Failed to create branch");
+            }
+            @Override
+            public void onFailure(Call<ApiResponse<Branch>> call, Throwable t) { callback.onError(t.getMessage()); }
+        });
+    }
+
+    public void updateBranch(String token, String branchId, Branch branch, AdminCallback<Branch> callback) {
+        apiService.updateBranch(token, branchId, branch).enqueue(new Callback<ApiResponse<Branch>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<Branch>> call, Response<ApiResponse<Branch>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) callback.onSuccess(response.body().getData());
+                else callback.onError("Failed to update branch");
+            }
+            @Override
+            public void onFailure(Call<ApiResponse<Branch>> call, Throwable t) { callback.onError(t.getMessage()); }
+        });
+    }
+
+    public void deleteBranch(String token, String branchId, AdminCallback<Void> callback) {
+        apiService.deleteBranch(token, branchId).enqueue(new Callback<ApiResponse<Object>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<Object>> call, Response<ApiResponse<Object>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) callback.onSuccess(null);
+                else callback.onError("Failed to delete branch");
+            }
+            @Override
+            public void onFailure(Call<ApiResponse<Object>> call, Throwable t) { callback.onError(t.getMessage()); }
+        });
+    }
+
+    // --- Technician CRUD ---
+    public void createTechnician(String token, Technician technician, AdminCallback<Technician> callback) {
+        apiService.createTechnician(token, technician).enqueue(new Callback<ApiResponse<Technician>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<Technician>> call, Response<ApiResponse<Technician>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) callback.onSuccess(response.body().getData());
+                else callback.onError("Failed to create technician");
+            }
+            @Override
+            public void onFailure(Call<ApiResponse<Technician>> call, Throwable t) { callback.onError(t.getMessage()); }
+        });
+    }
+
+    public void updateTechnician(String token, String technicianId, Technician technician, AdminCallback<Technician> callback) {
+        apiService.updateTechnician(token, technicianId, technician).enqueue(new Callback<ApiResponse<Technician>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<Technician>> call, Response<ApiResponse<Technician>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) callback.onSuccess(response.body().getData());
+                else callback.onError("Failed to update technician");
+            }
+            @Override
+            public void onFailure(Call<ApiResponse<Technician>> call, Throwable t) { callback.onError(t.getMessage()); }
+        });
+    }
+
+    public void deleteTechnician(String token, String technicianId, AdminCallback<Void> callback) {
+        apiService.deleteTechnician(token, technicianId).enqueue(new Callback<ApiResponse<Object>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<Object>> call, Response<ApiResponse<Object>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) callback.onSuccess(null);
+                else callback.onError("Failed to delete technician");
+            }
+            @Override
+            public void onFailure(Call<ApiResponse<Object>> call, Throwable t) { callback.onError(t.getMessage()); }
+        });
+    }
+
     // --- Cached Data (Room) ---
     public List<TechnicianEntity> getCachedTechnicians() {
         return adminDao.getAllTechnicians();

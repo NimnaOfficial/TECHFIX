@@ -70,8 +70,21 @@ public class TechnicianDetailFragment extends Fragment {
         TextView tvStatus = view.findViewById(R.id.tv_detail_status);
         RecyclerView recyclerServices = view.findViewById(R.id.recycler_services);
         MaterialButton btnEditSkills = view.findViewById(R.id.btn_edit_skills);
+        MaterialButton btnDeleteTechnician = view.findViewById(R.id.btn_delete_technician);
 
         btnBack.setOnClickListener(v -> getParentFragmentManager().popBackStack());
+        
+        btnDeleteTechnician.setOnClickListener(v -> {
+            new android.app.AlertDialog.Builder(requireContext())
+                .setTitle("Remove Technician")
+                .setMessage("Are you sure you want to permanently remove this technician? This action cannot be undone.")
+                .setPositiveButton("Remove", (dialog, which) -> {
+                    viewModel.deleteTechnician(technicianId);
+                    getParentFragmentManager().popBackStack();
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+        });
         
         tvName.setText(name);
         tvCode.setText(code);

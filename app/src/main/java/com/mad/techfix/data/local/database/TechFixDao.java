@@ -17,4 +17,7 @@ public interface TechFixDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertPart(SparePartEntity part);
+
+    @androidx.room.Delete
+    void deletePart(SparePartEntity part);
 }

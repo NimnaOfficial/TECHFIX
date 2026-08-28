@@ -212,4 +212,129 @@ public class AdminViewModel extends AndroidViewModel {
             }
         });
     }
+
+    private final MutableLiveData<Boolean> crudSuccess = new MutableLiveData<>();
+    public MutableLiveData<Boolean> getCrudSuccess() { return crudSuccess; }
+
+    // --- Branch CRUD Methods ---
+    public void createBranch(Branch branch) {
+        String token = getToken();
+        if (token == null) return;
+        isLoading.setValue(true);
+        repository.createBranch(token, branch, new AdminRepository.AdminCallback<Branch>() {
+            @Override
+            public void onSuccess(Branch result) {
+                isLoading.setValue(false);
+                crudSuccess.setValue(true);
+                loadBranches(); // refresh
+            }
+            @Override
+            public void onError(String error) {
+                isLoading.setValue(false);
+                errorMessage.setValue(error);
+                crudSuccess.setValue(false);
+            }
+        });
+    }
+
+    public void updateBranch(String branchId, Branch branch) {
+        String token = getToken();
+        if (token == null) return;
+        isLoading.setValue(true);
+        repository.updateBranch(token, branchId, branch, new AdminRepository.AdminCallback<Branch>() {
+            @Override
+            public void onSuccess(Branch result) {
+                isLoading.setValue(false);
+                crudSuccess.setValue(true);
+                loadBranches(); // refresh
+            }
+            @Override
+            public void onError(String error) {
+                isLoading.setValue(false);
+                errorMessage.setValue(error);
+                crudSuccess.setValue(false);
+            }
+        });
+    }
+
+    public void deleteBranch(String branchId) {
+        String token = getToken();
+        if (token == null) return;
+        isLoading.setValue(true);
+        repository.deleteBranch(token, branchId, new AdminRepository.AdminCallback<Void>() {
+            @Override
+            public void onSuccess(Void result) {
+                isLoading.setValue(false);
+                crudSuccess.setValue(true);
+                loadBranches(); // refresh
+            }
+            @Override
+            public void onError(String error) {
+                isLoading.setValue(false);
+                errorMessage.setValue(error);
+                crudSuccess.setValue(false);
+            }
+        });
+    }
+
+    // --- Technician CRUD Methods ---
+    public void createTechnician(Technician technician) {
+        String token = getToken();
+        if (token == null) return;
+        isLoading.setValue(true);
+        repository.createTechnician(token, technician, new AdminRepository.AdminCallback<Technician>() {
+            @Override
+            public void onSuccess(Technician result) {
+                isLoading.setValue(false);
+                crudSuccess.setValue(true);
+                loadTechnicians(); // refresh
+            }
+            @Override
+            public void onError(String error) {
+                isLoading.setValue(false);
+                errorMessage.setValue(error);
+                crudSuccess.setValue(false);
+            }
+        });
+    }
+
+    public void updateTechnician(String technicianId, Technician technician) {
+        String token = getToken();
+        if (token == null) return;
+        isLoading.setValue(true);
+        repository.updateTechnician(token, technicianId, technician, new AdminRepository.AdminCallback<Technician>() {
+            @Override
+            public void onSuccess(Technician result) {
+                isLoading.setValue(false);
+                crudSuccess.setValue(true);
+                loadTechnicians(); // refresh
+            }
+            @Override
+            public void onError(String error) {
+                isLoading.setValue(false);
+                errorMessage.setValue(error);
+                crudSuccess.setValue(false);
+            }
+        });
+    }
+
+    public void deleteTechnician(String technicianId) {
+        String token = getToken();
+        if (token == null) return;
+        isLoading.setValue(true);
+        repository.deleteTechnician(token, technicianId, new AdminRepository.AdminCallback<Void>() {
+            @Override
+            public void onSuccess(Void result) {
+                isLoading.setValue(false);
+                crudSuccess.setValue(true);
+                loadTechnicians(); // refresh
+            }
+            @Override
+            public void onError(String error) {
+                isLoading.setValue(false);
+                errorMessage.setValue(error);
+                crudSuccess.setValue(false);
+            }
+        });
+    }
 }
