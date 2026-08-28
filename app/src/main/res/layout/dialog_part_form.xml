@@ -155,7 +155,7 @@
                 app:hintTextColor="?attr/colorPrimary"
                 app:startIconDrawable="@drawable/ic_category"
                 app:startIconTint="?attr/colorPrimary"
-                app:boxBackgroundColor="?attr/colorSurface"
+                app:boxBackgroundColor="@color/app_surface"
                 app:errorEnabled="true"
                 android:hint="Category">
                 <com.google.android.material.textfield.MaterialAutoCompleteTextView
@@ -213,3 +213,4 @@
     </LinearLayout>
 
 </LinearLayout>
+

@@ -30,16 +30,6 @@
         <item name="bottomNavigationStyle">@style/Widget.App.BottomNavigationView</item>
     </style>
 
-    <!-- Popup Menu Overrides -->
-    <style name="Widget.App.TextInputLayout.OutlinedBox.ExposedDropdownMenu.WhitePopup" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
-        <item name="materialThemeOverlay">@style/ThemeOverlay.App.ExposedDropdownMenu</item>
-        <item name="boxStrokeColor">?attr/colorPrimary</item>
-        <item name="hintTextColor">?attr/colorPrimary</item>
-    </style>
+    </resources>
 
-    <style name="ThemeOverlay.App.ExposedDropdownMenu" parent="">
-        <item name="colorSurface">?attr/colorSurface</item>
-        <item name="colorOnSurface">?android:attr/textColorPrimary</item>
-    </style>
-</resources>
 

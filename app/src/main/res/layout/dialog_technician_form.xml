@@ -143,7 +143,7 @@
                 app:hintTextColor="?attr/colorPrimary"
                 app:startIconDrawable="@drawable/ic_branch"
                 app:startIconTint="?attr/colorPrimary"
-                app:boxBackgroundColor="?attr/colorSurface"
+                app:boxBackgroundColor="@color/app_surface"
                 app:errorEnabled="true"
                 android:hint="Branch">
                 <com.google.android.material.textfield.MaterialAutoCompleteTextView
@@ -201,3 +201,4 @@
     </LinearLayout>
 
 </LinearLayout>
+
