@@ -31,7 +31,7 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:boxBackgroundColor="#FFFFFF"
+                app:boxBackgroundColor="?attr/colorSurface"
                 app:boxCornerRadiusTopStart="12dp"
                 app:boxCornerRadiusTopEnd="12dp"
                 app:boxCornerRadiusBottomStart="12dp"
@@ -39,7 +39,7 @@
                 app:boxStrokeWidth="0dp"
                 app:endIconMode="clear_text"
                 app:startIconDrawable="@android:drawable/ic_menu_search"
-                app:startIconTint="#757575">
+                app:startIconTint="@color/app_text_secondary">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_search"
@@ -79,7 +79,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Available"
-                        app:chipIconTint="#4CAF50"/>
+                        app:chipIconTint="@color/status_success"/>
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chip_busy"
@@ -138,7 +138,7 @@
                 android:layout_width="64dp"
                 android:layout_height="64dp"
                 android:src="@drawable/ic_technician"
-                app:tint="#BDBDBD"
+                app:tint="@color/app_text_secondary"
                 android:layout_marginBottom="12dp"/>
 
             <TextView
@@ -146,7 +146,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="No technicians found."
-                android:textColor="#757575"
+                android:textColor="?android:attr/textColorPrimary"
                 android:textSize="16sp" />
         </LinearLayout>
 
@@ -158,9 +158,14 @@
             android:layout_margin="24dp"
             android:contentDescription="Add Technician"
             android:src="@android:drawable/ic_input_add"
-            app:backgroundTint="#0D47A1"
+            app:backgroundTint="?attr/colorPrimary"
             app:tint="#FFFFFF" />
     </FrameLayout>
 </LinearLayout>
+
+
+
+
+
 
 

@@ -87,7 +87,7 @@ public class AdminActivity extends AppCompatActivity {
         ProgressBar progress = dialogView.findViewById(R.id.progress_login);
 
         btnSubmit.setOnClickListener(v -> {
-            String email = etEmail.getText().toString().trim();
+            String email = (etEmail.getText() != null ? etEmail.getText().toString().trim() : "").trim();
             String password = etPassword.getText().toString().trim();
 
             if (email.isEmpty() || password.isEmpty()) {
@@ -141,5 +141,6 @@ public class AdminActivity extends AppCompatActivity {
         });
     }
 }
+
 
 

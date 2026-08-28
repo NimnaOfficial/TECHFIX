@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F8F9FA">
+    android:background="?android:attr/colorBackground">
 
     <!-- App Bar -->
     <com.google.android.material.appbar.AppBarLayout
@@ -34,7 +34,7 @@
                 android:text="Technician Profile"
                 android:textSize="20sp"
                 android:textStyle="bold"
-                android:textColor="#FFFFFF"
+                android:textColor="?android:attr/textColorPrimary"
                 android:layout_marginStart="16dp"/>
         </LinearLayout>
     </com.google.android.material.appbar.AppBarLayout>
@@ -122,7 +122,7 @@
 
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
                         <TextView android:layout_width="120dp" android:layout_height="wrap_content" android:text="Current Status" android:textColor="@color/app_text_secondary"/>
-                        <TextView android:id="@+id/tv_detail_status" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="AVAILABLE" android:textColor="#4CAF50" android:textStyle="bold"/>
+                        <TextView android:id="@+id/tv_detail_status" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="AVAILABLE" android:textColor="?android:attr/textColorPrimary" android:textStyle="bold"/>
                     </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -178,14 +178,19 @@
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:text="Remove Technician"
-                android:textColor="#D32F2F"
-                app:backgroundTint="#FFEBEE"
+                android:textColor="?attr/colorOnPrimary"
+                app:backgroundTint="?attr/colorSurfaceVariant"
                 app:cornerRadius="12dp"
                 app:icon="@android:drawable/ic_menu_delete"
-                app:iconTint="#D32F2F"
+                app:iconTint="@color/status_error"
                 android:layout_marginBottom="24dp"/>
 
         </LinearLayout>
     </ScrollView>
 </LinearLayout>
+
+
+
+
+
 

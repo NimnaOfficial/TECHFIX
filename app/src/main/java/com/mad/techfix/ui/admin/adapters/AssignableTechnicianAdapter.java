@@ -84,3 +84,4 @@ public class AssignableTechnicianAdapter extends RecyclerView.Adapter<Assignable
         }
     }
 }
+

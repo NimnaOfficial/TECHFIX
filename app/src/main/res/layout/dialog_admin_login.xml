@@ -20,14 +20,14 @@
             android:layout_gravity="center"
             android:layout_marginBottom="16dp"
             android:src="@drawable/ic_technician"
-            app:tint="#0D47A1" />
+            app:tint="?attr/colorPrimary" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Admin Portal"
             android:textAlignment="center"
-            android:textColor="#0D47A1"
+            android:textColor="?android:attr/textColorPrimary"
             android:textSize="22sp"
             android:textStyle="bold"
             android:layout_marginBottom="8dp" />
@@ -37,7 +37,7 @@
             android:layout_height="wrap_content"
             android:text="Please sign in to access the dashboard"
             android:textAlignment="center"
-            android:textColor="#757575"
+            android:textColor="?android:attr/textColorPrimary"
             android:textSize="14sp"
             android:layout_marginBottom="24dp" />
 
@@ -45,7 +45,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            app:boxBackgroundColor="#F5F7FA"
+            app:boxBackgroundColor="?attr/colorSurfaceVariant"
             app:boxCornerRadiusBottomEnd="8dp"
             app:boxCornerRadiusBottomStart="8dp"
             app:boxCornerRadiusTopEnd="8dp"
@@ -58,14 +58,14 @@
                 android:layout_height="wrap_content"
                 android:hint="Email Address"
                 android:inputType="textEmailAddress"
-                android:textColor="#212121" />
+                android:textColor="?android:attr/textColorPrimary" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
-            app:boxBackgroundColor="#F5F7FA"
+            app:boxBackgroundColor="?attr/colorSurfaceVariant"
             app:boxCornerRadiusBottomEnd="8dp"
             app:boxCornerRadiusBottomStart="8dp"
             app:boxCornerRadiusTopEnd="8dp"
@@ -79,7 +79,7 @@
                 android:layout_height="wrap_content"
                 android:hint="Password"
                 android:inputType="textPassword"
-                android:textColor="#212121" />
+                android:textColor="?android:attr/textColorPrimary" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <FrameLayout
@@ -93,7 +93,7 @@
                 android:text="Sign In"
                 android:textSize="16sp"
                 app:cornerRadius="8dp"
-                app:backgroundTint="#1565C0" />
+                app:backgroundTint="?attr/colorPrimary" />
 
             <ProgressBar
                 android:id="@+id/progress_login"
@@ -107,3 +107,8 @@
 
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
+
+
+
+
+

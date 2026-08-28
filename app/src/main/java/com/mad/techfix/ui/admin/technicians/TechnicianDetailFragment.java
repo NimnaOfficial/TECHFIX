@@ -150,3 +150,4 @@ public class TechnicianDetailFragment extends Fragment {
         });
     }
 }
+

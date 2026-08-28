@@ -160,8 +160,8 @@ public class TechnicianListFragment extends Fragment {
             if (tech != null) { t.setUserId(tech.getUserId()); } // Keep existing user ID if editing
             t.setFirstName(firstNameStr);
             t.setLastName(lastNameStr);
-            t.setEmployeeCode(etCode.getText().toString());
-            t.setSpecialization(etSpecialization.getText().toString());
+            t.setEmployeeCode((etCode.getText() != null ? etCode.getText().toString().trim() : ""));
+            t.setSpecialization((etSpecialization.getText() != null ? etSpecialization.getText().toString().trim() : ""));
             t.setBranchId(branchIdStr);
             
             if (tech == null) {
@@ -283,4 +283,5 @@ public class TechnicianListFragment extends Fragment {
         @Override public void afterTextChanged(Editable s) {}
     }
 }
+
 

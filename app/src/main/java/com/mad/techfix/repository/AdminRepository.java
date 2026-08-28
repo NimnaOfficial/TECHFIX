@@ -315,8 +315,12 @@ public class AdminRepository {
         apiService.deleteTechnician(token, technicianId).enqueue(new Callback<ApiResponse<Object>>() {
             @Override
             public void onResponse(Call<ApiResponse<Object>> call, Response<ApiResponse<Object>> response) {
-                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) callback.onSuccess(null);
-                else callback.onError("Failed to delete technician");
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                    executorService.execute(() -> {
+                        adminDao.deleteTechnicianById(technicianId);
+                    });
+                    callback.onSuccess(null);
+                } else callback.onError("Failed to delete technician");
             }
             @Override
             public void onFailure(Call<ApiResponse<Object>> call, Throwable t) { callback.onError(t.getMessage()); }

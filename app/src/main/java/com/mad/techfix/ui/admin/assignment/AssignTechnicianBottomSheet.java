@@ -108,3 +108,4 @@ public class AssignTechnicianBottomSheet extends BottomSheetDialogFragment {
         viewModel.loadTechnicians();
     }
 }
+

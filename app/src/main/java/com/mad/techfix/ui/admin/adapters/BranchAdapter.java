@@ -103,3 +103,4 @@ public class BranchAdapter extends RecyclerView.Adapter<BranchAdapter.BranchView
         }
     }
 }
+

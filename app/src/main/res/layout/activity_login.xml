@@ -5,13 +5,13 @@
     android:orientation="vertical"
     android:padding="24dp"
     android:gravity="center"
-    android:background="#1E1E2C">
+    android:background="?android:attr/colorBackground">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Welcome Back"
-        android:textColor="#FFFFFF"
+        android:textColor="?android:attr/textColorPrimary"
         android:textSize="28sp"
         android:textStyle="bold"
         android:layout_marginBottom="32dp" />
@@ -21,11 +21,11 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:hint="Email Address"
-        android:textColorHint="#A0A0A0"
-        android:textColor="#FFFFFF"
+        android:textColorHint="?android:attr/textColorSecondary"
+        android:textColor="?android:attr/textColorPrimary"
         android:inputType="textEmailAddress"
         android:padding="12dp"
-        android:background="#2D2D3F"
+        android:background="?attr/colorSurface"
         android:layout_marginBottom="16dp" />
 
     <EditText
@@ -33,11 +33,11 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:hint="Password"
-        android:textColorHint="#A0A0A0"
-        android:textColor="#FFFFFF"
+        android:textColorHint="?android:attr/textColorSecondary"
+        android:textColor="?android:attr/textColorPrimary"
         android:inputType="textPassword"
         android:padding="12dp"
-        android:background="#2D2D3F"
+        android:background="?attr/colorSurface"
         android:layout_marginBottom="24dp" />
 
     <Button
@@ -46,16 +46,21 @@
         android:layout_height="50dp"
         android:text="LOG IN"
         android:textSize="16sp"
-        android:backgroundTint="#6C5CE7"
-        android:textColor="#FFFFFF" />
+        android:backgroundTint="?attr/colorPrimary"
+        android:textColor="?android:attr/textColorPrimary" />
 
     <TextView
         android:id="@+id/tvRegister"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Don't have an account? Register"
-        android:textColor="#6C5CE7"
+        android:textColor="?android:attr/textColorPrimary"
         android:layout_marginTop="20dp"
         android:padding="8dp" />
 
 </LinearLayout>
+
+
+
+
+

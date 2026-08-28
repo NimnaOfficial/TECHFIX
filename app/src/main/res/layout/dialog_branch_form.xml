@@ -14,13 +14,10 @@
         android:text="Branch Details"
         android:textSize="22sp"
         android:textStyle="bold"
-        android:textColor="#0D47A1"
+        android:textColor="?android:attr/textColorPrimary"
         android:layout_marginBottom="16dp"/>
 
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
+    <ScrollView android:layout_width="match_parent" android:layout_height="wrap_content"
         android:fillViewport="true">
         
         <LinearLayout
@@ -37,17 +34,17 @@
                 app:boxCornerRadiusTopEnd="12dp"
                 app:boxCornerRadiusBottomStart="12dp"
                 app:boxCornerRadiusBottomEnd="12dp"
-                app:boxStrokeColor="#1565C0"
-                app:hintTextColor="#1565C0"
+                app:boxStrokeColor="?attr/colorPrimary"
+                app:hintTextColor="?attr/colorPrimary"
                 app:startIconDrawable="@drawable/ic_branch"
-                app:startIconTint="#1565C0"
+                app:startIconTint="?attr/colorPrimary"
                 app:expandedHintEnabled="false"
                 android:hint="Branch Name">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_branch_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="#212121"
+                    android:textColor="?android:attr/textColorPrimary"
                     android:hint="e.g. Colombo Branch"/>
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -60,13 +57,13 @@
                 app:boxCornerRadiusTopEnd="12dp"
                 app:boxCornerRadiusBottomStart="12dp"
                 app:boxCornerRadiusBottomEnd="12dp"
-                app:boxStrokeColor="#1565C0"
-                app:hintTextColor="#1565C0"
+                app:boxStrokeColor="?attr/colorPrimary"
+                app:hintTextColor="?attr/colorPrimary"
                 app:startIconDrawable="@drawable/ic_location"
-                app:startIconTint="#1565C0"
+                app:startIconTint="?attr/colorPrimary"
                 app:expandedHintEnabled="false"
                 android:hint="Full Address">
-                <com.google.android.material.textfield.TextInputEditText android:id="@+id/et_branch_address" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#212121" android:hint="e.g. 123 Main Street" />
+                <com.google.android.material.textfield.TextInputEditText android:id="@+id/et_branch_address" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="?android:attr/textColorPrimary" android:hint="e.g. 123 Main Street" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -78,17 +75,17 @@
                 app:boxCornerRadiusTopEnd="12dp"
                 app:boxCornerRadiusBottomStart="12dp"
                 app:boxCornerRadiusBottomEnd="12dp"
-                app:boxStrokeColor="#1565C0"
-                app:hintTextColor="#1565C0"
+                app:boxStrokeColor="?attr/colorPrimary"
+                app:hintTextColor="?attr/colorPrimary"
                 app:startIconDrawable="@drawable/ic_location"
-                app:startIconTint="#1565C0"
+                app:startIconTint="?attr/colorPrimary"
                 app:expandedHintEnabled="false"
                 android:hint="City">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_branch_city"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="#212121"
+                    android:textColor="?android:attr/textColorPrimary"
                     android:hint="e.g. Colombo"/>
             </com.google.android.material.textfield.TextInputLayout>
             
@@ -101,17 +98,17 @@
                 app:boxCornerRadiusTopEnd="12dp"
                 app:boxCornerRadiusBottomStart="12dp"
                 app:boxCornerRadiusBottomEnd="12dp"
-                app:boxStrokeColor="#1565C0"
-                app:hintTextColor="#1565C0"
+                app:boxStrokeColor="?attr/colorPrimary"
+                app:hintTextColor="?attr/colorPrimary"
                 app:startIconDrawable="@drawable/ic_phone"
-                app:startIconTint="#1565C0"
+                app:startIconTint="?attr/colorPrimary"
                 app:expandedHintEnabled="false"
                 android:hint="Phone Number">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_branch_phone"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="#212121"
+                    android:textColor="?android:attr/textColorPrimary"
                     android:inputType="phone" android:hint="e.g. 0771234567" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -124,17 +121,17 @@
                 app:boxCornerRadiusTopEnd="12dp"
                 app:boxCornerRadiusBottomStart="12dp"
                 app:boxCornerRadiusBottomEnd="12dp"
-                app:boxStrokeColor="#1565C0"
-                app:hintTextColor="#1565C0"
+                app:boxStrokeColor="?attr/colorPrimary"
+                app:hintTextColor="?attr/colorPrimary"
                 app:startIconDrawable="@drawable/ic_email"
-                app:startIconTint="#1565C0"
+                app:startIconTint="?attr/colorPrimary"
                 app:expandedHintEnabled="false"
                 android:hint="Email Address">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_branch_email"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="#212121"
+                    android:textColor="?android:attr/textColorPrimary"
                     android:inputType="textEmailAddress" android:hint="e.g. branch@techfix.com" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -154,17 +151,17 @@
                     app:boxCornerRadiusTopEnd="12dp"
                     app:boxCornerRadiusBottomStart="12dp"
                     app:boxCornerRadiusBottomEnd="12dp"
-                    app:boxStrokeColor="#1565C0"
-                    app:hintTextColor="#1565C0"
+                    app:boxStrokeColor="?attr/colorPrimary"
+                    app:hintTextColor="?attr/colorPrimary"
                     app:startIconDrawable="@drawable/ic_location"
-                    app:startIconTint="#1565C0"
+                    app:startIconTint="?attr/colorPrimary"
                     app:expandedHintEnabled="false"
                     android:hint="Latitude">
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/et_branch_lat"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textColor="#212121"
+                        android:textColor="?android:attr/textColorPrimary"
                         android:inputType="numberDecimal|numberSigned" android:hint="e.g. 6.9271" />
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -179,17 +176,17 @@
                     app:boxCornerRadiusTopEnd="12dp"
                     app:boxCornerRadiusBottomStart="12dp"
                     app:boxCornerRadiusBottomEnd="12dp"
-                    app:boxStrokeColor="#1565C0"
-                    app:hintTextColor="#1565C0"
+                    app:boxStrokeColor="?attr/colorPrimary"
+                    app:hintTextColor="?attr/colorPrimary"
                     app:startIconDrawable="@drawable/ic_location"
-                    app:startIconTint="#1565C0"
+                    app:startIconTint="?attr/colorPrimary"
                     app:expandedHintEnabled="false"
                     android:hint="Longitude">
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/et_branch_lng"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textColor="#212121"
+                        android:textColor="?android:attr/textColorPrimary"
                         android:inputType="numberDecimal|numberSigned" android:hint="e.g. 79.8612" />
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
@@ -210,17 +207,17 @@
                     app:boxCornerRadiusTopEnd="12dp"
                     app:boxCornerRadiusBottomStart="12dp"
                     app:boxCornerRadiusBottomEnd="12dp"
-                    app:boxStrokeColor="#1565C0"
-                    app:hintTextColor="#1565C0"
+                    app:boxStrokeColor="?attr/colorPrimary"
+                    app:hintTextColor="?attr/colorPrimary"
                     app:startIconDrawable="@drawable/ic_time"
-                    app:startIconTint="#1565C0"
+                    app:startIconTint="?attr/colorPrimary"
                     app:expandedHintEnabled="false"
                     android:hint="Opening Time">
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/et_branch_opening"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textColor="#212121"
+                        android:textColor="?android:attr/textColorPrimary"
                         android:hint="e.g. 09:00 AM"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -235,17 +232,17 @@
                     app:boxCornerRadiusTopEnd="12dp"
                     app:boxCornerRadiusBottomStart="12dp"
                     app:boxCornerRadiusBottomEnd="12dp"
-                    app:boxStrokeColor="#1565C0"
-                    app:hintTextColor="#1565C0"
+                    app:boxStrokeColor="?attr/colorPrimary"
+                    app:hintTextColor="?attr/colorPrimary"
                     app:startIconDrawable="@drawable/ic_time"
-                    app:startIconTint="#1565C0"
+                    app:startIconTint="?attr/colorPrimary"
                     app:expandedHintEnabled="false"
                     android:hint="Closing Time">
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/et_branch_closing"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textColor="#212121"
+                        android:textColor="?android:attr/textColorPrimary"
                         android:hint="e.g. 06:00 PM"/>
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
@@ -266,7 +263,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Delete"
-            android:textColor="#F44336"
+            android:textColor="?attr/colorOnPrimary"
             android:visibility="gone"/>
 
         <Space
@@ -280,7 +277,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Cancel"
-            android:textColor="#757575"
+            android:textColor="?attr/colorOnPrimary"
             android:layout_marginEnd="16dp"/>
 
         <com.google.android.material.button.MaterialButton
@@ -288,11 +285,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Save Branch"
-            android:textColor="#FFFFFF"
+            android:textColor="?attr/colorOnPrimary"
             app:cornerRadius="8dp"
-            app:backgroundTint="#0D47A1"/>
+            app:backgroundTint="?attr/colorPrimary"/>
     </LinearLayout>
 
 </LinearLayout>
+
+
+
+
+
+
 
 
