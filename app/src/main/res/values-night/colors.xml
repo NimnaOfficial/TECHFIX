@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Theme Colors (Dark) -->
+    <color name="app_background">#121212</color>
+    <color name="app_surface">#1E1E1E</color>
+    <color name="app_primary">#64B5F6</color>     <!-- Lighter blue for dark mode -->
+    <color name="app_primary_variant">#90CAF9</color>
+    <color name="app_secondary">#2196F3</color>
+    <color name="app_text_primary">#F5F5F5</color>
+    <color name="app_text_secondary">#B0BEC5</color>
+    <color name="app_divider">#333333</color>
+    
+    <!-- Status Colors (Dark mode optimized) -->
+    <color name="status_success">#81C784</color>
+    <color name="status_error">#E57373</color>
+    <color name="status_warning">#FFB74D</color>
+    
+    <!-- Icon Tints -->
+    <color name="icon_tint_primary">#90CAF9</color>
+    <color name="icon_bg_primary">#0D47A1</color> <!-- Darker background for icons in dark mode -->
+    <color name="card_border">#333333</color>
+</resources>
