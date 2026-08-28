@@ -11,7 +11,6 @@ public class RetrofitClient {
 
     public static Retrofit getClient() {
         if (retrofit == null) {
-            // Logging interceptor to see network calls in Logcat
             HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
             logging.setLevel(HttpLoggingInterceptor.Level.BODY);
 
@@ -26,5 +25,10 @@ public class RetrofitClient {
                     .build();
         }
         return retrofit;
+    }
+
+    // Added helper method to serve ApiService requests across the app
+    public static ApiService getApiService() {
+        return getClient().create(ApiService.class);
     }
 }
