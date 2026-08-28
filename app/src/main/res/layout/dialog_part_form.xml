@@ -14,8 +14,16 @@
         android:text="Spare Part Details"
         android:textSize="22sp"
         android:textStyle="bold"
-        android:textColor="?android:attr/textColorPrimary"
-        android:layout_marginBottom="16dp"/>
+        android:textColor="?android:attr/textColorPrimary"/>
+        
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Enter the details below to save."
+        android:textSize="14sp"
+        android:textColor="?android:attr/textColorSecondary"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="24dp"/>
 
     <ScrollView android:layout_width="match_parent" android:layout_height="wrap_content"
         android:fillViewport="true">
@@ -30,73 +38,47 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                app:boxCornerRadiusTopStart="12dp"
-                app:boxCornerRadiusTopEnd="12dp"
-                app:boxCornerRadiusBottomStart="12dp"
-                app:boxCornerRadiusBottomEnd="12dp"
+                android:layout_marginBottom="16dp"
+                app:boxCornerRadiusTopStart="16dp"
+                app:boxCornerRadiusTopEnd="16dp"
+                app:boxCornerRadiusBottomStart="16dp"
+                app:boxCornerRadiusBottomEnd="16dp"
                 app:boxStrokeColor="?attr/colorPrimary"
                 app:hintTextColor="?attr/colorPrimary"
                 app:startIconDrawable="@drawable/ic_name"
                 app:startIconTint="?attr/colorPrimary"
                 app:errorEnabled="true"
-                android:hint="Part Name">
+                android:hint="Part Name"
+                app:placeholderText="e.g., iPhone 13 Screen">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_part_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="?android:attr/textColorPrimary"
-                    android:hint="e.g. iPhone 15 Display"/>
+                    android:textColor="?android:attr/textColorPrimary"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_part_number"
+                android:id="@+id/til_part_sku"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                app:boxCornerRadiusTopStart="12dp"
-                app:boxCornerRadiusTopEnd="12dp"
-                app:boxCornerRadiusBottomStart="12dp"
-                app:boxCornerRadiusBottomEnd="12dp"
+                android:layout_marginBottom="16dp"
+                app:boxCornerRadiusTopStart="16dp"
+                app:boxCornerRadiusTopEnd="16dp"
+                app:boxCornerRadiusBottomStart="16dp"
+                app:boxCornerRadiusBottomEnd="16dp"
                 app:boxStrokeColor="?attr/colorPrimary"
                 app:hintTextColor="?attr/colorPrimary"
                 app:startIconDrawable="@drawable/ic_numbers"
                 app:startIconTint="?attr/colorPrimary"
                 app:errorEnabled="true"
-                android:hint="Part Number">
+                android:hint="SKU Code"
+                app:placeholderText="e.g., SKU-IP13-SCR">
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/et_part_number"
+                    android:id="@+id/et_part_sku"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="?android:attr/textColorPrimary"
-                    android:hint="e.g. DSP-IP15"/>
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_part_category"
-                style="@style/Widget.App.TextInputLayout.OutlinedBox.ExposedDropdownMenu.WhitePopup"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                app:boxCornerRadiusTopStart="12dp"
-                app:boxCornerRadiusTopEnd="12dp"
-                app:boxCornerRadiusBottomStart="12dp"
-                app:boxCornerRadiusBottomEnd="12dp"
-                app:boxStrokeColor="?attr/colorPrimary"
-                app:hintTextColor="?attr/colorPrimary"
-                app:startIconDrawable="@drawable/ic_category"
-                app:startIconTint="?attr/colorPrimary"
-                app:boxBackgroundColor="?attr/colorSurface"
-                app:errorEnabled="true"
-                android:hint="Category">
-                <AutoCompleteTextView
-                    android:id="@+id/et_part_description"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="?android:attr/textColorPrimary"
-                    android:padding="16dp"
-                    android:inputType="none"/>
+                    android:textColor="?android:attr/textColorPrimary"/>
             </com.google.android.material.textfield.TextInputLayout>
             
             <LinearLayout
@@ -110,18 +92,19 @@
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
                     android:layout_marginBottom="16dp"
-                    android:layout_marginEnd="4dp"
-                    app:boxCornerRadiusTopStart="12dp"
-                    app:boxCornerRadiusTopEnd="12dp"
-                    app:boxCornerRadiusBottomStart="12dp"
-                    app:boxCornerRadiusBottomEnd="12dp"
+                    app:boxCornerRadiusTopStart="16dp"
+                    app:boxCornerRadiusTopEnd="16dp"
+                    app:boxCornerRadiusBottomStart="16dp"
+                    app:boxCornerRadiusBottomEnd="16dp"
                     app:boxStrokeColor="?attr/colorPrimary"
                     app:hintTextColor="?attr/colorPrimary"
                     app:startIconDrawable="@drawable/ic_price"
                     app:startIconTint="?attr/colorPrimary"
                     app:errorEnabled="true"
-                    android:hint="Unit Price (LKR)">
+                    android:hint="Unit Price ($)"
+                    app:placeholderText="e.g., 85.00">
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/et_part_price"
                         android:layout_width="match_parent"
@@ -131,31 +114,58 @@
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/til_part_stock"
+                    android:id="@+id/til_part_quantity"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
                     android:layout_marginBottom="16dp"
-                    android:layout_marginStart="4dp"
-                    app:boxCornerRadiusTopStart="12dp"
-                    app:boxCornerRadiusTopEnd="12dp"
-                    app:boxCornerRadiusBottomStart="12dp"
-                    app:boxCornerRadiusBottomEnd="12dp"
+                    app:boxCornerRadiusTopStart="16dp"
+                    app:boxCornerRadiusTopEnd="16dp"
+                    app:boxCornerRadiusBottomStart="16dp"
+                    app:boxCornerRadiusBottomEnd="16dp"
                     app:boxStrokeColor="?attr/colorPrimary"
                     app:hintTextColor="?attr/colorPrimary"
                     app:startIconDrawable="@drawable/ic_inventory"
                     app:startIconTint="?attr/colorPrimary"
                     app:errorEnabled="true"
-                    android:hint="Min. Stock">
+                    android:hint="Stock Qty"
+                    app:placeholderText="e.g., 50">
                     <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/et_part_stock"
+                        android:id="@+id/et_part_quantity"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:textColor="?android:attr/textColorPrimary"
                         android:inputType="number"/>
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_part_category"
+                style="@style/Widget.App.TextInputLayout.OutlinedBox.ExposedDropdownMenu.WhitePopup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                app:boxCornerRadiusTopStart="16dp"
+                app:boxCornerRadiusTopEnd="16dp"
+                app:boxCornerRadiusBottomStart="16dp"
+                app:boxCornerRadiusBottomEnd="16dp"
+                app:boxStrokeColor="?attr/colorPrimary"
+                app:hintTextColor="?attr/colorPrimary"
+                app:startIconDrawable="@drawable/ic_category"
+                app:startIconTint="?attr/colorPrimary"
+                app:boxBackgroundColor="?attr/colorSurface"
+                app:errorEnabled="true"
+                android:hint="Category">
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                    android:id="@+id/et_part_category"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="?android:attr/textColorPrimary"
+                    android:inputType="none"
+                    />
+            </com.google.android.material.textfield.TextInputLayout>
 
         </LinearLayout>
     </ScrollView>
@@ -173,7 +183,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Delete"
-            android:textColor="?attr/colorOnPrimary"
+            android:textColor="@color/status_error"
             android:visibility="gone"/>
 
         <Space
@@ -187,23 +197,19 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Cancel"
-            android:textColor="?attr/colorOnPrimary"
+            android:textColor="?android:attr/textColorSecondary"
             android:layout_marginEnd="16dp"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_save"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Save Part"
+            android:text="Save Details"
             android:textColor="?attr/colorOnPrimary"
-            app:cornerRadius="8dp"
+            app:cornerRadius="12dp"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp"
             app:backgroundTint="?attr/colorPrimary"/>
     </LinearLayout>
 
 </LinearLayout>
-
-
-
-
-
-
