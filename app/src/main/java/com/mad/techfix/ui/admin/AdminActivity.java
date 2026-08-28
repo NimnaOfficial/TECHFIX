@@ -13,7 +13,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.mad.techfix.R;
 import com.mad.techfix.models.LoginRequest;
-import com.mad.techfix.models.LoginResponse;
+import com.mad.techfix.models.AuthResponse;
 import com.mad.techfix.network.ApiService;
 import com.mad.techfix.network.RetrofitClient;
 import com.mad.techfix.ui.admin.branches.BranchListFragment;
@@ -103,9 +103,9 @@ public class AdminActivity extends AppCompatActivity {
             ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
             LoginRequest request = new LoginRequest(email, password);
             
-            apiService.login(request).enqueue(new Callback<LoginResponse>() {
+            apiService.loginUser(request).enqueue(new Callback<AuthResponse>() {
                 @Override
-                public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
+                public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
                     btnSubmit.setText("Sign In");
                     progress.setVisibility(View.GONE);
                     btnSubmit.setEnabled(true);
@@ -131,7 +131,7 @@ public class AdminActivity extends AppCompatActivity {
                 }
 
                 @Override
-                public void onFailure(Call<LoginResponse> call, Throwable t) {
+                public void onFailure(Call<AuthResponse> call, Throwable t) {
                     btnSubmit.setText("Sign In");
                     progress.setVisibility(View.GONE);
                     btnSubmit.setEnabled(true);
@@ -141,3 +141,5 @@ public class AdminActivity extends AppCompatActivity {
         });
     }
 }
+
+
