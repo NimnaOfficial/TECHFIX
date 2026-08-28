@@ -49,7 +49,7 @@ public class DashboardAppointmentAdapter extends RecyclerView.Adapter<DashboardA
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         private final TextView tvApptNumber;
-        private final TextView tvStatusBadge;
+        private final TextView tvStatusBadge; private final com.google.android.material.card.MaterialCardView cardStatusBadge;
         private final TextView tvApptDate;
         private final Button btnQuickAssign;
 
@@ -57,6 +57,7 @@ public class DashboardAppointmentAdapter extends RecyclerView.Adapter<DashboardA
             super(itemView);
             tvApptNumber = itemView.findViewById(R.id.tv_appt_number);
             tvStatusBadge = itemView.findViewById(R.id.tv_status_badge);
+            cardStatusBadge = itemView.findViewById(R.id.card_status_badge);
             tvApptDate = itemView.findViewById(R.id.tv_appt_date);
             btnQuickAssign = itemView.findViewById(R.id.btn_quick_assign);
         }
@@ -72,38 +73,47 @@ public class DashboardAppointmentAdapter extends RecyclerView.Adapter<DashboardA
             if (status != null) {
                 switch (status.toUpperCase()) {
                     case "REQUESTED":
-                        tvStatusBadge.setBackgroundColor(android.graphics.Color.parseColor("#FF9800")); // Orange
+                        cardStatusBadge.setCardBackgroundColor(android.graphics.Color.parseColor("#FF9800")); tvStatusBadge.setTextColor(android.graphics.Color.WHITE); // Orange
                         break;
                     case "ASSIGNED":
                     case "DEVICE_RECEIVED":
                     case "DIAGNOSING":
                     case "REPAIRING":
                     case "TESTING":
-                        tvStatusBadge.setBackgroundColor(android.graphics.Color.parseColor("#1E88E5")); // Blue
+                        cardStatusBadge.setCardBackgroundColor(android.graphics.Color.parseColor("#1E88E5")); tvStatusBadge.setTextColor(android.graphics.Color.WHITE); // Blue
                         break;
                     case "READY":
                     case "COMPLETED":
-                        tvStatusBadge.setBackgroundColor(android.graphics.Color.parseColor("#4CAF50")); // Green
+                        cardStatusBadge.setCardBackgroundColor(android.graphics.Color.parseColor("#4CAF50")); tvStatusBadge.setTextColor(android.graphics.Color.WHITE); // Green
                         break;
                     case "CANCELLED":
-                        tvStatusBadge.setBackgroundColor(android.graphics.Color.parseColor("#F44336")); // Red
+                        cardStatusBadge.setCardBackgroundColor(android.graphics.Color.parseColor("#F44336")); tvStatusBadge.setTextColor(android.graphics.Color.WHITE); // Red
                         break;
                     default:
-                        tvStatusBadge.setBackgroundColor(android.graphics.Color.parseColor("#9E9E9E")); // Gray
+                        cardStatusBadge.setCardBackgroundColor(android.graphics.Color.parseColor("#9E9E9E")); tvStatusBadge.setTextColor(android.graphics.Color.WHITE); // Gray
                         break;
                 }
             }
 
             if ("REQUESTED".equalsIgnoreCase(status)) {
                 btnQuickAssign.setVisibility(View.VISIBLE);
-                btnQuickAssign.setOnClickListener(v -> {
-                    if (listener != null) {
-                        listener.onAssignClick(appointment);
-                    }
-                });
+                btnQuickAssign.setText("Assign Tech");
             } else {
                 btnQuickAssign.setVisibility(View.GONE);
             }
+            
+            // Allow whole card to be clicked to view details
+            itemView.setOnClickListener(v -> {
+                if (listener != null) {
+                    listener.onAssignClick(appointment);
+                }
+            });
+            
+            btnQuickAssign.setOnClickListener(v -> {
+                if (listener != null) {
+                    listener.onAssignClick(appointment);
+                }
+            });
         }
     }
 }

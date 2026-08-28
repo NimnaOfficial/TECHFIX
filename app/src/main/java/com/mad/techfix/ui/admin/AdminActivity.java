@@ -42,6 +42,9 @@ public class AdminActivity extends AppCompatActivity {
             if (id == R.id.nav_dashboard) {
                 loadFragment(new AdminDashboardFragment());
                 return true;
+                        } else if (id == R.id.nav_appointments) {
+                loadFragment(new com.mad.techfix.ui.admin.appointments.AppointmentsFragment());
+                return true;
             } else if (id == R.id.nav_branches) {
                 loadFragment(new BranchListFragment());
                 return true;
@@ -66,7 +69,7 @@ public class AdminActivity extends AppCompatActivity {
 
     private void loadFragment(Fragment fragment) {
         getSupportFragmentManager()
-                .beginTransaction()
+                .beginTransaction().setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
                 .replace(R.id.fragment_container, fragment)
                 .commit();
     }
@@ -141,6 +144,8 @@ public class AdminActivity extends AppCompatActivity {
         });
     }
 }
+
+
 
 
 

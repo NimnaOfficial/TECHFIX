@@ -17,20 +17,29 @@ local.properties
 # Log Files
 *.log
 
-# Android Studio captures folder
-captures/
-.navigation/
-
-# IntelliJ / Android Studio
+# Android Studio / IntelliJ
+.idea/
 *.iml
-.gradle
-/mem3/*
-/local.properties
-/.idea/*
-.DS_Store
-/build
-/captures
+*.iws
+.navigation/
+captures/
 .externalNativeBuild
 .cxx
-local.properties
-.gitignore
+
+# OS specific files
+.DS_Store
+Thumbs.db
+
+# Keystore files (do not commit secret keys)
+*.jks
+*.keystore
+
+# Google Services (if containing sensitive keys)
+# google-services.json
+
+# Dependencies
+node_modules/
+
+# Cloudflare Wrangler
+.dev.vars
+.wrangler/
