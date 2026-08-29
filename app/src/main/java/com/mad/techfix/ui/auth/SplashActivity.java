@@ -22,9 +22,20 @@ public class SplashActivity extends AppCompatActivity {
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             SessionManager sessionManager = new SessionManager(SplashActivity.this);
 
-            Intent nextIntent;
+                                    Intent nextIntent;
             if (sessionManager.isLoggedIn()) {
-                nextIntent = new Intent(SplashActivity.this, MainActivity.class);
+                String role = sessionManager.getUserRole();
+                if (role == null) role = "CUSTOMER"; // Fallback
+
+                if ("ADMIN".equalsIgnoreCase(role)) {
+                    nextIntent = new Intent(SplashActivity.this, com.mad.techfix.ui.admin.SystemAdminActivity.class);
+                } else if ("MANAGER".equalsIgnoreCase(role)) {
+                    nextIntent = new Intent(SplashActivity.this, com.mad.techfix.ui.admin.AdminActivity.class);
+                } else if ("TECHNICIAN".equalsIgnoreCase(role)) {
+                    nextIntent = new Intent(SplashActivity.this, com.mad.techfix.ui.technician.TechnicianActivity.class);
+                } else {
+                    nextIntent = new Intent(SplashActivity.this, MainActivity.class);
+                }
             } else {
                 nextIntent = new Intent(SplashActivity.this, LoginActivity.class);
             }
@@ -34,3 +45,5 @@ public class SplashActivity extends AppCompatActivity {
         }, SPLASH_DURATION_MS);
     }
 }
+
+
