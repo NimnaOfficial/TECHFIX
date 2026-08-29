@@ -11,18 +11,25 @@ import com.mad.techfix.models.Payment;
 import java.util.List;
 import java.util.Map;
 
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
+import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
-import retrofit2.http.DELETE;
+import retrofit2.http.Part;
 import retrofit2.http.Path;
+import com.mad.techfix.models.AppointmentDetail;
 
 public interface ApiService {
 
-    // === MEMBER 1: AUTHENTICATION & HEALTH ===
+    // ==========================================
+    // MEMBER 1: AUTHENTICATION & HEALTH
+    // ==========================================
     @POST("api/auth/login")
     Call<AuthResponse> loginUser(@Body LoginRequest loginRequest);
 
@@ -35,25 +42,99 @@ public interface ApiService {
     @GET("api/health")
     Call<Map<String, Object>> getHealth();
 
-    // === SHARED SERVICES ===
+    // ==========================================
+    // MEMBER 4: SPARE PARTS
+    // ==========================================
     @GET("api/spare-parts")
     Call<ApiResponse<List<SparePart>>> getSpareParts(@Header("Authorization") String auth);
 
     @POST("api/spare-parts")
-    Call<ApiResponse<SparePart>> createSparePart(@Header("Authorization") String auth, @Body SparePart part);
+    Call<ApiResponse<SparePart>> createSparePart(
+            @Header("Authorization") String auth,
+            @Body SparePart part
+    );
 
     @PUT("api/spare-parts/{id}")
-    Call<ApiResponse<SparePart>> updateSparePart(@Header("Authorization") String auth, @Path("id") String partId, @Body SparePart part);
+    Call<ApiResponse<SparePart>> updateSparePart(
+            @Header("Authorization") String auth,
+            @Path("id") String partId,
+            @Body SparePart part
+    );
 
     @DELETE("api/spare-parts/{id}")
-    Call<ApiResponse<Object>> deleteSparePart(@Header("Authorization") String auth, @Path("id") String partId);
+    Call<ApiResponse<Object>> deleteSparePart(
+            @Header("Authorization") String auth,
+            @Path("id") String partId
+    );
 
+    // ==========================================
+    // MEMBER 4: APPOINTMENTS / REPAIR HISTORY
+    // ==========================================
     @GET("api/appointments")
     Call<ApiResponse<List<Appointment>>> getAppointments(@Header("Authorization") String auth);
 
     @GET("api/appointments/{id}/history")
-    Call<ApiResponse<List<Object>>> getAppointmentHistory(@Header("Authorization") String auth, @Path("id") String appointmentId);
+    Call<ApiResponse<List<Object>>> getAppointmentHistory(
+            @Header("Authorization") String auth,
+            @Path("id") String appointmentId
+    );
 
+    // ==========================================
+    // MEMBER 4: PAYMENTS
+    // ==========================================
     @POST("api/payments")
-    Call<ApiResponse<Payment>> createPayment(@Header("Authorization") String auth, @Body Payment payment);
+    Call<ApiResponse<Payment>> createPayment(
+            @Header("Authorization") String auth,
+            @Body Payment payment
+    );
+
+    @GET("api/appointments/{id}/payments")
+    Call<ApiResponse<List<Payment>>> getAppointmentPayments(
+            @Header("Authorization") String auth,
+            @Path("id") String appointmentId
+    );
+
+    @GET("api/payments/{id}")
+    Call<ApiResponse<Payment>> getPayment(
+            @Header("Authorization") String auth,
+            @Path("id") String paymentId
+    );
+
+    @PUT("api/payments/{id}/status")
+    Call<ApiResponse<Object>> updatePaymentStatus(
+            @Header("Authorization") String auth,
+            @Path("id") String paymentId,
+            @Body Payment payment
+    );
+
+    // ==========================================
+    // MEMBER 4: CAMERA / IMAGES
+    // ==========================================
+    @Multipart
+    @POST("api/appointments/{id}/images")
+    Call<ApiResponse<Object>> uploadImage(
+            @Header("Authorization") String auth,
+            @Path("id") String appointmentId,
+            @Part MultipartBody.Part image,
+            @Part("image_type") RequestBody imageType
+    );
+
+    @GET("api/appointments/{id}/images")
+    Call<ApiResponse<List<Object>>> getAppointmentImages(
+            @Header("Authorization") String auth,
+            @Path("id") String appointmentId
+    );
+
+    @DELETE("api/appointments/{id}/images/{imageId}")
+    Call<ApiResponse<Object>> deleteImage(
+            @Header("Authorization") String auth,
+            @Path("id") String appointmentId,
+            @Path("imageId") String imageId
+    );
+
+    @GET("api/appointments/{id}")
+    Call<ApiResponse<AppointmentDetail>> getAppointmentDetail(
+            @Header("Authorization") String auth,
+            @Path("id") String appointmentId
+    );
 }
