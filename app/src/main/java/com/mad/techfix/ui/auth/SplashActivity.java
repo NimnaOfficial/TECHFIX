@@ -24,7 +24,12 @@ public class SplashActivity extends AppCompatActivity {
 
             Intent nextIntent;
             if (sessionManager.isLoggedIn()) {
-                nextIntent = new Intent(SplashActivity.this, MainActivity.class);
+                String role = sessionManager.getUserRole();
+                if ("ADMIN".equalsIgnoreCase(role) || "MANAGER".equalsIgnoreCase(role)) {
+                    nextIntent = new Intent(SplashActivity.this, com.mad.techfix.ui.admin.AdminActivity.class);
+                } else {
+                    nextIntent = new Intent(SplashActivity.this, MainActivity.class);
+                }
             } else {
                 nextIntent = new Intent(SplashActivity.this, LoginActivity.class);
             }

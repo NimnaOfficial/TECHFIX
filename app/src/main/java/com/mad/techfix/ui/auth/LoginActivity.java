@@ -93,7 +93,12 @@ public class LoginActivity extends AppCompatActivity {
                                 "Welcome, " + user.getFullName() + " (Active Customer Session)",
                                 Toast.LENGTH_SHORT).show();
 
-                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                        Intent intent;
+                        if ("ADMIN".equalsIgnoreCase(user.getRole()) || "MANAGER".equalsIgnoreCase(user.getRole())) {
+                            intent = new Intent(LoginActivity.this, com.mad.techfix.ui.admin.AdminActivity.class);
+                        } else {
+                            intent = new Intent(LoginActivity.this, MainActivity.class);
+                        }
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         startActivity(intent);
                         finish();
@@ -174,7 +179,12 @@ public class LoginActivity extends AppCompatActivity {
                                 Toast.LENGTH_SHORT).show();
 
                         // Navigate to Member 1 Implementation Hub
-                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                        Intent intent;
+                        if ("ADMIN".equalsIgnoreCase(user.getRole()) || "MANAGER".equalsIgnoreCase(user.getRole())) {
+                            intent = new Intent(LoginActivity.this, com.mad.techfix.ui.admin.AdminActivity.class);
+                        } else {
+                            intent = new Intent(LoginActivity.this, MainActivity.class);
+                        }
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         startActivity(intent);
                         finish();
@@ -220,3 +230,4 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 }
+
