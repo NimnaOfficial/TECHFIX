@@ -5,7 +5,7 @@ import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
-@Database(entities = {SparePartEntity.class, TechnicianEntity.class, BranchEntity.class}, version = 2, exportSchema = false)
+@Database(entities = {SparePartEntity.class, TechnicianEntity.class, BranchEntity.class, AppointmentEntity.class, DashboardMetricsEntity.class}, version = 3, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
     public abstract TechFixDao techFixDao();
     public abstract AdminDao adminDao();
