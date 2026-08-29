@@ -93,9 +93,16 @@ public class LoginActivity extends AppCompatActivity {
                                 "Welcome, " + user.getFullName() + " (Active Customer Session)",
                                 Toast.LENGTH_SHORT).show();
 
-                        Intent intent;
-                        if ("ADMIN".equalsIgnoreCase(user.getRole()) || "MANAGER".equalsIgnoreCase(user.getRole())) {
+                                                                        Intent intent;
+                        String userRole = user.getRole();
+                        if (userRole == null) userRole = "CUSTOMER"; // Fallback
+                        
+                        if ("ADMIN".equalsIgnoreCase(userRole)) {
+                            intent = new Intent(LoginActivity.this, com.mad.techfix.ui.admin.SystemAdminActivity.class);
+                        } else if ("MANAGER".equalsIgnoreCase(userRole)) {
                             intent = new Intent(LoginActivity.this, com.mad.techfix.ui.admin.AdminActivity.class);
+                        } else if ("TECHNICIAN".equalsIgnoreCase(userRole)) {
+                            intent = new Intent(LoginActivity.this, com.mad.techfix.ui.technician.TechnicianActivity.class);
                         } else {
                             intent = new Intent(LoginActivity.this, MainActivity.class);
                         }
@@ -179,9 +186,16 @@ public class LoginActivity extends AppCompatActivity {
                                 Toast.LENGTH_SHORT).show();
 
                         // Navigate to Member 1 Implementation Hub
-                        Intent intent;
-                        if ("ADMIN".equalsIgnoreCase(user.getRole()) || "MANAGER".equalsIgnoreCase(user.getRole())) {
+                                                                        Intent intent;
+                        String userRole = user.getRole();
+                        if (userRole == null) userRole = "CUSTOMER"; // Fallback
+                        
+                        if ("ADMIN".equalsIgnoreCase(userRole)) {
+                            intent = new Intent(LoginActivity.this, com.mad.techfix.ui.admin.SystemAdminActivity.class);
+                        } else if ("MANAGER".equalsIgnoreCase(userRole)) {
                             intent = new Intent(LoginActivity.this, com.mad.techfix.ui.admin.AdminActivity.class);
+                        } else if ("TECHNICIAN".equalsIgnoreCase(userRole)) {
+                            intent = new Intent(LoginActivity.this, com.mad.techfix.ui.technician.TechnicianActivity.class);
                         } else {
                             intent = new Intent(LoginActivity.this, MainActivity.class);
                         }
@@ -230,4 +244,6 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 }
+
+
 
