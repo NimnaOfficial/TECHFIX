@@ -14,6 +14,10 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import android.content.Intent;
+import com.mad.techfix.data.SessionManager;
+import com.mad.techfix.ui.auth.LoginActivity;
+import android.widget.Toast;
 import com.mad.techfix.R;
 import com.mad.techfix.ui.admin.adapters.DashboardAppointmentAdapter;
 import com.mad.techfix.viewmodel.AdminViewModel;
@@ -54,7 +58,18 @@ public class AdminDashboardFragment extends Fragment {
         progressBar = view.findViewById(R.id.progress_bar);
         recyclerRecentAppointments = view.findViewById(R.id.recycler_recent_appointments);
 
-        ImageButton btnRefresh = view.findViewById(R.id.btn_refresh);
+                ImageButton btnRefresh = view.findViewById(R.id.btn_refresh);
+        ImageButton btnLogout = view.findViewById(R.id.btn_logout);
+
+        btnLogout.setOnClickListener(v -> {
+            SessionManager sessionManager = new SessionManager(requireContext());
+            sessionManager.clearSession();
+            Toast.makeText(requireContext(), "Signed out successfully", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(requireActivity(), LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            requireActivity().finish();
+        });
 
         recyclerRecentAppointments.setLayoutManager(new LinearLayoutManager(getContext()));
         
@@ -169,4 +184,5 @@ public class AdminDashboardFragment extends Fragment {
         autoRefreshHandler.removeCallbacks(autoRefreshRunnable); // Pause when hidden
     }
 }
+
 

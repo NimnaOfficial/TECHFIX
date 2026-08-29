@@ -40,6 +40,16 @@
                         android:textColor="?attr/colorPrimary" />
 
                     <ImageButton
+                        android:id="@+id/btn_logout"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:src="@drawable/ic_logout"
+                        app:tint="#F44336"
+                        android:layout_marginEnd="8dp"
+                        android:contentDescription="Logout" />
+
+                    <ImageButton
                         android:id="@+id/btn_refresh"
                         android:layout_width="48dp"
                         android:layout_height="48dp"
@@ -298,6 +308,9 @@
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+
+
 
 
 
