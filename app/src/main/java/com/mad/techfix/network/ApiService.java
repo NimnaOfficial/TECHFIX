@@ -9,6 +9,7 @@ import com.mad.techfix.models.Appointment;
 import com.mad.techfix.models.Payment;
 
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -21,9 +22,20 @@ import retrofit2.http.Path;
 
 public interface ApiService {
 
+    // === MEMBER 1: AUTHENTICATION & HEALTH ===
     @POST("api/auth/login")
     Call<AuthResponse> loginUser(@Body LoginRequest loginRequest);
 
+    @POST("api/auth/register")
+    Call<AuthResponse> registerUser(@Body RegisterRequest registerRequest);
+
+    @GET("api/me")
+    Call<AuthResponse> getMe(@Header("Authorization") String auth);
+
+    @GET("api/health")
+    Call<Map<String, Object>> getHealth();
+
+    // === SHARED SERVICES ===
     @GET("api/spare-parts")
     Call<ApiResponse<List<SparePart>>> getSpareParts(@Header("Authorization") String auth);
 
@@ -44,7 +56,4 @@ public interface ApiService {
 
     @POST("api/payments")
     Call<ApiResponse<Payment>> createPayment(@Header("Authorization") String auth, @Body Payment payment);
-
-    @POST("api/auth/register")
-    Call<AuthResponse> registerUser(@Body RegisterRequest registerRequest);
 }

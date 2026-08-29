@@ -1,28 +1,96 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?android:attr/colorBackground">
+    android:background="@color/app_background"
+    android:padding="24dp">
 
-    <TextView
-        android:id="@+id/tvTitle"
+    <!-- Center Branding Container -->
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:text="TECHFIX"
-        android:textColor="?android:attr/textColorPrimary"
-        android:textSize="36sp"
-        android:textStyle="bold" />
+        android:gravity="center"
+        android:orientation="vertical">
 
-    <ProgressBar
+        <!-- Logo Icon Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            app:cardBackgroundColor="@color/app_primary"
+            app:cardCornerRadius="28dp"
+            app:cardElevation="6dp"
+            app:strokeWidth="0dp">
+
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_repair"
+                app:tint="@color/white" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- App Name -->
+        <TextView
+            android:id="@+id/tvSplashTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:fontFamily="sans-serif-black"
+            android:letterSpacing="0.08"
+            android:text="TECHFIX"
+            android:textColor="@color/app_text_primary"
+            android:textSize="32sp" />
+
+        <!-- Subtitle -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:fontFamily="sans-serif-medium"
+            android:text="Device Repair &amp; Maintenance Platform"
+            android:textColor="@color/app_text_secondary"
+            android:textSize="14sp" />
+
+        <!-- Progress Bar -->
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:indeterminate="true"
+            app:indicatorColor="@color/app_primary"
+            app:trackColor="@color/icon_bg_primary"
+            app:trackThickness="3dp" />
+
+    </LinearLayout>
+
+    <!-- Bottom Footer Tag -->
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/tvTitle"
+        android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="24dp" />
+        android:layout_marginBottom="16dp"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:text="Powered by Serverless Cloudflare D1"
+            android:textColor="@color/app_text_secondary"
+            android:textSize="12sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:fontFamily="sans-serif"
+            android:text="Member 1: Architecture &amp; Authentication"
+            android:textColor="@color/app_primary"
+            android:textSize="11sp" />
+    </LinearLayout>
 
 </RelativeLayout>
-
-
-
-
