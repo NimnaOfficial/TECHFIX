@@ -16,6 +16,7 @@ import androidx.room.RoomDatabase;
         version = 3,  // <-- INCREMENTED FROM 2 TO 3
         exportSchema = false
 )
+@Database(entities = {SparePartEntity.class, TechnicianEntity.class, BranchEntity.class, AppointmentEntity.class, DashboardMetricsEntity.class}, version = 3, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
     public abstract TechFixDao techFixDao();
     public abstract AdminDao adminDao();

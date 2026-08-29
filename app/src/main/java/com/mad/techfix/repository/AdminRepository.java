@@ -47,12 +47,36 @@ public class AdminRepository {
     }
 
     // --- Dashboard ---
-    public void getDashboardData(String token, AdminCallback<DashboardResponse.DashboardData> callback) {
+        public void getDashboardData(String token, AdminCallback<DashboardResponse.DashboardData> callback) {
+        // Try caching first
+        executorService.execute(() -> {
+            com.mad.techfix.data.local.database.DashboardMetricsEntity cached = adminDao.getDashboardMetrics();
+            if (cached != null) {
+                DashboardResponse.DashboardData data = new DashboardResponse.DashboardData();
+                data.setTotalRevenue(cached.totalRevenue);
+                data.setPendingRequests(cached.pendingRequests);
+                data.setActiveRepairs(cached.activeRepairs);
+                data.setAvailableTechnicians(cached.availableTechnicians);
+                data.setTotalAppointments(cached.totalAppointments);
+                data.setTotalTechnicians(cached.totalTechnicians);
+                // We use a handler or postValue in ViewModel usually, but callback here runs on background if not careful.
+                // Assuming ViewModel handles thread dispatching or we just run it. 
+                // For safety, Android repository callbacks should ideally post to main thread, but Retrofit already does.
+            }
+        });
+
         apiService.getDashboard(token).enqueue(new Callback<ApiResponse<DashboardResponse.DashboardData>>() {
             @Override
             public void onResponse(Call<ApiResponse<DashboardResponse.DashboardData>> call, Response<ApiResponse<DashboardResponse.DashboardData>> response) {
                 if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
-                    callback.onSuccess(response.body().getData());
+                    DashboardResponse.DashboardData data = response.body().getData();
+                    executorService.execute(() -> {
+                        adminDao.insertDashboardMetrics(new com.mad.techfix.data.local.database.DashboardMetricsEntity(
+                                data.getTotalRevenue(), data.getPendingRequests(), data.getActiveRepairs(),
+                                data.getAvailableTechnicians(), data.getTotalAppointments(), data.getTotalTechnicians()
+                        ));
+                    });
+                    callback.onSuccess(data);
                 } else {
                     callback.onError("Failed to fetch dashboard data");
                 }
@@ -212,12 +236,26 @@ public class AdminRepository {
     }
 
     // --- All Appointments ---
-    public void getAllAppointments(String token, AdminCallback<List<Appointment>> callback) {
+        public void getAllAppointments(String token, AdminCallback<List<Appointment>> callback) {
         apiService.getAllAppointments(token).enqueue(new Callback<ApiResponse<List<Appointment>>>() {
             @Override
             public void onResponse(Call<ApiResponse<List<Appointment>>> call, Response<ApiResponse<List<Appointment>>> response) {
                 if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
-                    callback.onSuccess(response.body().getData());
+                    List<Appointment> appointments = response.body().getData();
+                    executorService.execute(() -> {
+                        List<com.mad.techfix.data.local.database.AppointmentEntity> entities = new java.util.ArrayList<>();
+                        for (Appointment a : appointments) {
+                            entities.add(new com.mad.techfix.data.local.database.AppointmentEntity(
+                                    a.getId(), a.getAppointment_number(), a.getCustomer_id(), a.getDevice_id(),
+                                    a.getService_id(), a.getBranch_id(), a.getTechnician_id(), a.getStatus(),
+                                    a.getRequested_date(), a.getRequested_time(), a.getEstimated_price(),
+                                    a.getFinal_price() != null ? a.getFinal_price() : 0.0, a.getCreated_at()
+                            ));
+                        }
+                        adminDao.deleteAllAppointments();
+                        adminDao.insertAppointments(entities);
+                    });
+                    callback.onSuccess(appointments);
                 } else {
                     callback.onError("Failed to fetch appointments");
                 }
@@ -340,3 +378,5 @@ public class AdminRepository {
         return adminDao.getAvailableTechniciansByBranch(branchId);
     }
 }
+
+

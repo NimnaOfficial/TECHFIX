@@ -44,4 +44,20 @@ public interface AdminDao {
 
     @Query("SELECT COUNT(*) FROM local_technicians WHERE status = 'AVAILABLE'")
     int getAvailableTechnicianCount();
+    // --- Appointments ---
+    @Query("SELECT * FROM local_appointments ORDER BY created_at DESC")
+    List<AppointmentEntity> getAllAppointments();
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insertAppointments(List<AppointmentEntity> appointments);
+
+    @Query("DELETE FROM local_appointments")
+    void deleteAllAppointments();
+
+    // --- Dashboard Metrics ---
+    @Query("SELECT * FROM local_dashboard_metrics WHERE id = 1")
+    DashboardMetricsEntity getDashboardMetrics();
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insertDashboardMetrics(DashboardMetricsEntity metrics);
 }

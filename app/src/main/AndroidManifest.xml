@@ -46,6 +46,10 @@
             android:exported="false"
             android:theme="@style/Theme.TECHFIX" />
 
+        <activity android:name=".ui.technician.TechnicianActivity" android:exported="false" android:theme="@style/Theme.TECHFIX" />
+        <activity android:name=".ui.admin.SystemAdminActivity" android:exported="false" android:theme="@style/Theme.TECHFIX" />
     </application>
 
 </manifest>
+
+
