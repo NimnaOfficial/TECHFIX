@@ -23,4 +23,20 @@ public class SparePartEntity {
         this.quantity = quantity;
         this.unitPrice = unitPrice;
     }
+
+    public String getId() { return partId; }
+    public void setId(String id) { this.partId = id; }
+
+    public String getName() { return partName; }
+    public void setName(String name) { this.partName = name; }
+
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
+
+    public int getQuantity() { return quantity; }
+    public void setQuantity(int quantity) { this.quantity = quantity; }
+
+    public double getPrice() { return unitPrice; }
+    public void setPrice(double unitPrice) { this.unitPrice = unitPrice; }
+
 }

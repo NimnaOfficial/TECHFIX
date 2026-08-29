@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Pitch Black Theme Colors (Dark) -->
+    <color name="app_background">#000000</color>
+    <color name="app_surface">#0A0A0A</color>
+    <color name="app_surface_variant">#141414</color>
+    
+    <color name="app_primary">#82B1FF</color>     <!-- Modern neon blue for dark mode -->
+    <color name="app_primary_variant">#448AFF</color>
+    <color name="app_secondary">#2979FF</color>
+    
+    <color name="app_text_primary">#FFFFFF</color>
+    <color name="app_text_secondary">#B3B3B3</color>
+    <color name="app_divider">#242424</color>
+    
+    <!-- Status Colors (Dark mode optimized) -->
+    <color name="status_success">#00E676</color>
+    <color name="status_error">#FF5252</color>
+    <color name="status_warning">#FFAB40</color>
+    
+    <!-- Icon Tints -->
+    <color name="icon_tint_primary">#82B1FF</color>
+    <color name="icon_bg_primary">#1A237E</color> <!-- Darker background for icons in dark mode -->
+    <color name="card_border">#242424</color>
+</resources>

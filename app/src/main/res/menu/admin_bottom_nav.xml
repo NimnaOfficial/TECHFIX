@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_dashboard"
+        android:icon="@drawable/ic_dashboard"
+        android:title="Dashboard" />
+    <item
+        android:id="@+id/nav_appointments"
+        android:icon="@drawable/ic_calendar"
+        android:title="Appointments" />
+    <item
+        android:id="@+id/nav_branches"
+        android:icon="@drawable/ic_branch"
+        android:title="Branches" />
+    <item
+        android:id="@+id/nav_technicians"
+        android:icon="@drawable/ic_technician"
+        android:title="Technicians" />
+</menu>

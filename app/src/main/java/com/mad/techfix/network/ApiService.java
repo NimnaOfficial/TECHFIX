@@ -1,18 +1,21 @@
 package com.mad.techfix.network;
 
 import com.mad.techfix.models.ApiResponse;
-import com.mad.techfix.models.Appointment;
+import com.mad.techfix.models.AuthResponse;
 import com.mad.techfix.models.LoginRequest;
-import com.mad.techfix.models.LoginResponse;
-import com.mad.techfix.models.Payment;
+import com.mad.techfix.models.RegisterRequest;
 import com.mad.techfix.models.SparePart;
+import com.mad.techfix.models.Appointment;
+import com.mad.techfix.models.Payment;
 
 import java.util.List;
+import java.util.Map;
 
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.Multipart;
@@ -20,23 +23,52 @@ import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Part;
 import retrofit2.http.Path;
+import com.mad.techfix.models.AppointmentDetail;
 
 public interface ApiService {
 
     // ==========================================
-    // 1. AUTHENTICATION (For logging in to get the token)
+    // MEMBER 1: AUTHENTICATION & HEALTH
     // ==========================================
     @POST("api/auth/login")
-    Call<LoginResponse> login(@Body LoginRequest request);
+    Call<AuthResponse> loginUser(@Body LoginRequest loginRequest);
+
+    @POST("api/auth/register")
+    Call<AuthResponse> registerUser(@Body RegisterRequest registerRequest);
+
+    @GET("api/me")
+    Call<AuthResponse> getMe(@Header("Authorization") String auth);
+
+    @GET("api/health")
+    Call<Map<String, Object>> getHealth();
 
     // ==========================================
-    // 2. PARTS MANAGER (YOUR MODULE)
+    // MEMBER 4: SPARE PARTS
     // ==========================================
     @GET("api/spare-parts")
     Call<ApiResponse<List<SparePart>>> getSpareParts(@Header("Authorization") String auth);
 
+    @POST("api/spare-parts")
+    Call<ApiResponse<SparePart>> createSparePart(
+            @Header("Authorization") String auth,
+            @Body SparePart part
+    );
+
+    @PUT("api/spare-parts/{id}")
+    Call<ApiResponse<SparePart>> updateSparePart(
+            @Header("Authorization") String auth,
+            @Path("id") String partId,
+            @Body SparePart part
+    );
+
+    @DELETE("api/spare-parts/{id}")
+    Call<ApiResponse<Object>> deleteSparePart(
+            @Header("Authorization") String auth,
+            @Path("id") String partId
+    );
+
     // ==========================================
-    // 3. REPAIR HISTORY (YOUR MODULE)
+    // MEMBER 4: APPOINTMENTS / REPAIR HISTORY
     // ==========================================
     @GET("api/appointments")
     Call<ApiResponse<List<Appointment>>> getAppointments(@Header("Authorization") String auth);
@@ -48,7 +80,7 @@ public interface ApiService {
     );
 
     // ==========================================
-    // 4. PAYMENTS (YOUR MODULE)
+    // MEMBER 4: PAYMENTS
     // ==========================================
     @POST("api/payments")
     Call<ApiResponse<Payment>> createPayment(
@@ -62,8 +94,21 @@ public interface ApiService {
             @Path("id") String appointmentId
     );
 
+    @GET("api/payments/{id}")
+    Call<ApiResponse<Payment>> getPayment(
+            @Header("Authorization") String auth,
+            @Path("id") String paymentId
+    );
+
+    @PUT("api/payments/{id}/status")
+    Call<ApiResponse<Object>> updatePaymentStatus(
+            @Header("Authorization") String auth,
+            @Path("id") String paymentId,
+            @Body Payment payment
+    );
+
     // ==========================================
-    // 5. CAMERA / IMAGES (YOUR MODULE)
+    // MEMBER 4: CAMERA / IMAGES
     // ==========================================
     @Multipart
     @POST("api/appointments/{id}/images")
@@ -76,6 +121,19 @@ public interface ApiService {
 
     @GET("api/appointments/{id}/images")
     Call<ApiResponse<List<Object>>> getAppointmentImages(
+            @Header("Authorization") String auth,
+            @Path("id") String appointmentId
+    );
+
+    @DELETE("api/appointments/{id}/images/{imageId}")
+    Call<ApiResponse<Object>> deleteImage(
+            @Header("Authorization") String auth,
+            @Path("id") String appointmentId,
+            @Path("imageId") String imageId
+    );
+
+    @GET("api/appointments/{id}")
+    Call<ApiResponse<AppointmentDetail>> getAppointmentDetail(
             @Header("Authorization") String auth,
             @Path("id") String appointmentId
     );
