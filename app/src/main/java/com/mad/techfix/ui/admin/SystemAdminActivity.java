@@ -20,7 +20,7 @@ public class SystemAdminActivity extends AppCompatActivity {
                 loadFragment(new SysAdminDashboardFragment());
                 return true;
             } else if (id == R.id.nav_sys_users) {
-                // Placeholder for users fragment
+                loadFragment(new SysAdminUsersFragment());
                 return true;
             } else if (id == R.id.nav_sys_settings) {
                 // Placeholder for settings fragment
@@ -41,3 +41,4 @@ public class SystemAdminActivity extends AppCompatActivity {
                 .commit();
     }
 }
+

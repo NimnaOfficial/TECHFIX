@@ -22,7 +22,7 @@ import com.mad.techfix.models.ApiResponse;
 import com.mad.techfix.models.SparePart;
 import com.mad.techfix.network.ApiService;
 import com.mad.techfix.network.RetrofitClient;
-import com.mad.techfix.utils.TokenManager;
+import com.mad.techfix.data.SessionManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +36,7 @@ public class PartsManagerFragment extends Fragment {
     private RecyclerView recyclerView;
     private PartsAdapter adapter;
     private ApiService apiService;
-    private TokenManager tokenManager;
+    private SessionManager sessionManager;
 
     private android.widget.ProgressBar progressBar;
 
@@ -60,7 +60,7 @@ public class PartsManagerFragment extends Fragment {
 
         // 2. Initialize Network Helpers
         apiService = RetrofitClient.getClient().create(ApiService.class);
-        tokenManager = new TokenManager(requireContext());
+        sessionManager = new SessionManager(requireContext());
 
         // 3. Setup FAB for adding new parts
         com.google.android.material.floatingactionbutton.FloatingActionButton fabAdd = view.findViewById(R.id.fab_add_part);
@@ -175,7 +175,7 @@ public class PartsManagerFragment extends Fragment {
     }
     
     private void createPartViaApi(SparePart part) {
-        String token = tokenManager.getToken();
+        String token = sessionManager.getBearerToken();
         if (token == null) return;
         progressBar.setVisibility(View.VISIBLE);
         
@@ -199,7 +199,7 @@ public class PartsManagerFragment extends Fragment {
     }
     
     private void updatePartViaApi(String id, SparePart part) {
-        String token = tokenManager.getToken();
+        String token = sessionManager.getBearerToken();
         if (token == null) return;
         progressBar.setVisibility(View.VISIBLE);
         
@@ -223,7 +223,7 @@ public class PartsManagerFragment extends Fragment {
     }
 
     private void deletePartViaApi(String id) {
-        String token = tokenManager.getToken();
+        String token = sessionManager.getBearerToken();
         if (token == null) return;
         progressBar.setVisibility(View.VISIBLE);
         
@@ -247,7 +247,7 @@ public class PartsManagerFragment extends Fragment {
     }
 
     private void fetchSparePartsFromApi() {
-        String token = tokenManager.getToken();
+        String token = sessionManager.getBearerToken();
 
         // Check if user is logged in
         if (token == null) {
@@ -304,4 +304,5 @@ public class PartsManagerFragment extends Fragment {
         @Override public void afterTextChanged(Editable s) {}
     }
 }
+
 

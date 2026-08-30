@@ -1,0 +1,10 @@
+## tockens:
+
+**manager token :** "token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJVU1ItMDAyIiwicm9sZSI6Ik1BTkFHRVIiLCJlbWFpbCI6Im1hbmFnZXIuY29sb21ib0B0ZWNoZml4LmxrIiwiaWF0IjoxNzg4MDk1MzIyLCJleHAiOjE3ODg3MDAxMjJ9.k3tGwoii4YTfQsPYHQlkYUBYakCmm_bI9dWJkgK5pRQ","token_type":"Bearer","expires_in":604800
+
+**admin tocken :** "token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzMWQ4Nzg3OS05MjFmLTQ0YTctOGE4OS03MmQ5Mzc0MTA0MzEiLCJyb2xlIjoiQURNSU4iLCJlbWFpbCI6ImFkbWluQHRlY2hmaXgudGVzdCIsImlhdCI6MTc4ODA5NTM4NCwiZXhwIjoxNzg4NzAwMTg0fQ.rJ-g1MDmWddAC8DWsXYojsptNYTFQ-f2hsO-opwvqSo","token_type":"Bearer","expires_in":604800
+
+**Technician token :** "token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJVU1ItMDAzIiwicm9sZSI6IlRFQ0hOSUNJQU4iLCJlbWFpbCI6Im5pbWFsQHRlY2hmaXgubGsiLCJpYXQiOjE3ODgwOTU0NDEsImV4cCI6MTc4ODcwMDI0MX0.756jyoBb5YECyW1-Mv_pNXewMVF-FX0U0Q6LRikrsgA","token_type":"Bearer","expires_in":604800
+
+**customer token :** "token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmZDFjMGVmZC1lNDBkLTRmY2EtODI4Yy1hMDMyOGI5MDA2OTQiLCJyb2xlIjoiQ1VTVE9NRVIiLCJlbWFpbCI6ImpvaG5AZXhhbXBsZS5jb20iLCJpYXQiOjE3ODgwOTU1MjAsImV4cCI6MTc4ODcwMDMyMH0.wWVkZCe6RbsHLVNROvxCqKH2nXtYs2WC4S7yD8Jsj68","token_type":"Bearer","expires_in":604800
+

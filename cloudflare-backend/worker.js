@@ -754,6 +754,99 @@ export default {
       }
 
         // ==========================================
+        
+
+        // ==========================================
+                // ==========================================
+        // 10.6 SYSTEM ADMIN LOGS
+        // ==========================================
+        if (path === "/api/admin/system/logs" && request.method === "GET") {
+            const user = await authenticate(request, env);
+            if (!user || !user.role || user.role.toUpperCase() !== "ADMIN") return json({ success: false, message: "Access denied. System Admin only." }, 403);
+            
+            try {
+                // Ensure table exists safely
+                await env.DB.prepare(CREATE TABLE IF NOT EXISTS system_logs (id INTEGER PRIMARY KEY AUTOINCREMENT, level TEXT, method TEXT, path TEXT, message TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)).run();
+                const logs = await env.DB.prepare(SELECT * FROM system_logs ORDER BY created_at DESC LIMIT 200).all();
+                return json({ success: true, data: logs.results });
+            } catch (e) {
+                return json({ success: false, message: "Error fetching logs", error: e.message }, 500);
+            }
+        }
+
+        if (path === "/api/admin/system/logs" && request.method === "DELETE") {
+            const user = await authenticate(request, env);
+            if (!user || !user.role || user.role.toUpperCase() !== "ADMIN") return json({ success: false, message: "Access denied. System Admin only." }, 403);
+            
+            try {
+                await env.DB.prepare(DELETE FROM system_logs).run();
+                return json({ success: true, message: "Logs cleared successfully" });
+            } catch (e) {
+                return json({ success: false, message: "Error clearing logs", error: e.message }, 500);
+            }
+        }
+
+        // 10.5 ADMIN MANAGER CRUD
+        // ==========================================
+        if (path === "/api/admin/managers" && request.method === "GET") {
+            const user = await authenticate(request, env);
+            if (!user || !user.role || user.role.toUpperCase() !== "ADMIN") return json({ success: false, message: "Access denied. System Admin only." }, 403);
+            
+            const managers = await env.DB.prepare(`SELECT id, first_name, last_name, email, phone, role, profile_image_url, is_active, created_at, updated_at FROM users WHERE role = 'MANAGER' ORDER BY created_at DESC`).all();
+            return json({ success: true, data: managers.results });
+        }
+
+        if (path === "/api/admin/managers" && request.method === "POST") {
+            const user = await authenticate(request, env);
+            if (!user || !user.role || user.role.toUpperCase() !== "ADMIN") return json({ success: false, message: "Access denied. System Admin only." }, 403);
+            
+            const { first_name, last_name, email, phone, password } = await request.json();
+            if (!email || !password || password.length < 6) return json({ success: false, message: "Valid email and password required (min 6 chars)" }, 400);
+
+            const normalizedEmail = email.trim().toLowerCase();
+            const existing = await env.DB.prepare(`SELECT id FROM users WHERE email = ?`).bind(normalizedEmail).first();
+            if (existing) return json({ success: false, message: "Email already exists" }, 400);
+
+            const encoder = new TextEncoder();
+            const salt = crypto.randomUUID();
+            const passwordKey = await crypto.subtle.importKey("raw", encoder.encode(password), { name: "PBKDF2" }, false, ["deriveBits"]);
+            const hashBuffer = await crypto.subtle.deriveBits({ name: "PBKDF2", salt: encoder.encode(salt), iterations: 100000, hash: "SHA-256" }, passwordKey, 256);
+            const passwordHash = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, "0")).join("");
+            const storedPasswordHash = `${salt}:${passwordHash}`;
+            const userId = crypto.randomUUID();
+
+            await env.DB.prepare(`
+                INSERT INTO users (id, first_name, last_name, email, phone, password_hash, role, is_active)
+                VALUES (?, ?, ?, ?, ?, ?, 'MANAGER', 1)
+            `).bind(userId, first_name || 'Manager', last_name || '', normalizedEmail, phone || '', storedPasswordHash).run();
+
+            return json({ success: true, message: "Manager created successfully" });
+        }
+
+        if (path.startsWith("/api/admin/managers/") && request.method === "PUT") {
+            const user = await authenticate(request, env);
+            if (!user || !user.role || user.role.toUpperCase() !== "ADMIN") return json({ success: false, message: "Access denied. System Admin only." }, 403);
+            
+            const managerId = path.split("/")[4];
+            const { first_name, last_name, phone, is_active } = await request.json();
+            
+            await env.DB.prepare(`
+                UPDATE users SET first_name = ?, last_name = ?, phone = ?, is_active = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND role = 'MANAGER'
+            `).bind(first_name || '', last_name || '', phone || '', is_active !== undefined ? is_active : 1, managerId).run();
+            
+            return json({ success: true, message: "Manager updated successfully" });
+        }
+
+        if (path.startsWith("/api/admin/managers/") && request.method === "DELETE") {
+            const user = await authenticate(request, env);
+            if (!user || !user.role || user.role.toUpperCase() !== "ADMIN") return json({ success: false, message: "Access denied. System Admin only." }, 403);
+            
+            const managerId = path.split("/")[4];
+            await env.DB.prepare(`DELETE FROM users WHERE id = ? AND role = 'MANAGER'`).bind(managerId).run();
+            
+            return json({ success: true, message: "Manager deleted successfully" });
+        }
+
         // 10. ADMIN CRUD OPERATIONS (Branches, Technicians, Spare Parts)
       // ==========================================
       
@@ -907,6 +1000,7 @@ export default {
     }
   }
 };
+
 
 
 

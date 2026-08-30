@@ -366,6 +366,49 @@ public class AdminRepository {
     }
 
         // --- System Admin ---
+    public void getManagers(String token, AdminCallback<java.util.List<com.mad.techfix.models.admin.Manager>> callback) {
+        apiService.getManagers(token).enqueue(new retrofit2.Callback<com.mad.techfix.models.ApiResponse<java.util.List<com.mad.techfix.models.admin.Manager>>>() {
+            @Override
+            public void onResponse(retrofit2.Call<com.mad.techfix.models.ApiResponse<java.util.List<com.mad.techfix.models.admin.Manager>>> call, retrofit2.Response<com.mad.techfix.models.ApiResponse<java.util.List<com.mad.techfix.models.admin.Manager>>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) callback.onSuccess(response.body().getData());
+                else callback.onError("Failed to fetch managers");
+            }
+            @Override public void onFailure(retrofit2.Call<com.mad.techfix.models.ApiResponse<java.util.List<com.mad.techfix.models.admin.Manager>>> call, Throwable t) { callback.onError(t.getMessage()); }
+        });
+    }
+
+    public void createManager(String token, com.mad.techfix.models.admin.Manager manager, AdminCallback<Void> callback) {
+        apiService.createManager(token, manager).enqueue(new retrofit2.Callback<com.mad.techfix.models.ApiResponse<Void>>() {
+            @Override
+            public void onResponse(retrofit2.Call<com.mad.techfix.models.ApiResponse<Void>> call, retrofit2.Response<com.mad.techfix.models.ApiResponse<Void>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) callback.onSuccess(null);
+                else callback.onError("Failed to create manager");
+            }
+            @Override public void onFailure(retrofit2.Call<com.mad.techfix.models.ApiResponse<Void>> call, Throwable t) { callback.onError(t.getMessage()); }
+        });
+    }
+
+    public void updateManager(String token, String id, com.mad.techfix.models.admin.Manager manager, AdminCallback<Void> callback) {
+        apiService.updateManager(token, id, manager).enqueue(new retrofit2.Callback<com.mad.techfix.models.ApiResponse<Void>>() {
+            @Override
+            public void onResponse(retrofit2.Call<com.mad.techfix.models.ApiResponse<Void>> call, retrofit2.Response<com.mad.techfix.models.ApiResponse<Void>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) callback.onSuccess(null);
+                else callback.onError("Failed to update manager");
+            }
+            @Override public void onFailure(retrofit2.Call<com.mad.techfix.models.ApiResponse<Void>> call, Throwable t) { callback.onError(t.getMessage()); }
+        });
+    }
+
+    public void deleteManager(String token, String id, AdminCallback<Void> callback) {
+        apiService.deleteManager(token, id).enqueue(new retrofit2.Callback<com.mad.techfix.models.ApiResponse<Void>>() {
+            @Override
+            public void onResponse(retrofit2.Call<com.mad.techfix.models.ApiResponse<Void>> call, retrofit2.Response<com.mad.techfix.models.ApiResponse<Void>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) callback.onSuccess(null);
+                else callback.onError("Failed to delete manager");
+            }
+            @Override public void onFailure(retrofit2.Call<com.mad.techfix.models.ApiResponse<Void>> call, Throwable t) { callback.onError(t.getMessage()); }
+        });
+    }
     public void getSystemOverview(String token, AdminCallback<com.mad.techfix.models.admin.SysAdminOverviewResponse> callback) {
         apiService.getSystemOverview(token).enqueue(new retrofit2.Callback<com.mad.techfix.models.ApiResponse<com.mad.techfix.models.admin.SysAdminOverviewResponse>>() {
             @Override
@@ -397,6 +440,7 @@ public class AdminRepository {
         return adminDao.getAvailableTechniciansByBranch(branchId);
     }
 }
+
 
 
 
