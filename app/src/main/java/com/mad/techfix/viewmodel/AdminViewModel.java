@@ -24,6 +24,8 @@ public class AdminViewModel extends AndroidViewModel {
 
     private final MutableLiveData<DashboardResponse.DashboardData> dashboardData = new MutableLiveData<>();
     private final MutableLiveData<SysAdminOverviewResponse> systemOverview = new MutableLiveData<>();
+    private final MutableLiveData<java.util.Map<String, String>> systemSettings = new MutableLiveData<>();
+    public MutableLiveData<java.util.Map<String, String>> getSystemSettings() { return systemSettings; }
     private final MutableLiveData<com.mad.techfix.models.admin.UserMonitorResponse> userMonitor = new MutableLiveData<>();
     public MutableLiveData<com.mad.techfix.models.admin.UserMonitorResponse> getUserMonitor() { return userMonitor; }
     private final MutableLiveData<List<com.mad.techfix.models.admin.LogEntry>> systemLogs = new MutableLiveData<>();
@@ -70,7 +72,44 @@ public class AdminViewModel extends AndroidViewModel {
         return token;
     }
 
-            public void loadUserMonitor(String userId) {
+                public void loadSystemSettings() {
+        String token = getToken();
+        if (token == null) return;
+        isLoading.setValue(true);
+        repository.getSystemSettings(token, new AdminRepository.AdminCallback<java.util.Map<String, String>>() {
+            @Override
+            public void onSuccess(java.util.Map<String, String> data) {
+                isLoading.setValue(false);
+                systemSettings.setValue(data);
+            }
+            @Override
+            public void onError(String error) {
+                isLoading.setValue(false);
+                errorMessage.setValue(error);
+            }
+        });
+    }
+
+    public void updateSystemSetting(String key, String value) {
+        String token = getToken();
+        if (token == null) return;
+        isLoading.setValue(true);
+        repository.updateSystemSetting(token, key, value, new AdminRepository.AdminCallback<Void>() {
+            @Override
+            public void onSuccess(Void result) {
+                isLoading.setValue(false);
+                crudSuccess.setValue(true);
+            }
+            @Override
+            public void onError(String error) {
+                isLoading.setValue(false);
+                errorMessage.setValue(error);
+                crudSuccess.setValue(false);
+            }
+        });
+    }
+
+    public void loadUserMonitor(String userId) {
         String token = getToken();
         if (token == null) return;
         isLoading.setValue(true);
@@ -490,5 +529,6 @@ public class AdminViewModel extends AndroidViewModel {
         });
     }
 }
+
 
 

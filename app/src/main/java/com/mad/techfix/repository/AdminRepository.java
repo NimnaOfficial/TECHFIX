@@ -377,7 +377,32 @@ public class AdminRepository {
         });
     }
 
-        public void getUserMonitor(String token, String userId, AdminCallback<com.mad.techfix.models.admin.UserMonitorResponse> callback) {
+            public void getSystemSettings(String token, AdminCallback<java.util.Map<String, String>> callback) {
+        apiService.getSystemSettings(token).enqueue(new retrofit2.Callback<com.mad.techfix.models.ApiResponse<java.util.Map<String, String>>>() {
+            @Override
+            public void onResponse(retrofit2.Call<com.mad.techfix.models.ApiResponse<java.util.Map<String, String>>> call, retrofit2.Response<com.mad.techfix.models.ApiResponse<java.util.Map<String, String>>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) callback.onSuccess(response.body().getData());
+                else callback.onError("Failed to fetch settings");
+            }
+            @Override public void onFailure(retrofit2.Call<com.mad.techfix.models.ApiResponse<java.util.Map<String, String>>> call, Throwable t) { callback.onError(t.getMessage()); }
+        });
+    }
+
+    public void updateSystemSetting(String token, String key, String value, AdminCallback<Void> callback) {
+        java.util.Map<String, String> payload = new java.util.HashMap<>();
+        payload.put("setting_key", key);
+        payload.put("setting_value", value);
+        apiService.updateSystemSetting(token, payload).enqueue(new retrofit2.Callback<com.mad.techfix.models.ApiResponse<Void>>() {
+            @Override
+            public void onResponse(retrofit2.Call<com.mad.techfix.models.ApiResponse<Void>> call, retrofit2.Response<com.mad.techfix.models.ApiResponse<Void>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) callback.onSuccess(null);
+                else callback.onError("Failed to save setting");
+            }
+            @Override public void onFailure(retrofit2.Call<com.mad.techfix.models.ApiResponse<Void>> call, Throwable t) { callback.onError(t.getMessage()); }
+        });
+    }
+
+    public void getUserMonitor(String token, String userId, AdminCallback<com.mad.techfix.models.admin.UserMonitorResponse> callback) {
         apiService.getUserMonitor(token, userId).enqueue(new retrofit2.Callback<com.mad.techfix.models.ApiResponse<com.mad.techfix.models.admin.UserMonitorResponse>>() {
             @Override
             public void onResponse(retrofit2.Call<com.mad.techfix.models.ApiResponse<com.mad.techfix.models.admin.UserMonitorResponse>> call, retrofit2.Response<com.mad.techfix.models.ApiResponse<com.mad.techfix.models.admin.UserMonitorResponse>> response) {
@@ -472,6 +497,7 @@ public class AdminRepository {
         return adminDao.getAvailableTechniciansByBranch(branchId);
     }
 }
+
 
 
 

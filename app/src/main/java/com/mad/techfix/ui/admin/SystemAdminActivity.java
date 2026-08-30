@@ -25,6 +25,9 @@ public class SystemAdminActivity extends AppCompatActivity {
             } else if (id == R.id.nav_sys_logs) {
                 loadFragment(new SysAdminLogsFragment());
                 return true;
+            } else if (id == R.id.nav_sys_settings) {
+                loadFragment(new SysAdminSettingsFragment());
+                return true;
             }
             return false;
         });
@@ -41,5 +44,3 @@ public class SystemAdminActivity extends AppCompatActivity {
                 .commit();
     }
 }
-
-
