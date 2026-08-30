@@ -722,32 +722,36 @@ export default {
       }
 
               // ==========================================
-        // 9.5 SYSTEM ADMIN OVERVIEW
+                // ==========================================
         // ==========================================
-        if (path === "/api/admin/system/overview" && request.method === "GET") {
-            const user = await authenticate(request, env);
-            if (!user || user.role !== "ADMIN") return json({ success: false, message: "Access denied. System Admin only." }, 403);
-            
-            try {
-                const totalUsers = await env.DB.prepare(`SELECT COUNT(*) as count FROM users`).first();
-                const totalManagers = await env.DB.prepare(`SELECT COUNT(*) as count FROM users WHERE role = 'MANAGER'`).first();
-                const totalCustomers = await env.DB.prepare(`SELECT COUNT(*) as count FROM users WHERE role = 'CUSTOMER'`).first();
-                const totalTechnicians = await env.DB.prepare(`SELECT COUNT(*) as count FROM users WHERE role = 'TECHNICIAN'`).first();
-                
-                return json({
-                    success: true,
-                    data: {
-                        system_health: "ONLINE",
-                        total_users: totalUsers.count || 0,
-                        total_managers: totalManagers.count || 0,
-                        total_customers: totalCustomers.count || 0,
-                        total_technicians: totalTechnicians.count || 0
-                    }
-                });
-            } catch (e) {
-                return json({ success: false, message: "Database Error", error: e.message }, 500);
-            }
-        }
+      // 9.5 SYSTEM ADMIN OVERVIEW
+      // ==========================================
+      if (path === "/api/admin/system/overview" && request.method === "GET") {
+          const user = await authenticate(request, env);
+          if (!user || !user.role || user.role.toUpperCase() !== "ADMIN") {
+              return json({ success: false, message: "Access denied. System Admin only." }, 403);
+          }
+          
+          try {
+              const totalUsers = await env.DB.prepare(`SELECT COUNT(*) as count FROM users`).first();
+              const totalManagers = await env.DB.prepare(`SELECT COUNT(*) as count FROM users WHERE role = 'MANAGER'`).first();
+              const totalCustomers = await env.DB.prepare(`SELECT COUNT(*) as count FROM users WHERE role = 'CUSTOMER'`).first();
+              const totalTechnicians = await env.DB.prepare(`SELECT COUNT(*) as count FROM users WHERE role = 'TECHNICIAN'`).first();
+              
+              return json({
+                  success: true,
+                  data: {
+                      system_health: "ONLINE",
+                      total_users: totalUsers ? (totalUsers.count || 0) : 0,
+                      total_managers: totalManagers ? (totalManagers.count || 0) : 0,
+                      total_customers: totalCustomers ? (totalCustomers.count || 0) : 0,
+                      total_technicians: totalTechnicians ? (totalTechnicians.count || 0) : 0
+                  }
+              });
+          } catch (e) {
+              return json({ success: false, message: "Database Error: " + e.message }, 500);
+          }
+      }
 
         // ==========================================
         // 10. ADMIN CRUD OPERATIONS (Branches, Technicians, Spare Parts)
@@ -903,6 +907,8 @@ export default {
     }
   }
 };
+
+
 
 
 

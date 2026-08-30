@@ -373,7 +373,7 @@ public class AdminRepository {
                 if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
                     callback.onSuccess(response.body().getData());
                 } else {
-                    callback.onError("Failed to fetch system overview");
+                    callback.onError("Failed to fetch system overview. Code: " + response.code());
                 }
             }
 
@@ -397,6 +397,7 @@ public class AdminRepository {
         return adminDao.getAvailableTechniciansByBranch(branchId);
     }
 }
+
 
 
 

@@ -14,19 +14,20 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.mad.techfix.R;
 import com.mad.techfix.models.LoginRequest;
 import com.mad.techfix.models.AuthResponse;
+import com.mad.techfix.models.User;
 import com.mad.techfix.network.ApiService;
 import com.mad.techfix.network.RetrofitClient;
 import com.mad.techfix.ui.admin.branches.BranchListFragment;
 import com.mad.techfix.ui.admin.dashboard.AdminDashboardFragment;
 import com.mad.techfix.ui.admin.technicians.TechnicianListFragment;
-import com.mad.techfix.utils.TokenManager;
+import com.mad.techfix.data.SessionManager;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class AdminActivity extends AppCompatActivity {
 
-    private TokenManager tokenManager;
+    private SessionManager sessionManager;
     private BottomNavigationView bottomNav;
 
     @Override
@@ -34,7 +35,7 @@ public class AdminActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin);
 
-        tokenManager = new TokenManager(this);
+        sessionManager = new SessionManager(this);
         bottomNav = findViewById(R.id.bottom_nav);
 
         bottomNav.setOnItemSelectedListener(item -> {
@@ -54,13 +55,6 @@ public class AdminActivity extends AppCompatActivity {
             }
             return false;
         });
-
-        // DEBUG/TESTING ONLY: Inject the provided Admin Token so you don't have to login every time
-        if (!tokenManager.isLoggedIn()) {
-            String testToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzMWQ4Nzg3OS05MjFmLTQ0YTctOGE4OS03MmQ5Mzc0MTA0MzEiLCJyb2xlIjoiQURNSU4iLCJlbWFpbCI6ImFkbWluQHRlY2hmaXgudGVzdCIsImlhdCI6MTc4NzQ4MDM1MiwiZXhwIjoxNzg4MDg1MTUyfQ.gdDjVdrchQMfZI0tOLf1SELNPFLRmNo_sEV4mwN3KRs";
-            tokenManager.saveToken(testToken);
-            tokenManager.saveUserId("31d87879-921f-44a7-8a89-72d937410431");
-        }
 
         if (savedInstanceState == null) {
             bottomNav.setSelectedItemId(R.id.nav_dashboard);
@@ -115,11 +109,9 @@ public class AdminActivity extends AppCompatActivity {
 
                     if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
                         String token = response.body().getToken();
+                        User user = response.body().getUser();
                         if (token != null && !token.isEmpty()) {
-                            tokenManager.saveToken(token);
-                            if (response.body().getUser() != null) {
-                                tokenManager.saveUserId(response.body().getUser().getId());
-                            }
+                            sessionManager.saveAuthSession(token, user);
                             dialog.dismiss();
                             Toast.makeText(AdminActivity.this, "Welcome to Admin Portal", Toast.LENGTH_SHORT).show();
                             // Load dashboard now that we have a token

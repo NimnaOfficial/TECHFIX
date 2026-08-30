@@ -11,16 +11,15 @@ import com.mad.techfix.models.admin.DashboardResponse;
 import com.mad.techfix.models.admin.Service;
 import com.mad.techfix.models.admin.Technician;
 import com.mad.techfix.models.admin.SysAdminOverviewResponse;
-import com.mad.techfix.models.admin.SysAdminOverviewResponse;
 import com.mad.techfix.repository.AdminRepository;
 import com.mad.techfix.data.local.database.AppDatabase;
-import com.mad.techfix.utils.TokenManager;
+import com.mad.techfix.data.SessionManager;
 
 import java.util.List;
 
 public class AdminViewModel extends AndroidViewModel {
     private final AdminRepository repository;
-    private final TokenManager tokenManager;
+    private final SessionManager sessionManager;
 
     private final MutableLiveData<DashboardResponse.DashboardData> dashboardData = new MutableLiveData<>();
     private final MutableLiveData<SysAdminOverviewResponse> systemOverview = new MutableLiveData<>();
@@ -38,7 +37,7 @@ public class AdminViewModel extends AndroidViewModel {
         super(application);
         AppDatabase db = AppDatabase.getInstance(application);
         repository = new AdminRepository(db);
-        tokenManager = new TokenManager(application);
+        sessionManager = new SessionManager(application);
     }
 
     // --- Getters for LiveData ---
@@ -55,12 +54,12 @@ public class AdminViewModel extends AndroidViewModel {
     public MutableLiveData<Boolean> getSkillUpdateSuccess() { return skillUpdateSuccess; }
 
     private String getToken() {
-        String token = tokenManager.getToken();
+        String token = sessionManager.getAuthToken();
         if (token == null || token.isEmpty()) {
-            errorMessage.setValue("Authentication token not found");
+            errorMessage.setValue("Authentication session not found. Please log in again.");
             return null;
         }
-        return "Bearer " + token;
+        return token.startsWith("Bearer ") ? token : "Bearer " + token;
     }
 
         public void loadSystemOverview() {
