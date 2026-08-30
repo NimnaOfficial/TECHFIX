@@ -721,8 +721,36 @@ export default {
         return json({ success: true, data: { total_revenue: revenue.total || 0, pending_requests: pendingAppointments.count || 0, active_repairs: activeRepairs.count || 0, available_technicians: availableTechs.count || 0, total_appointments: totalAppointments.count || 0, total_technicians: (availableTechs.count || 0) + (busyTechs.count || 0) } });
       }
 
-      // ==========================================
-      // 10. ADMIN CRUD OPERATIONS (Branches, Technicians, Spare Parts)
+              // ==========================================
+        // 9.5 SYSTEM ADMIN OVERVIEW
+        // ==========================================
+        if (path === "/api/admin/system/overview" && request.method === "GET") {
+            const user = await authenticate(request, env);
+            if (!user || user.role !== "ADMIN") return json({ success: false, message: "Access denied. System Admin only." }, 403);
+            
+            try {
+                const totalUsers = await env.DB.prepare(`SELECT COUNT(*) as count FROM users`).first();
+                const totalManagers = await env.DB.prepare(`SELECT COUNT(*) as count FROM users WHERE role = 'MANAGER'`).first();
+                const totalCustomers = await env.DB.prepare(`SELECT COUNT(*) as count FROM users WHERE role = 'CUSTOMER'`).first();
+                const totalTechnicians = await env.DB.prepare(`SELECT COUNT(*) as count FROM users WHERE role = 'TECHNICIAN'`).first();
+                
+                return json({
+                    success: true,
+                    data: {
+                        system_health: "ONLINE",
+                        total_users: totalUsers.count || 0,
+                        total_managers: totalManagers.count || 0,
+                        total_customers: totalCustomers.count || 0,
+                        total_technicians: totalTechnicians.count || 0
+                    }
+                });
+            } catch (e) {
+                return json({ success: false, message: "Database Error", error: e.message }, 500);
+            }
+        }
+
+        // ==========================================
+        // 10. ADMIN CRUD OPERATIONS (Branches, Technicians, Spare Parts)
       // ==========================================
       
       // Branches CRUD
@@ -875,4 +903,6 @@ export default {
     }
   }
 };
+
+
 

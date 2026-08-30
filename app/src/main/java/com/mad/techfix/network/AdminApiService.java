@@ -17,8 +17,11 @@ import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
+import com.mad.techfix.models.admin.SysAdminOverviewResponse;
 
 public interface AdminApiService {
+    @GET("api/admin/system/overview")
+    Call<ApiResponse<SysAdminOverviewResponse>> getSystemOverview(@Header("Authorization") String auth);
     @GET("api/admin/dashboard")
     Call<ApiResponse<DashboardResponse.DashboardData>> getDashboard(@Header("Authorization") String auth);
 
@@ -66,3 +69,4 @@ public interface AdminApiService {
     @retrofit2.http.DELETE("api/technicians/{id}")
     Call<ApiResponse<Object>> deleteTechnician(@Header("Authorization") String auth, @Path("id") String technicianId);
 }
+
