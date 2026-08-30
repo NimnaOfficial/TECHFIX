@@ -49,11 +49,13 @@ public class SysAdminDashboardFragment extends Fragment {
         });
         
         view.findViewById(R.id.btn_manage_managers).setOnClickListener(v -> {
+            viewModel.setPendingUserFilter("MANAGER");
             ((com.google.android.material.bottomnavigation.BottomNavigationView) requireActivity().findViewById(R.id.bottom_nav)).setSelectedItemId(R.id.nav_sys_users);
         });
         
         view.findViewById(R.id.btn_system_logs).setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Loading System Logs...", Toast.LENGTH_SHORT).show();
+            viewModel.setPendingScrollToLogs(true);
+            ((com.google.android.material.bottomnavigation.BottomNavigationView) requireActivity().findViewById(R.id.bottom_nav)).setSelectedItemId(R.id.nav_sys_settings);
         });
 
         setupObservers();

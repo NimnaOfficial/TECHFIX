@@ -2290,6 +2290,133 @@ export default {
         }
       }
       // ==========================================
+      // 10.9 SYSTEM SETTINGS (GOD MODE)
+      // ==========================================
+      if (path === "/api/admin/settings" && request.method === "GET") {
+        const user = await authenticate(request, env);
+        if (!user || !user.role || user.role.toUpperCase() !== "ADMIN") {
+          return json({ success: false, message: "Access denied." }, 403);
+        }
+
+        try {
+          await env.DB.prepare(
+            "CREATE TABLE IF NOT EXISTS system_settings (setting_key TEXT PRIMARY KEY, setting_value TEXT)",
+          ).run();
+          const settings = await env.DB.prepare(
+            "SELECT * FROM system_settings",
+          ).all();
+
+          let settingsMap = {};
+          if (settings.results) {
+            settings.results.forEach(
+              (s) => (settingsMap[s.setting_key] = s.setting_value),
+            );
+          }
+          if (!settingsMap.hasOwnProperty("maintenance_mode")) {
+            settingsMap["maintenance_mode"] = "false";
+          }
+
+          return json({ success: true, data: settingsMap });
+        } catch (e) {
+          return json(
+            {
+              success: false,
+              message: "Error fetching settings",
+              error: e.message,
+            },
+            500,
+          );
+        }
+      }
+
+      if (path === "/api/admin/settings" && request.method === "POST") {
+        const user = await authenticate(request, env);
+        if (!user || !user.role || user.role.toUpperCase() !== "ADMIN") {
+          return json({ success: false, message: "Access denied." }, 403);
+        }
+
+        const { setting_key, setting_value } = await request.json();
+        try {
+          await env.DB.prepare(
+            "CREATE TABLE IF NOT EXISTS system_settings (setting_key TEXT PRIMARY KEY, setting_value TEXT)",
+          ).run();
+          await env.DB.prepare(
+            "INSERT INTO system_settings (setting_key, setting_value) VALUES (?, ?) ON CONFLICT(setting_key) DO UPDATE SET setting_value = excluded.setting_value",
+          )
+            .bind(setting_key, setting_value)
+            .run();
+
+          if (setting_key === "maintenance_mode") {
+            await env.DB.prepare(
+              "CREATE TABLE IF NOT EXISTS system_logs (id INTEGER PRIMARY KEY AUTOINCREMENT, level TEXT, method TEXT, path TEXT, message TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)",
+            ).run();
+            await env.DB.prepare(
+              "INSERT INTO system_logs (level, method, path, message) VALUES (?, ?, ?, ?)",
+            )
+              .bind(
+                "WARN",
+                "SYSTEM",
+                "/api/admin/settings",
+                "Maintenance Mode changed to " + setting_value,
+              )
+              .run();
+          }
+
+          return json({ success: true, message: "Setting saved successfully" });
+        } catch (e) {
+          return json(
+            {
+              success: false,
+              message: "Error saving setting",
+              error: e.message,
+            },
+            500,
+          );
+        }
+      }
+
+      // ==========================================
+      // 10.10 SYSTEM DATABASE BACKUP (JSON EXPORT)
+      // ==========================================
+      if (path === "/api/admin/system/backup" && request.method === "GET") {
+        const user = await authenticate(request, env);
+        if (!user || !user.role || user.role.toUpperCase() !== "ADMIN")
+          return json({ success: false, message: "Access denied." }, 403);
+
+        try {
+          const getSafeTable = async (tableName) => {
+            try {
+              return (
+                (await env.DB.prepare("SELECT * FROM " + tableName).all())
+                  .results || []
+              );
+            } catch (e) {
+              return [];
+            }
+          };
+
+          const backup = {
+            timestamp: new Date().toISOString(),
+            database_schema: "TechFix_D1",
+            tables: {
+              users: await getSafeTable("users"),
+              appointments: await getSafeTable("appointments"),
+              devices: await getSafeTable("devices"),
+              technicians: await getSafeTable("technicians"),
+              branches: await getSafeTable("branches"),
+              spare_parts: await getSafeTable("spare_parts"),
+            },
+          };
+
+          return json({ success: true, data: backup });
+        } catch (e) {
+          return json(
+            { success: false, message: "Backup failed", error: e.message },
+            500,
+          );
+        }
+      }
+
       // 404 FALLBACK
       // ==========================================
       return json({ success: false, message: "Endpoint not found" }, 404);

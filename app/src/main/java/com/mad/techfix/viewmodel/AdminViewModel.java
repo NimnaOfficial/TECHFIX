@@ -39,6 +39,14 @@ public class AdminViewModel extends AndroidViewModel {
     private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>();
     private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
     private final MutableLiveData<Boolean> assignmentSuccess = new MutableLiveData<>();
+    
+    private String pendingUserFilter = null;
+    public String getPendingUserFilter() { return pendingUserFilter; }
+    public void setPendingUserFilter(String filter) { this.pendingUserFilter = filter; }
+
+    private boolean pendingScrollToLogs = false;
+    public boolean isPendingScrollToLogs() { return pendingScrollToLogs; }
+    public void setPendingScrollToLogs(boolean pending) { this.pendingScrollToLogs = pending; }
     private final MutableLiveData<Boolean> skillUpdateSuccess = new MutableLiveData<>();
     private final MutableLiveData<Boolean> crudSuccess = new MutableLiveData<>();
 
@@ -181,6 +189,12 @@ public class AdminViewModel extends AndroidViewModel {
                 errorMessage.setValue(error);
             }
         });
+    }
+
+    public void getSystemBackup(AdminRepository.AdminCallback<okhttp3.ResponseBody> callback) {
+        String token = getToken();
+        if (token == null) return;
+        repository.getSystemBackup(token, callback);
     }
 
     public void loadManagers() {
