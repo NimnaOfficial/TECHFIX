@@ -112,48 +112,64 @@ public class SysAdminSettingsFragment extends Fragment {
         viewModel.loadSystemLogs();
     }
 
+    private static final int CREATE_FILE = 1;
+
     private void exportDatabase() {
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("application/json");
+        intent.putExtra(Intent.EXTRA_TITLE, "TechFix_DB_Backup_" + System.currentTimeMillis() + ".json");
+        startActivityForResult(intent, CREATE_FILE);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == CREATE_FILE && resultCode == android.app.Activity.RESULT_OK) {
+            if (data != null && data.getData() != null) {
+                performDownload(data.getData());
+            }
+        }
+    }
+
+    private void performDownload(android.net.Uri uri) {
         progressBar.setVisibility(View.VISIBLE);
-        SessionManager sessionManager = new SessionManager(requireContext());
-        String token = "Bearer " + sessionManager.getBearerToken();
-        
-        AdminRepository repo = new AdminRepository(com.mad.techfix.data.local.database.AppDatabase.getInstance(requireContext()));
-        repo.getSystemBackup(token, new AdminRepository.AdminCallback<ResponseBody>() {
+        viewModel.getSystemBackup(new AdminRepository.AdminCallback<ResponseBody>() {
             @Override
             public void onSuccess(ResponseBody data) {
-                try {
-                    File dir = requireContext().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
-                    File backupFile = new File(dir, "TechFix_DB_Backup_" + System.currentTimeMillis() + ".json");
-                    
-                    InputStream is = data.byteStream();
-                    FileOutputStream fos = new FileOutputStream(backupFile);
-                    byte[] buffer = new byte[4096];
-                    int bytesRead;
-                    while ((bytesRead = is.read(buffer)) != -1) {
-                        fos.write(buffer, 0, bytesRead);
+                new Thread(() -> {
+                    try {
+                        java.io.OutputStream os = requireContext().getContentResolver().openOutputStream(uri);
+                        InputStream is = data.byteStream();
+                        byte[] buffer = new byte[8192];
+                        int bytesRead;
+                        while ((bytesRead = is.read(buffer)) != -1) {
+                            os.write(buffer, 0, bytesRead);
+                        }
+                        os.close();
+                        is.close();
+                        requireActivity().runOnUiThread(() -> {
+                            progressBar.setVisibility(View.GONE);
+                            new AlertDialog.Builder(requireContext())
+                                .setTitle("Database Exported")
+                                .setMessage("Full database successfully saved!")
+                                .setPositiveButton("OK", null)
+                                .show();
+                        });
+                    } catch (Exception e) {
+                        requireActivity().runOnUiThread(() -> {
+                            progressBar.setVisibility(View.GONE);
+                            Toast.makeText(getContext(), "Error saving file: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                        });
                     }
-                    fos.close();
-                    is.close();
-                    
-                    requireActivity().runOnUiThread(() -> {
-                        progressBar.setVisibility(View.GONE);
-                        new AlertDialog.Builder(requireContext())
-                            .setTitle("Database Exported")
-                            .setMessage("Full database successfully saved to device:\n" + backupFile.getAbsolutePath())
-                            .setPositiveButton("OK", null)
-                            .show();
-                    });
-                } catch (Exception e) {
-                    requireActivity().runOnUiThread(() -> {
-                        progressBar.setVisibility(View.GONE);
-                        Toast.makeText(getContext(), "Error saving file: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                    });
-                }
+                }).start();
             }
             @Override
             public void onError(String error) {
-                progressBar.setVisibility(View.GONE);
-                Toast.makeText(getContext(), error, Toast.LENGTH_LONG).show();
+                requireActivity().runOnUiThread(() -> {
+                    progressBar.setVisibility(View.GONE);
+                    Toast.makeText(getContext(), error, Toast.LENGTH_LONG).show();
+                });
             }
         });
     }

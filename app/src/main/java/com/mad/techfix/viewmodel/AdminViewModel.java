@@ -183,6 +183,12 @@ public class AdminViewModel extends AndroidViewModel {
         });
     }
 
+    public void getSystemBackup(AdminRepository.AdminCallback<okhttp3.ResponseBody> callback) {
+        String token = getToken();
+        if (token == null) return;
+        repository.getSystemBackup(token, callback);
+    }
+
     public void loadManagers() {
         String token = getToken();
         if (token == null) return;
