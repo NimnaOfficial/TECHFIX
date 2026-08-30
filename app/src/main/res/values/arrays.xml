@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="role_options">
+        <item>MANAGER</item>
+        <item>TECHNICIAN</item>
+        <item>CUSTOMER</item>
+        <item>ADMIN</item>
+    </string-array>
+</resources>

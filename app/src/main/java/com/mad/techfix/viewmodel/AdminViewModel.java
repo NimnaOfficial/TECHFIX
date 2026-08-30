@@ -24,6 +24,10 @@ public class AdminViewModel extends AndroidViewModel {
 
     private final MutableLiveData<DashboardResponse.DashboardData> dashboardData = new MutableLiveData<>();
     private final MutableLiveData<SysAdminOverviewResponse> systemOverview = new MutableLiveData<>();
+    private final MutableLiveData<com.mad.techfix.models.admin.UserMonitorResponse> userMonitor = new MutableLiveData<>();
+    public MutableLiveData<com.mad.techfix.models.admin.UserMonitorResponse> getUserMonitor() { return userMonitor; }
+    private final MutableLiveData<List<com.mad.techfix.models.admin.LogEntry>> systemLogs = new MutableLiveData<>();
+    public MutableLiveData<List<com.mad.techfix.models.admin.LogEntry>> getSystemLogs() { return systemLogs; }
     private final MutableLiveData<List<Manager>> managers = new MutableLiveData<>();
     private final MutableLiveData<List<Branch>> branches = new MutableLiveData<>();
     private final MutableLiveData<List<Technician>> technicians = new MutableLiveData<>();
@@ -64,6 +68,62 @@ public class AdminViewModel extends AndroidViewModel {
             return null;
         }
         return token;
+    }
+
+            public void loadUserMonitor(String userId) {
+        String token = getToken();
+        if (token == null) return;
+        isLoading.setValue(true);
+        repository.getUserMonitor(token, userId, new AdminRepository.AdminCallback<com.mad.techfix.models.admin.UserMonitorResponse>() {
+            @Override
+            public void onSuccess(com.mad.techfix.models.admin.UserMonitorResponse data) {
+                isLoading.setValue(false);
+                userMonitor.setValue(data);
+            }
+            @Override
+            public void onError(String error) {
+                isLoading.setValue(false);
+                errorMessage.setValue(error);
+            }
+        });
+    }
+
+    public void loadSystemLogs() {
+        String token = getToken();
+        if (token == null) return;
+        isLoading.setValue(true);
+        repository.getSystemLogs(token, new AdminRepository.AdminCallback<List<com.mad.techfix.models.admin.LogEntry>>() {
+            @Override
+            public void onSuccess(List<com.mad.techfix.models.admin.LogEntry> data) {
+                isLoading.setValue(false);
+                systemLogs.setValue(data);
+            }
+            @Override
+            public void onError(String error) {
+                isLoading.setValue(false);
+                errorMessage.setValue(error);
+            }
+        });
+    }
+
+    public void clearSystemLogs() {
+        String token = getToken();
+        if (token == null) return;
+        isLoading.setValue(true);
+        repository.clearSystemLogs(token, new AdminRepository.AdminCallback<Void>() {
+            @Override
+            public void onSuccess(Void result) {
+                isLoading.setValue(false);
+                crudSuccess.setValue(true);
+                loadSystemLogs();
+            }
+            @Override
+            public void onError(String error) {
+                isLoading.setValue(false);
+                errorMessage.setValue(error);
+                crudSuccess.setValue(false);
+            }
+        });
     }
 
     public void loadSystemOverview() {
@@ -430,3 +490,5 @@ public class AdminViewModel extends AndroidViewModel {
         });
     }
 }
+
+

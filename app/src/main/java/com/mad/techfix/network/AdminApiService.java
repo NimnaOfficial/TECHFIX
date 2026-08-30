@@ -22,10 +22,17 @@ import retrofit2.http.Path;
 import com.mad.techfix.models.admin.SysAdminOverviewResponse;
 
 public interface AdminApiService {
-    @GET("api/admin/managers")
+    @GET("api/admin/system/logs")
+    Call<ApiResponse<java.util.List<com.mad.techfix.models.admin.LogEntry>>> getSystemLogs(@Header("Authorization") String auth);
+
+    @DELETE("api/admin/system/logs")
+    Call<ApiResponse<Void>> clearSystemLogs(@Header("Authorization") String auth);
+    @GET("api/admin/users/{id}/monitor")
+    Call<ApiResponse<com.mad.techfix.models.admin.UserMonitorResponse>> getUserMonitor(@Header("Authorization") String auth, @Path("id") String userId);
+    @GET("api/admin/users")
     Call<ApiResponse<java.util.List<com.mad.techfix.models.admin.Manager>>> getManagers(@Header("Authorization") String auth);
 
-    @POST("api/admin/managers")
+    @POST("api/admin/users")
     Call<ApiResponse<Void>> createManager(@Header("Authorization") String auth, @Body com.mad.techfix.models.admin.Manager manager);
 
     @PUT("api/admin/managers/{id}")
@@ -82,6 +89,9 @@ public interface AdminApiService {
     @retrofit2.http.DELETE("api/technicians/{id}")
     Call<ApiResponse<Object>> deleteTechnician(@Header("Authorization") String auth, @Path("id") String technicianId);
 }
+
+
+
 
 
 

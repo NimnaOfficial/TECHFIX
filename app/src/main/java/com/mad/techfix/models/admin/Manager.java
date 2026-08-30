@@ -25,6 +25,9 @@ public class Manager implements Serializable {
     public String getPhone() { return phone; }
     public void setPhone(String phone) { this.phone = phone; }
     private String password;
+    private String role;
+    public String getRole() { return role; }
+    public void setRole(String role) { this.role = role; }
 
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
@@ -32,4 +35,5 @@ public class Manager implements Serializable {
     public int getIsActive() { return isActive; }
     public void setIsActive(int isActive) { this.isActive = isActive; }
 }
+
 

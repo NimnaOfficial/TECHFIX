@@ -366,6 +366,38 @@ public class AdminRepository {
     }
 
         // --- System Admin ---
+    public void getSystemLogs(String token, AdminCallback<java.util.List<com.mad.techfix.models.admin.LogEntry>> callback) {
+        apiService.getSystemLogs(token).enqueue(new retrofit2.Callback<com.mad.techfix.models.ApiResponse<java.util.List<com.mad.techfix.models.admin.LogEntry>>>() {
+            @Override
+            public void onResponse(retrofit2.Call<com.mad.techfix.models.ApiResponse<java.util.List<com.mad.techfix.models.admin.LogEntry>>> call, retrofit2.Response<com.mad.techfix.models.ApiResponse<java.util.List<com.mad.techfix.models.admin.LogEntry>>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) callback.onSuccess(response.body().getData());
+                else callback.onError("Failed to fetch logs");
+            }
+            @Override public void onFailure(retrofit2.Call<com.mad.techfix.models.ApiResponse<java.util.List<com.mad.techfix.models.admin.LogEntry>>> call, Throwable t) { callback.onError(t.getMessage()); }
+        });
+    }
+
+        public void getUserMonitor(String token, String userId, AdminCallback<com.mad.techfix.models.admin.UserMonitorResponse> callback) {
+        apiService.getUserMonitor(token, userId).enqueue(new retrofit2.Callback<com.mad.techfix.models.ApiResponse<com.mad.techfix.models.admin.UserMonitorResponse>>() {
+            @Override
+            public void onResponse(retrofit2.Call<com.mad.techfix.models.ApiResponse<com.mad.techfix.models.admin.UserMonitorResponse>> call, retrofit2.Response<com.mad.techfix.models.ApiResponse<com.mad.techfix.models.admin.UserMonitorResponse>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) callback.onSuccess(response.body().getData());
+                else callback.onError("Failed to fetch monitor data");
+            }
+            @Override public void onFailure(retrofit2.Call<com.mad.techfix.models.ApiResponse<com.mad.techfix.models.admin.UserMonitorResponse>> call, Throwable t) { callback.onError(t.getMessage()); }
+        });
+    }
+
+    public void clearSystemLogs(String token, AdminCallback<Void> callback) {
+        apiService.clearSystemLogs(token).enqueue(new retrofit2.Callback<com.mad.techfix.models.ApiResponse<Void>>() {
+            @Override
+            public void onResponse(retrofit2.Call<com.mad.techfix.models.ApiResponse<Void>> call, retrofit2.Response<com.mad.techfix.models.ApiResponse<Void>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) callback.onSuccess(null);
+                else callback.onError("Failed to clear logs");
+            }
+            @Override public void onFailure(retrofit2.Call<com.mad.techfix.models.ApiResponse<Void>> call, Throwable t) { callback.onError(t.getMessage()); }
+        });
+    }
     public void getManagers(String token, AdminCallback<java.util.List<com.mad.techfix.models.admin.Manager>> callback) {
         apiService.getManagers(token).enqueue(new retrofit2.Callback<com.mad.techfix.models.ApiResponse<java.util.List<com.mad.techfix.models.admin.Manager>>>() {
             @Override
@@ -440,6 +472,8 @@ public class AdminRepository {
         return adminDao.getAvailableTechniciansByBranch(branchId);
     }
 }
+
+
 
 
 

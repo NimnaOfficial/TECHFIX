@@ -132,7 +132,7 @@ async function authenticate(request, env) {
 }
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     if (request.method === "OPTIONS") {
       return new Response(null, { status: 204, headers: corsHeaders });
     }
@@ -143,6 +143,19 @@ export default {
     let path = url.pathname;
     if (path.endsWith("/") && path.length > 1) {
         path = path.slice(0, -1);
+    }
+
+    // API LOGGING INTERCEPTOR (Background Task)
+    if (path.startsWith("/api") && !path.startsWith("/api/admin/system/logs")) {
+        ctx.waitUntil((async () => {
+            try {
+                let level = request.method === "DELETE" ? "WARN" : (request.method === "POST" || request.method === "PUT" ? "INFO" : "DEBUG");
+                await env.DB.prepare(`CREATE TABLE IF NOT EXISTS system_logs (id INTEGER PRIMARY KEY AUTOINCREMENT, level TEXT, method TEXT, path TEXT, message TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)`).run();
+                await env.DB.prepare(`INSERT INTO system_logs (level, method, path, message) VALUES (?, ?, ?, ?)`).bind(level, request.method, path, "API accessed").run();
+            } catch (e) {
+                // Ignore logging errors to prevent blocking the main response
+            }
+        })());
     }
 
     try {
@@ -766,8 +779,8 @@ export default {
             
             try {
                 // Ensure table exists safely
-                await env.DB.prepare(CREATE TABLE IF NOT EXISTS system_logs (id INTEGER PRIMARY KEY AUTOINCREMENT, level TEXT, method TEXT, path TEXT, message TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)).run();
-                const logs = await env.DB.prepare(SELECT * FROM system_logs ORDER BY created_at DESC LIMIT 200).all();
+                await env.DB.prepare(`CREATE TABLE IF NOT EXISTS system_logs (id INTEGER PRIMARY KEY AUTOINCREMENT, level TEXT, method TEXT, path TEXT, message TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)`).run();
+                const logs = await env.DB.prepare(`SELECT * FROM system_logs ORDER BY created_at DESC LIMIT 200`).all();
                 return json({ success: true, data: logs.results });
             } catch (e) {
                 return json({ success: false, message: "Error fetching logs", error: e.message }, 500);
@@ -779,7 +792,7 @@ export default {
             if (!user || !user.role || user.role.toUpperCase() !== "ADMIN") return json({ success: false, message: "Access denied. System Admin only." }, 403);
             
             try {
-                await env.DB.prepare(DELETE FROM system_logs).run();
+                await env.DB.prepare(`DELETE FROM system_logs`).run();
                 return json({ success: true, message: "Logs cleared successfully" });
             } catch (e) {
                 return json({ success: false, message: "Error clearing logs", error: e.message }, 500);
@@ -845,6 +858,137 @@ export default {
             await env.DB.prepare(`DELETE FROM users WHERE id = ? AND role = 'MANAGER'`).bind(managerId).run();
             
             return json({ success: true, message: "Manager deleted successfully" });
+        }
+
+                // ==========================================
+        // 10.7 GOD MODE FULL USER CRUD
+        // ==========================================
+        if (path === "/api/admin/users" && request.method === "GET") {
+            const user = await authenticate(request, env);
+            if (!user || !user.role || user.role.toUpperCase() !== "ADMIN") return json({ success: false, message: "Access denied. God Mode Admin only." }, 403);
+            
+            const allUsers = await env.DB.prepare(`SELECT id, first_name, last_name, email, phone, role, profile_image_url, is_active, created_at, updated_at FROM users ORDER BY created_at DESC`).all();
+            return json({ success: true, data: allUsers.results });
+        }
+
+        if (path === "/api/admin/users" && request.method === "POST") {
+            const user = await authenticate(request, env);
+            if (!user || !user.role || user.role.toUpperCase() !== "ADMIN") return json({ success: false, message: "Access denied. God Mode Admin only." }, 403);
+            
+            const { first_name, last_name, email, phone, password, role, is_active } = await request.json();
+            if (!email || !password || password.length < 6 || !role) return json({ success: false, message: "Valid email, password (min 6 chars), and role required" }, 400);
+
+            const normalizedEmail = email.trim().toLowerCase();
+            const existing = await env.DB.prepare(`SELECT id FROM users WHERE email = ?`).bind(normalizedEmail).first();
+            if (existing) return json({ success: false, message: "Email already exists" }, 400);
+
+            const encoder = new TextEncoder();
+            const salt = crypto.randomUUID();
+            const passwordKey = await crypto.subtle.importKey("raw", encoder.encode(password), { name: "PBKDF2" }, false, ["deriveBits"]);
+            const hashBuffer = await crypto.subtle.deriveBits({ name: "PBKDF2", salt: encoder.encode(salt), iterations: 100000, hash: "SHA-256" }, passwordKey, 256);
+            const passwordHash = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, "0")).join("");
+            const storedPasswordHash = `${salt}:${passwordHash}`;
+            const userId = crypto.randomUUID();
+
+            await env.DB.prepare(`
+                INSERT INTO users (id, first_name, last_name, email, phone, password_hash, role, is_active)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            `).bind(userId, first_name || 'User', last_name || '', normalizedEmail, phone || '', storedPasswordHash, role.toUpperCase(), is_active !== undefined ? is_active : 1).run();
+
+            return json({ success: true, message: "User created successfully" });
+        }
+
+        // ==========================================
+        // 10.8 GOD MODE FULL MONITORING (USER CONNECTIONS)
+        // ==========================================
+        if (path.match(/^\/api\/admin\/users\/[a-zA-Z0-9-]+\/monitor$/) && request.method === "GET") {
+            const user = await authenticate(request, env);
+            if (!user || !user.role || user.role.toUpperCase() !== "ADMIN") return json({ success: false, message: "Access denied. God Mode Admin only." }, 403);
+            
+            const targetId = path.split("/")[4];
+            const targetUser = await env.DB.prepare(`SELECT id, first_name, last_name, email, phone, role, is_active, created_at, updated_at FROM users WHERE id = ?`).bind(targetId).first();
+            
+            if (!targetUser) return json({ success: false, message: "User not found" }, 404);
+
+            let connections = {
+                devices: [],
+                appointmentsAsCustomer: [],
+                appointmentsAsTech: [],
+                technicianProfile: null,
+                skills: [],
+                historyActionsCount: 0
+            };
+
+            // Common: History Actions
+            const historyCountResult = await env.DB.prepare(`SELECT COUNT(*) as count FROM repair_status_history WHERE changed_by = ?`).bind(targetId).first();
+            connections.historyActionsCount = historyCountResult ? historyCountResult.count : 0;
+
+            if (targetUser.role === "CUSTOMER") {
+                const devices = await env.DB.prepare(`SELECT id, brand, model, serial_number FROM devices WHERE user_id = ?`).bind(targetId).all();
+                connections.devices = devices.results || [];
+                
+                const apts = await env.DB.prepare(`SELECT appointment_number, status, requested_date, estimated_price FROM appointments WHERE customer_id = ? ORDER BY requested_date DESC LIMIT 50`).bind(targetId).all();
+                connections.appointmentsAsCustomer = apts.results || [];
+            } else if (targetUser.role === "TECHNICIAN") {
+                const techProfile = await env.DB.prepare(`SELECT id, employee_code, specialization, branch_id, availability_status FROM technicians WHERE user_id = ?`).bind(targetId).first();
+                if (techProfile) {
+                    connections.technicianProfile = techProfile;
+                    const apts = await env.DB.prepare(`SELECT appointment_number, status, requested_date, customer_id FROM appointments WHERE technician_id = ? ORDER BY requested_date DESC LIMIT 50`).bind(techProfile.id).all();
+                    connections.appointmentsAsTech = apts.results || [];
+
+                    try {
+                        const skills = await env.DB.prepare(`SELECT s.name FROM technician_services ts JOIN services s ON ts.service_id = s.id WHERE ts.technician_id = ?`).bind(techProfile.id).all();
+                        connections.skills = skills.results || [];
+                    } catch (e) {
+                        // ignore if services table missing/empty
+                    }
+                }
+            } else if (targetUser.role === "MANAGER") {
+                // Try to find if they are attached to a branch (if the schema supports it. If not, fallback)
+                try {
+                    const branch = await env.DB.prepare(`SELECT name FROM branches WHERE manager_id = ?`).bind(targetId).first();
+                    connections.managerBranch = branch ? branch.name : "Unassigned";
+                } catch(e) {}
+            }
+
+            return json({ success: true, data: { user: targetUser, connections } });
+        }
+
+        if (path.startsWith("/api/admin/users/") && request.method === "PUT") {
+            const user = await authenticate(request, env);
+            if (!user || !user.role || user.role.toUpperCase() !== "ADMIN") return json({ success: false, message: "Access denied. God Mode Admin only." }, 403);
+            
+            const targetId = path.split("/")[4];
+            const { first_name, last_name, phone, role, is_active, password } = await request.json();
+            
+            // If admin provided a new password, overwrite it
+            if (password && password.length >= 6) {
+                const encoder = new TextEncoder();
+                const salt = crypto.randomUUID();
+                const passwordKey = await crypto.subtle.importKey("raw", encoder.encode(password), { name: "PBKDF2" }, false, ["deriveBits"]);
+                const hashBuffer = await crypto.subtle.deriveBits({ name: "PBKDF2", salt: encoder.encode(salt), iterations: 100000, hash: "SHA-256" }, passwordKey, 256);
+                const passwordHash = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, "0")).join("");
+                const storedPasswordHash = `${salt}:${passwordHash}`;
+                
+                await env.DB.prepare(`
+                    UPDATE users SET first_name = ?, last_name = ?, phone = ?, role = ?, is_active = ?, password_hash = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?
+                `).bind(first_name || '', last_name || '', phone || '', role.toUpperCase(), is_active !== undefined ? is_active : 1, storedPasswordHash, targetId).run();
+            } else {
+                await env.DB.prepare(`
+                    UPDATE users SET first_name = ?, last_name = ?, phone = ?, role = ?, is_active = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?
+                `).bind(first_name || '', last_name || '', phone || '', role.toUpperCase(), is_active !== undefined ? is_active : 1, targetId).run();
+            }
+            
+            return json({ success: true, message: "User updated successfully" });
+        }
+
+        if (path.startsWith("/api/admin/users/") && request.method === "DELETE") {
+            const user = await authenticate(request, env);
+            if (!user || !user.role || user.role.toUpperCase() !== "ADMIN") return json({ success: false, message: "Access denied. God Mode Admin only." }, 403);
+            
+            const targetId = path.split("/")[4];
+            await env.DB.prepare(`DELETE FROM users WHERE id = ?`).bind(targetId).run();
+            return json({ success: true, message: "User permanently deleted" });
         }
 
         // 10. ADMIN CRUD OPERATIONS (Branches, Technicians, Spare Parts)
@@ -1000,6 +1144,9 @@ export default {
     }
   }
 };
+
+
+
 
 
 

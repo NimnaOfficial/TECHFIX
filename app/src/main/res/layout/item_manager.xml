@@ -39,7 +39,7 @@
                 android:id="@+id/tv_manager_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Manager Name"
+                android:text="User Name"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:textColor="?attr/colorOnSurface" />
@@ -52,15 +52,34 @@
                 android:textSize="14sp"
                 android:textColor="?android:attr/textColorSecondary" />
                 
-            <TextView
-                android:id="@+id/tv_manager_status"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Active"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                android:textColor="#4CAF50"
-                android:layout_marginTop="4dp" />
+                android:orientation="horizontal"
+                android:layout_marginTop="4dp">
+                
+                <TextView
+                    android:id="@+id/tv_user_role"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ROLE"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFF"
+                    android:background="#2196F3"
+                    android:paddingHorizontal="6dp"
+                    android:paddingVertical="2dp"
+                    android:layout_marginEnd="8dp"/>
+
+                <TextView
+                    android:id="@+id/tv_manager_status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Active"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="#4CAF50" />
+            </LinearLayout>
         </LinearLayout>
 
         <ImageButton
