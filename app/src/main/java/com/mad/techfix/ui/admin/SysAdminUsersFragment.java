@@ -68,6 +68,15 @@ public class SysAdminUsersFragment extends Fragment implements ManagerAdapter.On
         FloatingActionButton fabAdd = view.findViewById(R.id.fab_add_manager);
         fabAdd.setOnClickListener(v -> showUserDialog(null));
 
+        String pendingFilter = viewModel.getPendingUserFilter();
+        if (pendingFilter != null) {
+            currentRoleFilter = pendingFilter;
+            if ("MANAGER".equals(pendingFilter)) {
+                chipGroup.check(R.id.chip_manager);
+            }
+            viewModel.setPendingUserFilter(null);
+        }
+
         setupObservers();
         viewModel.loadManagers();
     }

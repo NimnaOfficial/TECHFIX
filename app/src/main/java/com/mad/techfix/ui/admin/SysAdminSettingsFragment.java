@@ -64,6 +64,20 @@ public class SysAdminSettingsFragment extends Fragment {
         logAdapter = new LogAdapter();
         rvLogs.setAdapter(logAdapter);
 
+        if (viewModel.isPendingScrollToLogs()) {
+            View logsCard = (View) rvLogs.getParent();
+            ViewGroup.LayoutParams params = logsCard.getLayoutParams();
+            params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            logsCard.setLayoutParams(params);
+            rvLogs.setNestedScrollingEnabled(false);
+            
+            view.post(() -> {
+                android.widget.ScrollView sv = view.findViewById(R.id.scroll_view);
+                if (sv != null) sv.smoothScrollTo(0, logsCard.getBottom() + 2000); // ensure it scrolls all the way
+            });
+            viewModel.setPendingScrollToLogs(false);
+        }
+
         btnRefreshLogs.setOnClickListener(v -> viewModel.loadSystemLogs());
         btnClearLogs.setOnClickListener(v -> {
             new AlertDialog.Builder(requireContext())
