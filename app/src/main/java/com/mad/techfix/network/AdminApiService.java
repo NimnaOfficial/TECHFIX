@@ -34,6 +34,8 @@ public interface AdminApiService {
 
     @POST("api/admin/settings")
     Call<ApiResponse<Void>> updateSystemSetting(@Header("Authorization") String auth, @Body java.util.Map<String, String> payload);
+    @GET("api/admin/system/backup")
+    Call<okhttp3.ResponseBody> getSystemBackup(@Header("Authorization") String auth);
     @GET("api/admin/users")
     Call<ApiResponse<java.util.List<com.mad.techfix.models.admin.Manager>>> getManagers(@Header("Authorization") String auth);
 
@@ -94,6 +96,7 @@ public interface AdminApiService {
     @retrofit2.http.DELETE("api/technicians/{id}")
     Call<ApiResponse<Object>> deleteTechnician(@Header("Authorization") String auth, @Path("id") String technicianId);
 }
+
 
 
 

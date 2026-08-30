@@ -120,7 +120,7 @@ public class TechnicianDetailFragment extends Fragment {
                         TextView tv = new TextView(parent.getContext());
                         tv.setPadding(32, 24, 32, 24);
                         tv.setTextSize(15f);
-                        tv.setTextColor(Color.parseColor("#424242"));
+                        tv.setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), com.mad.techfix.R.color.app_text_secondary));
                         tv.setCompoundDrawablesWithIntrinsicBounds(android.R.drawable.presence_online, 0, 0, 0);
                         tv.setCompoundDrawablePadding(24);
                         return new RecyclerView.ViewHolder(tv) {};
@@ -150,4 +150,5 @@ public class TechnicianDetailFragment extends Fragment {
         });
     }
 }
+
 

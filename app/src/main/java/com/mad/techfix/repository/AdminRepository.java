@@ -388,6 +388,17 @@ public class AdminRepository {
         });
     }
 
+        public void getSystemBackup(String token, AdminCallback<okhttp3.ResponseBody> callback) {
+        apiService.getSystemBackup(token).enqueue(new retrofit2.Callback<okhttp3.ResponseBody>() {
+            @Override
+            public void onResponse(retrofit2.Call<okhttp3.ResponseBody> call, retrofit2.Response<okhttp3.ResponseBody> response) {
+                if (response.isSuccessful() && response.body() != null) callback.onSuccess(response.body());
+                else callback.onError("Failed to fetch backup");
+            }
+            @Override public void onFailure(retrofit2.Call<okhttp3.ResponseBody> call, Throwable t) { callback.onError(t.getMessage()); }
+        });
+    }
+
     public void updateSystemSetting(String token, String key, String value, AdminCallback<Void> callback) {
         java.util.Map<String, String> payload = new java.util.HashMap<>();
         payload.put("setting_key", key);
@@ -497,6 +508,7 @@ public class AdminRepository {
         return adminDao.getAvailableTechniciansByBranch(branchId);
     }
 }
+
 
 
 

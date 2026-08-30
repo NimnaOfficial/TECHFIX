@@ -1,25 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Pitch Black Theme Colors (Dark) -->
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+    
+    <!-- PITCH BLACK DARK THEME COLORS (AMOLED) -->
     <color name="app_background">#000000</color>
     <color name="app_surface">#0A0A0A</color>
     <color name="app_surface_variant">#141414</color>
     
-    <color name="app_primary">#82B1FF</color>     <!-- Modern neon blue for dark mode -->
-    <color name="app_primary_variant">#448AFF</color>
-    <color name="app_secondary">#2979FF</color>
+    <!-- Text Colors -->
+    <color name="app_text_primary">#F8F9FA</color>
+    <color name="app_text_secondary">#ADB5BD</color>
+    <color name="app_text_tertiary">#6C757D</color>
     
-    <color name="app_text_primary">#FFFFFF</color>
-    <color name="app_text_secondary">#B3B3B3</color>
-    <color name="app_divider">#242424</color>
+    <!-- Borders & Dividers -->
+    <color name="app_divider">#212529</color>
+    <color name="card_border">#212529</color>
     
-    <!-- Status Colors (Dark mode optimized) -->
-    <color name="status_success">#00E676</color>
-    <color name="status_error">#FF5252</color>
-    <color name="status_warning">#FFAB40</color>
+    <!-- Brand Primary Colors (Brighter for Dark Mode Contrast) -->
+    <color name="app_primary">#3B82F6</color>
+    <color name="app_primary_variant">#60A5FA</color>
+    <color name="app_secondary">#9CA3AF</color>
+    <color name="app_accent">#3B82F6</color>
     
-    <!-- Icon Tints -->
-    <color name="icon_tint_primary">#82B1FF</color>
-    <color name="icon_bg_primary">#1A237E</color> <!-- Darker background for icons in dark mode -->
-    <color name="card_border">#242424</color>
+    <!-- UI Component Tints -->
+    <color name="icon_bg_primary">#172554</color>
+    <color name="icon_tint_primary">#60A5FA</color>
+    
+    <!-- Status & Alerts (Optimized for Dark Mode) -->
+    <color name="app_error">#EF4444</color>
+    <color name="app_success">#10B981</color>
+    <color name="app_warning">#F59E0B</color>
+    
+    <color name="status_completed">#3B82F6</color>
+    <color name="status_cancelled">#EF4444</color>
+    <color name="status_pending">#F59E0B</color>
+    <color name="status_success">#10B981</color>
+    <color name="status_error">#EF4444</color>
+    <color name="status_warning">#F59E0B</color>
+
+    <!-- Legacy / Material Fallbacks -->
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    
+    <!-- Misc Legacy -->
+    <color name="gray_dark">#1A1A1A</color>
+    <color name="gray_mid">#333333</color>
+    <color name="gray_light">#888888</color>
+    <color name="accent">#3B82F6</color>
 </resources>

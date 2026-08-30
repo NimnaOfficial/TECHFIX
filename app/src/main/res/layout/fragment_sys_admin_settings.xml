@@ -19,10 +19,10 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Global Admin Configurations"
+        android:text="Global Admin Configurations &amp; Terminal"
         android:textSize="14sp"
         android:textColor="?android:attr/textColorSecondary"
-        android:layout_marginBottom="24dp" />
+        android:layout_marginBottom="16dp" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -48,18 +48,16 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
+                android:layout_marginBottom="16dp"
                 app:cardElevation="0dp"
                 app:strokeWidth="1dp"
                 app:strokeColor="@color/card_border"
                 app:cardCornerRadius="12dp">
-                
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:padding="16dp">
-                    
                     <com.google.android.material.switchmaterial.SwitchMaterial
                         android:id="@+id/switch_maintenance"
                         android:layout_width="match_parent"
@@ -70,7 +68,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Blocks all customers and technicians from accessing the API (503 Service Unavailable). Admin access remains active."
+                        android:text="Blocks all customers and technicians from accessing the API (503). Admin access remains active."
                         android:textSize="12sp"
                         android:textColor="?android:attr/textColorSecondary"/>
                 </LinearLayout>
@@ -89,26 +87,23 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
+                android:layout_marginBottom="16dp"
                 app:cardElevation="0dp"
                 app:strokeWidth="1dp"
                 app:strokeColor="@color/card_border"
                 app:cardCornerRadius="12dp">
-                
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:padding="16dp">
-                    
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn_export_db"
                         style="@style/Widget.Material3.Button.TonalButton"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Export SQLite Database Backup"
+                        android:text="Save Full DB Backup to Device"
                         app:icon="@android:drawable/ic_menu_save" />
-                        
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn_clear_cache"
                         style="@style/Widget.Material3.Button.OutlinedButton"
@@ -118,6 +113,52 @@
                         android:layout_marginTop="8dp"
                         app:icon="@android:drawable/ic_menu_delete" />
                 </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- System Logs Section (Moved Here) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="8dp">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="Live System API Logs"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="?attr/colorPrimary" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_refresh_logs"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Sync"
+                    android:textColor="?attr/colorPrimary" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_clear_logs"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Purge"
+                    android:textColor="#F44336" />
+            </LinearLayout>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="350dp"
+                android:layout_marginBottom="24dp"
+                app:cardBackgroundColor="#0A0A0A"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="0dp">
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_logs"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:padding="8dp"
+                    android:clipToPadding="false"/>
             </com.google.android.material.card.MaterialCardView>
 
         </LinearLayout>
@@ -139,7 +180,7 @@
         android:text="Terminate Session (Logout)"
         app:backgroundTint="#F44336"
         android:textColor="#FFFFFF"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         app:icon="@android:drawable/ic_lock_power_off"
         app:iconTint="#FFFFFF"/>
 
