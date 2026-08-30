@@ -38,7 +38,7 @@ public class PartsManagerFragment extends Fragment {
     private ApiService apiService;
     private SessionManager sessionManager;
 
-    private TokenManager tokenManager;
+    
     private android.widget.ProgressBar progressBar;
 
     @Nullable
@@ -90,7 +90,7 @@ public class PartsManagerFragment extends Fragment {
     // FETCH FROM API
     // ==========================================
     private void fetchSparePartsFromApi() {
-        String token = tokenManager.getToken();
+        String token = sessionManager.getBearerToken();
 
         // Log the token for debugging
         Log.d("PARTS_DEBUG", "🔍 Token: " + (token != null ? token.substring(0, Math.min(token.length(), 20)) + "..." : "NULL"));
@@ -272,7 +272,7 @@ public class PartsManagerFragment extends Fragment {
     private void createPartViaApi(SparePart part) {
         String token = sessionManager.getBearerToken();
         if (token == null) return;
-        String token = tokenManager.getToken();
+        
         if (token == null) {
             Toast.makeText(getContext(), "⚠️ Please login first", Toast.LENGTH_SHORT).show();
             return;
@@ -313,7 +313,7 @@ public class PartsManagerFragment extends Fragment {
     private void updatePartViaApi(String id, SparePart part) {
         String token = sessionManager.getBearerToken();
         if (token == null) return;
-        String token = tokenManager.getToken();
+        
         if (token == null) {
             Toast.makeText(getContext(), "⚠️ Please login first", Toast.LENGTH_SHORT).show();
             return;
@@ -354,7 +354,7 @@ public class PartsManagerFragment extends Fragment {
     private void deletePartViaApi(String id) {
         String token = sessionManager.getBearerToken();
         if (token == null) return;
-        String token = tokenManager.getToken();
+        
         if (token == null) {
             Toast.makeText(getContext(), "⚠️ Please login first", Toast.LENGTH_SHORT).show();
             return;
@@ -389,8 +389,7 @@ public class PartsManagerFragment extends Fragment {
         });
     }
 
-    private void fetchSparePartsFromApi() {
-        String token = sessionManager.getBearerToken();
+
     // ==========================================
     // HELPER: TextWatcher to clear errors
     // ==========================================
