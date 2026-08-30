@@ -366,6 +366,106 @@ public class AdminRepository {
     }
 
         // --- System Admin ---
+    public void getSystemLogs(String token, AdminCallback<java.util.List<com.mad.techfix.models.admin.LogEntry>> callback) {
+        apiService.getSystemLogs(token).enqueue(new retrofit2.Callback<com.mad.techfix.models.ApiResponse<java.util.List<com.mad.techfix.models.admin.LogEntry>>>() {
+            @Override
+            public void onResponse(retrofit2.Call<com.mad.techfix.models.ApiResponse<java.util.List<com.mad.techfix.models.admin.LogEntry>>> call, retrofit2.Response<com.mad.techfix.models.ApiResponse<java.util.List<com.mad.techfix.models.admin.LogEntry>>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) callback.onSuccess(response.body().getData());
+                else callback.onError("Failed to fetch logs");
+            }
+            @Override public void onFailure(retrofit2.Call<com.mad.techfix.models.ApiResponse<java.util.List<com.mad.techfix.models.admin.LogEntry>>> call, Throwable t) { callback.onError(t.getMessage()); }
+        });
+    }
+
+            public void getSystemSettings(String token, AdminCallback<java.util.Map<String, String>> callback) {
+        apiService.getSystemSettings(token).enqueue(new retrofit2.Callback<com.mad.techfix.models.ApiResponse<java.util.Map<String, String>>>() {
+            @Override
+            public void onResponse(retrofit2.Call<com.mad.techfix.models.ApiResponse<java.util.Map<String, String>>> call, retrofit2.Response<com.mad.techfix.models.ApiResponse<java.util.Map<String, String>>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) callback.onSuccess(response.body().getData());
+                else callback.onError("Failed to fetch settings");
+            }
+            @Override public void onFailure(retrofit2.Call<com.mad.techfix.models.ApiResponse<java.util.Map<String, String>>> call, Throwable t) { callback.onError(t.getMessage()); }
+        });
+    }
+
+    public void updateSystemSetting(String token, String key, String value, AdminCallback<Void> callback) {
+        java.util.Map<String, String> payload = new java.util.HashMap<>();
+        payload.put("setting_key", key);
+        payload.put("setting_value", value);
+        apiService.updateSystemSetting(token, payload).enqueue(new retrofit2.Callback<com.mad.techfix.models.ApiResponse<Void>>() {
+            @Override
+            public void onResponse(retrofit2.Call<com.mad.techfix.models.ApiResponse<Void>> call, retrofit2.Response<com.mad.techfix.models.ApiResponse<Void>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) callback.onSuccess(null);
+                else callback.onError("Failed to save setting");
+            }
+            @Override public void onFailure(retrofit2.Call<com.mad.techfix.models.ApiResponse<Void>> call, Throwable t) { callback.onError(t.getMessage()); }
+        });
+    }
+
+    public void getUserMonitor(String token, String userId, AdminCallback<com.mad.techfix.models.admin.UserMonitorResponse> callback) {
+        apiService.getUserMonitor(token, userId).enqueue(new retrofit2.Callback<com.mad.techfix.models.ApiResponse<com.mad.techfix.models.admin.UserMonitorResponse>>() {
+            @Override
+            public void onResponse(retrofit2.Call<com.mad.techfix.models.ApiResponse<com.mad.techfix.models.admin.UserMonitorResponse>> call, retrofit2.Response<com.mad.techfix.models.ApiResponse<com.mad.techfix.models.admin.UserMonitorResponse>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) callback.onSuccess(response.body().getData());
+                else callback.onError("Failed to fetch monitor data");
+            }
+            @Override public void onFailure(retrofit2.Call<com.mad.techfix.models.ApiResponse<com.mad.techfix.models.admin.UserMonitorResponse>> call, Throwable t) { callback.onError(t.getMessage()); }
+        });
+    }
+
+    public void clearSystemLogs(String token, AdminCallback<Void> callback) {
+        apiService.clearSystemLogs(token).enqueue(new retrofit2.Callback<com.mad.techfix.models.ApiResponse<Void>>() {
+            @Override
+            public void onResponse(retrofit2.Call<com.mad.techfix.models.ApiResponse<Void>> call, retrofit2.Response<com.mad.techfix.models.ApiResponse<Void>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) callback.onSuccess(null);
+                else callback.onError("Failed to clear logs");
+            }
+            @Override public void onFailure(retrofit2.Call<com.mad.techfix.models.ApiResponse<Void>> call, Throwable t) { callback.onError(t.getMessage()); }
+        });
+    }
+    public void getManagers(String token, AdminCallback<java.util.List<com.mad.techfix.models.admin.Manager>> callback) {
+        apiService.getManagers(token).enqueue(new retrofit2.Callback<com.mad.techfix.models.ApiResponse<java.util.List<com.mad.techfix.models.admin.Manager>>>() {
+            @Override
+            public void onResponse(retrofit2.Call<com.mad.techfix.models.ApiResponse<java.util.List<com.mad.techfix.models.admin.Manager>>> call, retrofit2.Response<com.mad.techfix.models.ApiResponse<java.util.List<com.mad.techfix.models.admin.Manager>>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) callback.onSuccess(response.body().getData());
+                else callback.onError("Failed to fetch managers");
+            }
+            @Override public void onFailure(retrofit2.Call<com.mad.techfix.models.ApiResponse<java.util.List<com.mad.techfix.models.admin.Manager>>> call, Throwable t) { callback.onError(t.getMessage()); }
+        });
+    }
+
+    public void createManager(String token, com.mad.techfix.models.admin.Manager manager, AdminCallback<Void> callback) {
+        apiService.createManager(token, manager).enqueue(new retrofit2.Callback<com.mad.techfix.models.ApiResponse<Void>>() {
+            @Override
+            public void onResponse(retrofit2.Call<com.mad.techfix.models.ApiResponse<Void>> call, retrofit2.Response<com.mad.techfix.models.ApiResponse<Void>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) callback.onSuccess(null);
+                else callback.onError("Failed to create manager");
+            }
+            @Override public void onFailure(retrofit2.Call<com.mad.techfix.models.ApiResponse<Void>> call, Throwable t) { callback.onError(t.getMessage()); }
+        });
+    }
+
+    public void updateManager(String token, String id, com.mad.techfix.models.admin.Manager manager, AdminCallback<Void> callback) {
+        apiService.updateManager(token, id, manager).enqueue(new retrofit2.Callback<com.mad.techfix.models.ApiResponse<Void>>() {
+            @Override
+            public void onResponse(retrofit2.Call<com.mad.techfix.models.ApiResponse<Void>> call, retrofit2.Response<com.mad.techfix.models.ApiResponse<Void>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) callback.onSuccess(null);
+                else callback.onError("Failed to update manager");
+            }
+            @Override public void onFailure(retrofit2.Call<com.mad.techfix.models.ApiResponse<Void>> call, Throwable t) { callback.onError(t.getMessage()); }
+        });
+    }
+
+    public void deleteManager(String token, String id, AdminCallback<Void> callback) {
+        apiService.deleteManager(token, id).enqueue(new retrofit2.Callback<com.mad.techfix.models.ApiResponse<Void>>() {
+            @Override
+            public void onResponse(retrofit2.Call<com.mad.techfix.models.ApiResponse<Void>> call, retrofit2.Response<com.mad.techfix.models.ApiResponse<Void>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) callback.onSuccess(null);
+                else callback.onError("Failed to delete manager");
+            }
+            @Override public void onFailure(retrofit2.Call<com.mad.techfix.models.ApiResponse<Void>> call, Throwable t) { callback.onError(t.getMessage()); }
+        });
+    }
     public void getSystemOverview(String token, AdminCallback<com.mad.techfix.models.admin.SysAdminOverviewResponse> callback) {
         apiService.getSystemOverview(token).enqueue(new retrofit2.Callback<com.mad.techfix.models.ApiResponse<com.mad.techfix.models.admin.SysAdminOverviewResponse>>() {
             @Override
@@ -373,7 +473,7 @@ public class AdminRepository {
                 if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
                     callback.onSuccess(response.body().getData());
                 } else {
-                    callback.onError("Failed to fetch system overview");
+                    callback.onError("Failed to fetch system overview. Code: " + response.code());
                 }
             }
 
@@ -397,6 +497,11 @@ public class AdminRepository {
         return adminDao.getAvailableTechniciansByBranch(branchId);
     }
 }
+
+
+
+
+
 
 
 

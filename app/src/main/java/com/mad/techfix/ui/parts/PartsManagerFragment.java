@@ -22,7 +22,7 @@ import com.mad.techfix.models.ApiResponse;
 import com.mad.techfix.models.SparePart;
 import com.mad.techfix.network.ApiService;
 import com.mad.techfix.network.RetrofitClient;
-import com.mad.techfix.utils.TokenManager;
+import com.mad.techfix.data.SessionManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +36,8 @@ public class PartsManagerFragment extends Fragment {
     private RecyclerView recyclerView;
     private PartsAdapter adapter;
     private ApiService apiService;
+    private SessionManager sessionManager;
+
     private TokenManager tokenManager;
     private android.widget.ProgressBar progressBar;
 
@@ -59,7 +61,7 @@ public class PartsManagerFragment extends Fragment {
 
         // 2. Initialize Network Helpers
         apiService = RetrofitClient.getClient().create(ApiService.class);
-        tokenManager = new TokenManager(requireContext());
+        sessionManager = new SessionManager(requireContext());
 
         // 3. Setup FAB for adding new parts
         com.google.android.material.floatingactionbutton.FloatingActionButton fabAdd = view.findViewById(R.id.fab_add_part);
@@ -268,6 +270,8 @@ public class PartsManagerFragment extends Fragment {
     // CREATE PART
     // ==========================================
     private void createPartViaApi(SparePart part) {
+        String token = sessionManager.getBearerToken();
+        if (token == null) return;
         String token = tokenManager.getToken();
         if (token == null) {
             Toast.makeText(getContext(), "⚠️ Please login first", Toast.LENGTH_SHORT).show();
@@ -307,6 +311,8 @@ public class PartsManagerFragment extends Fragment {
     // UPDATE PART
     // ==========================================
     private void updatePartViaApi(String id, SparePart part) {
+        String token = sessionManager.getBearerToken();
+        if (token == null) return;
         String token = tokenManager.getToken();
         if (token == null) {
             Toast.makeText(getContext(), "⚠️ Please login first", Toast.LENGTH_SHORT).show();
@@ -346,6 +352,8 @@ public class PartsManagerFragment extends Fragment {
     // DELETE PART
     // ==========================================
     private void deletePartViaApi(String id) {
+        String token = sessionManager.getBearerToken();
+        if (token == null) return;
         String token = tokenManager.getToken();
         if (token == null) {
             Toast.makeText(getContext(), "⚠️ Please login first", Toast.LENGTH_SHORT).show();
@@ -381,6 +389,8 @@ public class PartsManagerFragment extends Fragment {
         });
     }
 
+    private void fetchSparePartsFromApi() {
+        String token = sessionManager.getBearerToken();
     // ==========================================
     // HELPER: TextWatcher to clear errors
     // ==========================================
@@ -398,6 +408,7 @@ public class PartsManagerFragment extends Fragment {
         public void onTextChanged(CharSequence s, int start, int before, int count) {
             til.setError(null);
         }
+
 
         @Override
         public void afterTextChanged(Editable s) {}

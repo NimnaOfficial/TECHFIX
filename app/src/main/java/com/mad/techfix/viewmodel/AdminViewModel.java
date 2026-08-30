@@ -11,19 +11,26 @@ import com.mad.techfix.models.admin.DashboardResponse;
 import com.mad.techfix.models.admin.Service;
 import com.mad.techfix.models.admin.Technician;
 import com.mad.techfix.models.admin.SysAdminOverviewResponse;
-import com.mad.techfix.models.admin.SysAdminOverviewResponse;
+import com.mad.techfix.models.admin.Manager;
 import com.mad.techfix.repository.AdminRepository;
 import com.mad.techfix.data.local.database.AppDatabase;
-import com.mad.techfix.utils.TokenManager;
+import com.mad.techfix.data.SessionManager;
 
 import java.util.List;
 
 public class AdminViewModel extends AndroidViewModel {
     private final AdminRepository repository;
-    private final TokenManager tokenManager;
+    private final SessionManager sessionManager;
 
     private final MutableLiveData<DashboardResponse.DashboardData> dashboardData = new MutableLiveData<>();
     private final MutableLiveData<SysAdminOverviewResponse> systemOverview = new MutableLiveData<>();
+    private final MutableLiveData<java.util.Map<String, String>> systemSettings = new MutableLiveData<>();
+    public MutableLiveData<java.util.Map<String, String>> getSystemSettings() { return systemSettings; }
+    private final MutableLiveData<com.mad.techfix.models.admin.UserMonitorResponse> userMonitor = new MutableLiveData<>();
+    public MutableLiveData<com.mad.techfix.models.admin.UserMonitorResponse> getUserMonitor() { return userMonitor; }
+    private final MutableLiveData<List<com.mad.techfix.models.admin.LogEntry>> systemLogs = new MutableLiveData<>();
+    public MutableLiveData<List<com.mad.techfix.models.admin.LogEntry>> getSystemLogs() { return systemLogs; }
+    private final MutableLiveData<List<Manager>> managers = new MutableLiveData<>();
     private final MutableLiveData<List<Branch>> branches = new MutableLiveData<>();
     private final MutableLiveData<List<Technician>> technicians = new MutableLiveData<>();
     private final MutableLiveData<List<Service>> technicianServices = new MutableLiveData<>();
@@ -33,17 +40,18 @@ public class AdminViewModel extends AndroidViewModel {
     private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
     private final MutableLiveData<Boolean> assignmentSuccess = new MutableLiveData<>();
     private final MutableLiveData<Boolean> skillUpdateSuccess = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> crudSuccess = new MutableLiveData<>();
 
     public AdminViewModel(@NonNull Application application) {
         super(application);
         AppDatabase db = AppDatabase.getInstance(application);
         repository = new AdminRepository(db);
-        tokenManager = new TokenManager(application);
+        sessionManager = new SessionManager(application);
     }
 
-    // --- Getters for LiveData ---
     public MutableLiveData<DashboardResponse.DashboardData> getDashboardData() { return dashboardData; }
     public MutableLiveData<SysAdminOverviewResponse> getSystemOverview() { return systemOverview; }
+    public MutableLiveData<List<Manager>> getManagers() { return managers; }
     public MutableLiveData<List<Branch>> getBranches() { return branches; }
     public MutableLiveData<List<Technician>> getTechnicians() { return technicians; }
     public MutableLiveData<List<Service>> getTechnicianServices() { return technicianServices; }
@@ -53,17 +61,111 @@ public class AdminViewModel extends AndroidViewModel {
     public MutableLiveData<String> getErrorMessage() { return errorMessage; }
     public MutableLiveData<Boolean> getAssignmentSuccess() { return assignmentSuccess; }
     public MutableLiveData<Boolean> getSkillUpdateSuccess() { return skillUpdateSuccess; }
+    public MutableLiveData<Boolean> getCrudSuccess() { return crudSuccess; }
 
     private String getToken() {
-        String token = tokenManager.getToken();
-        if (token == null || token.isEmpty()) {
+        String token = sessionManager.getBearerToken();
+        if (token == null || token.trim().isEmpty()) {
             errorMessage.setValue("Authentication token not found");
             return null;
         }
-        return "Bearer " + token;
+        return token;
     }
 
-        public void loadSystemOverview() {
+                public void loadSystemSettings() {
+        String token = getToken();
+        if (token == null) return;
+        isLoading.setValue(true);
+        repository.getSystemSettings(token, new AdminRepository.AdminCallback<java.util.Map<String, String>>() {
+            @Override
+            public void onSuccess(java.util.Map<String, String> data) {
+                isLoading.setValue(false);
+                systemSettings.setValue(data);
+            }
+            @Override
+            public void onError(String error) {
+                isLoading.setValue(false);
+                errorMessage.setValue(error);
+            }
+        });
+    }
+
+    public void updateSystemSetting(String key, String value) {
+        String token = getToken();
+        if (token == null) return;
+        isLoading.setValue(true);
+        repository.updateSystemSetting(token, key, value, new AdminRepository.AdminCallback<Void>() {
+            @Override
+            public void onSuccess(Void result) {
+                isLoading.setValue(false);
+                crudSuccess.setValue(true);
+            }
+            @Override
+            public void onError(String error) {
+                isLoading.setValue(false);
+                errorMessage.setValue(error);
+                crudSuccess.setValue(false);
+            }
+        });
+    }
+
+    public void loadUserMonitor(String userId) {
+        String token = getToken();
+        if (token == null) return;
+        isLoading.setValue(true);
+        repository.getUserMonitor(token, userId, new AdminRepository.AdminCallback<com.mad.techfix.models.admin.UserMonitorResponse>() {
+            @Override
+            public void onSuccess(com.mad.techfix.models.admin.UserMonitorResponse data) {
+                isLoading.setValue(false);
+                userMonitor.setValue(data);
+            }
+            @Override
+            public void onError(String error) {
+                isLoading.setValue(false);
+                errorMessage.setValue(error);
+            }
+        });
+    }
+
+    public void loadSystemLogs() {
+        String token = getToken();
+        if (token == null) return;
+        isLoading.setValue(true);
+        repository.getSystemLogs(token, new AdminRepository.AdminCallback<List<com.mad.techfix.models.admin.LogEntry>>() {
+            @Override
+            public void onSuccess(List<com.mad.techfix.models.admin.LogEntry> data) {
+                isLoading.setValue(false);
+                systemLogs.setValue(data);
+            }
+            @Override
+            public void onError(String error) {
+                isLoading.setValue(false);
+                errorMessage.setValue(error);
+            }
+        });
+    }
+
+    public void clearSystemLogs() {
+        String token = getToken();
+        if (token == null) return;
+        isLoading.setValue(true);
+        repository.clearSystemLogs(token, new AdminRepository.AdminCallback<Void>() {
+            @Override
+            public void onSuccess(Void result) {
+                isLoading.setValue(false);
+                crudSuccess.setValue(true);
+                loadSystemLogs();
+            }
+            @Override
+            public void onError(String error) {
+                isLoading.setValue(false);
+                errorMessage.setValue(error);
+                crudSuccess.setValue(false);
+            }
+        });
+    }
+
+    public void loadSystemOverview() {
         String token = getToken();
         if (token == null) return;
         isLoading.setValue(true);
@@ -81,10 +183,87 @@ public class AdminViewModel extends AndroidViewModel {
         });
     }
 
+    public void loadManagers() {
+        String token = getToken();
+        if (token == null) return;
+        isLoading.setValue(true);
+        repository.getManagers(token, new AdminRepository.AdminCallback<List<Manager>>() {
+            @Override
+            public void onSuccess(List<Manager> data) {
+                isLoading.setValue(false);
+                managers.setValue(data);
+            }
+            @Override
+            public void onError(String error) {
+                isLoading.setValue(false);
+                errorMessage.setValue(error);
+            }
+        });
+    }
+
+    public void createManager(Manager manager) {
+        String token = getToken();
+        if (token == null) return;
+        isLoading.setValue(true);
+        repository.createManager(token, manager, new AdminRepository.AdminCallback<Void>() {
+            @Override
+            public void onSuccess(Void result) {
+                isLoading.setValue(false);
+                crudSuccess.setValue(true);
+                loadManagers();
+            }
+            @Override
+            public void onError(String error) {
+                isLoading.setValue(false);
+                errorMessage.setValue(error);
+                crudSuccess.setValue(false);
+            }
+        });
+    }
+
+    public void updateManager(String id, Manager manager) {
+        String token = getToken();
+        if (token == null) return;
+        isLoading.setValue(true);
+        repository.updateManager(token, id, manager, new AdminRepository.AdminCallback<Void>() {
+            @Override
+            public void onSuccess(Void result) {
+                isLoading.setValue(false);
+                crudSuccess.setValue(true);
+                loadManagers();
+            }
+            @Override
+            public void onError(String error) {
+                isLoading.setValue(false);
+                errorMessage.setValue(error);
+                crudSuccess.setValue(false);
+            }
+        });
+    }
+
+    public void deleteManager(String id) {
+        String token = getToken();
+        if (token == null) return;
+        isLoading.setValue(true);
+        repository.deleteManager(token, id, new AdminRepository.AdminCallback<Void>() {
+            @Override
+            public void onSuccess(Void result) {
+                isLoading.setValue(false);
+                crudSuccess.setValue(true);
+                loadManagers();
+            }
+            @Override
+            public void onError(String error) {
+                isLoading.setValue(false);
+                errorMessage.setValue(error);
+                crudSuccess.setValue(false);
+            }
+        });
+    }
+
     public void loadDashboard() {
         String token = getToken();
         if (token == null) return;
-
         isLoading.setValue(true);
         repository.getDashboardData(token, new AdminRepository.AdminCallback<DashboardResponse.DashboardData>() {
             @Override
@@ -103,7 +282,6 @@ public class AdminViewModel extends AndroidViewModel {
     public void loadBranches() {
         String token = getToken();
         if (token == null) return;
-
         isLoading.setValue(true);
         repository.getBranches(token, new AdminRepository.AdminCallback<List<Branch>>() {
             @Override
@@ -122,7 +300,6 @@ public class AdminViewModel extends AndroidViewModel {
     public void loadTechnicians() {
         String token = getToken();
         if (token == null) return;
-
         isLoading.setValue(true);
         repository.getTechnicians(token, new AdminRepository.AdminCallback<List<Technician>>() {
             @Override
@@ -141,7 +318,6 @@ public class AdminViewModel extends AndroidViewModel {
     public void loadTechnicianServices(String techId) {
         String token = getToken();
         if (token == null) return;
-
         isLoading.setValue(true);
         repository.getTechnicianServices(token, techId, new AdminRepository.AdminCallback<List<Service>>() {
             @Override
@@ -160,7 +336,6 @@ public class AdminViewModel extends AndroidViewModel {
     public void loadAllAppointments() {
         String token = getToken();
         if (token == null) return;
-
         isLoading.setValue(true);
         repository.getAllAppointments(token, new AdminRepository.AdminCallback<List<Appointment>>() {
             @Override
@@ -179,7 +354,6 @@ public class AdminViewModel extends AndroidViewModel {
     public void loadAllServices() {
         String token = getToken();
         if (token == null) return;
-
         isLoading.setValue(true);
         repository.getAllServices(token, new AdminRepository.AdminCallback<List<Service>>() {
             @Override
@@ -198,7 +372,6 @@ public class AdminViewModel extends AndroidViewModel {
     public void assignTechnician(String appointmentId, String technicianId) {
         String token = getToken();
         if (token == null) return;
-
         isLoading.setValue(true);
         repository.assignTechnician(token, appointmentId, technicianId, new AdminRepository.AdminCallback<Void>() {
             @Override
@@ -218,7 +391,6 @@ public class AdminViewModel extends AndroidViewModel {
     public void updateTechnicianServices(String techId, List<String> serviceIds) {
         String token = getToken();
         if (token == null) return;
-
         isLoading.setValue(true);
         repository.updateTechnicianServices(token, techId, serviceIds, new AdminRepository.AdminCallback<Void>() {
             @Override
@@ -235,9 +407,6 @@ public class AdminViewModel extends AndroidViewModel {
         });
     }
 
-    private final MutableLiveData<Boolean> crudSuccess = new MutableLiveData<>();
-    public MutableLiveData<Boolean> getCrudSuccess() { return crudSuccess; }
-
     // --- Branch CRUD Methods ---
     public void createBranch(Branch branch) {
         String token = getToken();
@@ -248,7 +417,7 @@ public class AdminViewModel extends AndroidViewModel {
             public void onSuccess(Branch result) {
                 isLoading.setValue(false);
                 crudSuccess.setValue(true);
-                loadBranches(); // refresh
+                loadBranches();
             }
             @Override
             public void onError(String error) {
@@ -268,7 +437,7 @@ public class AdminViewModel extends AndroidViewModel {
             public void onSuccess(Branch result) {
                 isLoading.setValue(false);
                 crudSuccess.setValue(true);
-                loadBranches(); // refresh
+                loadBranches();
             }
             @Override
             public void onError(String error) {
@@ -288,7 +457,7 @@ public class AdminViewModel extends AndroidViewModel {
             public void onSuccess(Void result) {
                 isLoading.setValue(false);
                 crudSuccess.setValue(true);
-                loadBranches(); // refresh
+                loadBranches();
             }
             @Override
             public void onError(String error) {
@@ -309,7 +478,7 @@ public class AdminViewModel extends AndroidViewModel {
             public void onSuccess(Technician result) {
                 isLoading.setValue(false);
                 crudSuccess.setValue(true);
-                loadTechnicians(); // refresh
+                loadTechnicians();
             }
             @Override
             public void onError(String error) {
@@ -329,7 +498,7 @@ public class AdminViewModel extends AndroidViewModel {
             public void onSuccess(Technician result) {
                 isLoading.setValue(false);
                 crudSuccess.setValue(true);
-                loadTechnicians(); // refresh
+                loadTechnicians();
             }
             @Override
             public void onError(String error) {
@@ -349,7 +518,7 @@ public class AdminViewModel extends AndroidViewModel {
             public void onSuccess(Void result) {
                 isLoading.setValue(false);
                 crudSuccess.setValue(true);
-                loadTechnicians(); // refresh
+                loadTechnicians();
             }
             @Override
             public void onError(String error) {
@@ -360,9 +529,6 @@ public class AdminViewModel extends AndroidViewModel {
         });
     }
 }
-
-
-
 
 
 

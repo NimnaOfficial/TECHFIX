@@ -16,10 +16,35 @@ import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.PUT;
+import retrofit2.http.POST;
+import retrofit2.http.DELETE;
 import retrofit2.http.Path;
 import com.mad.techfix.models.admin.SysAdminOverviewResponse;
 
 public interface AdminApiService {
+    @GET("api/admin/system/logs")
+    Call<ApiResponse<java.util.List<com.mad.techfix.models.admin.LogEntry>>> getSystemLogs(@Header("Authorization") String auth);
+
+    @DELETE("api/admin/system/logs")
+    Call<ApiResponse<Void>> clearSystemLogs(@Header("Authorization") String auth);
+    @GET("api/admin/users/{id}/monitor")
+    Call<ApiResponse<com.mad.techfix.models.admin.UserMonitorResponse>> getUserMonitor(@Header("Authorization") String auth, @Path("id") String userId);
+    @GET("api/admin/settings")
+    Call<ApiResponse<java.util.Map<String, String>>> getSystemSettings(@Header("Authorization") String auth);
+
+    @POST("api/admin/settings")
+    Call<ApiResponse<Void>> updateSystemSetting(@Header("Authorization") String auth, @Body java.util.Map<String, String> payload);
+    @GET("api/admin/users")
+    Call<ApiResponse<java.util.List<com.mad.techfix.models.admin.Manager>>> getManagers(@Header("Authorization") String auth);
+
+    @POST("api/admin/users")
+    Call<ApiResponse<Void>> createManager(@Header("Authorization") String auth, @Body com.mad.techfix.models.admin.Manager manager);
+
+    @PUT("api/admin/managers/{id}")
+    Call<ApiResponse<Void>> updateManager(@Header("Authorization") String auth, @Path("id") String id, @Body com.mad.techfix.models.admin.Manager manager);
+
+    @DELETE("api/admin/managers/{id}")
+    Call<ApiResponse<Void>> deleteManager(@Header("Authorization") String auth, @Path("id") String id);
     @GET("api/admin/system/overview")
     Call<ApiResponse<SysAdminOverviewResponse>> getSystemOverview(@Header("Authorization") String auth);
     @GET("api/admin/dashboard")
@@ -69,4 +94,10 @@ public interface AdminApiService {
     @retrofit2.http.DELETE("api/technicians/{id}")
     Call<ApiResponse<Object>> deleteTechnician(@Header("Authorization") String auth, @Path("id") String technicianId);
 }
+
+
+
+
+
+
 
