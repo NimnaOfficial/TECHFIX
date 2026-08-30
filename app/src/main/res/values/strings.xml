@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">TECHFIX</string>
+
+    <!-- Payment Methods for the Spinner -->
+    <string-array name="payment_methods">
+        <item>CASH</item>
+        <item>CARD</item>
+        <item>ONLINE</item>
+    </string-array>
 </resources>

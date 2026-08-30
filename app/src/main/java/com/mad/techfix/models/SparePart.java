@@ -7,7 +7,7 @@ public class SparePart {
     private String description;
     private double unit_price;
     private int minimum_stock;
-    private boolean is_active;
+    private int is_active;  // CHANGED from boolean to int (0 or 1)
 
     // Getters and Setters
     public String getId() { return id; }
@@ -28,6 +28,6 @@ public class SparePart {
     public int getMinimum_stock() { return minimum_stock; }
     public void setMinimum_stock(int minimum_stock) { this.minimum_stock = minimum_stock; }
 
-    public boolean isIs_active() { return is_active; }
-    public void setIs_active(boolean is_active) { this.is_active = is_active; }
+    public int getIs_active() { return is_active; }
+    public void setIs_active(int is_active) { this.is_active = is_active; }
 }

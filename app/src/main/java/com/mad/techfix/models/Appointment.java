@@ -8,7 +8,7 @@ public class Appointment {
     private String service_id;
     private String branch_id;
     private String technician_id;
-    private String status; // REQUESTED, CONFIRMED, RECEIVED, etc.
+    private String status;
     private String requested_date;
     private String requested_time;
     private double estimated_price;
