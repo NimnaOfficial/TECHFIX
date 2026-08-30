@@ -43,3 +43,7 @@ node_modules/
 # Cloudflare Wrangler
 .dev.vars
 .wrangler/
+
+#other
+mem3/
+member1/

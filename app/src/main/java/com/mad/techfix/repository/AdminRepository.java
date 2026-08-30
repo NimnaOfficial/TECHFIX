@@ -365,6 +365,25 @@ public class AdminRepository {
         });
     }
 
+        // --- System Admin ---
+    public void getSystemOverview(String token, AdminCallback<com.mad.techfix.models.admin.SysAdminOverviewResponse> callback) {
+        apiService.getSystemOverview(token).enqueue(new retrofit2.Callback<com.mad.techfix.models.ApiResponse<com.mad.techfix.models.admin.SysAdminOverviewResponse>>() {
+            @Override
+            public void onResponse(retrofit2.Call<com.mad.techfix.models.ApiResponse<com.mad.techfix.models.admin.SysAdminOverviewResponse>> call, retrofit2.Response<com.mad.techfix.models.ApiResponse<com.mad.techfix.models.admin.SysAdminOverviewResponse>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                    callback.onSuccess(response.body().getData());
+                } else {
+                    callback.onError("Failed to fetch system overview");
+                }
+            }
+
+            @Override
+            public void onFailure(retrofit2.Call<com.mad.techfix.models.ApiResponse<com.mad.techfix.models.admin.SysAdminOverviewResponse>> call, Throwable t) {
+                callback.onError(t.getMessage() != null ? t.getMessage() : "Network error");
+            }
+        });
+    }
+
     // --- Cached Data (Room) ---
     public List<TechnicianEntity> getCachedTechnicians() {
         return adminDao.getAllTechnicians();
@@ -378,5 +397,6 @@ public class AdminRepository {
         return adminDao.getAvailableTechniciansByBranch(branchId);
     }
 }
+
 
 

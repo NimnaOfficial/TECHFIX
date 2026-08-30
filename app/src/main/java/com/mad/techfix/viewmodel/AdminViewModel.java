@@ -10,6 +10,8 @@ import com.mad.techfix.models.admin.Branch;
 import com.mad.techfix.models.admin.DashboardResponse;
 import com.mad.techfix.models.admin.Service;
 import com.mad.techfix.models.admin.Technician;
+import com.mad.techfix.models.admin.SysAdminOverviewResponse;
+import com.mad.techfix.models.admin.SysAdminOverviewResponse;
 import com.mad.techfix.repository.AdminRepository;
 import com.mad.techfix.data.local.database.AppDatabase;
 import com.mad.techfix.utils.TokenManager;
@@ -21,6 +23,7 @@ public class AdminViewModel extends AndroidViewModel {
     private final TokenManager tokenManager;
 
     private final MutableLiveData<DashboardResponse.DashboardData> dashboardData = new MutableLiveData<>();
+    private final MutableLiveData<SysAdminOverviewResponse> systemOverview = new MutableLiveData<>();
     private final MutableLiveData<List<Branch>> branches = new MutableLiveData<>();
     private final MutableLiveData<List<Technician>> technicians = new MutableLiveData<>();
     private final MutableLiveData<List<Service>> technicianServices = new MutableLiveData<>();
@@ -40,6 +43,7 @@ public class AdminViewModel extends AndroidViewModel {
 
     // --- Getters for LiveData ---
     public MutableLiveData<DashboardResponse.DashboardData> getDashboardData() { return dashboardData; }
+    public MutableLiveData<SysAdminOverviewResponse> getSystemOverview() { return systemOverview; }
     public MutableLiveData<List<Branch>> getBranches() { return branches; }
     public MutableLiveData<List<Technician>> getTechnicians() { return technicians; }
     public MutableLiveData<List<Service>> getTechnicianServices() { return technicianServices; }
@@ -57,6 +61,24 @@ public class AdminViewModel extends AndroidViewModel {
             return null;
         }
         return "Bearer " + token;
+    }
+
+        public void loadSystemOverview() {
+        String token = getToken();
+        if (token == null) return;
+        isLoading.setValue(true);
+        repository.getSystemOverview(token, new AdminRepository.AdminCallback<SysAdminOverviewResponse>() {
+            @Override
+            public void onSuccess(SysAdminOverviewResponse data) {
+                isLoading.setValue(false);
+                systemOverview.setValue(data);
+            }
+            @Override
+            public void onError(String error) {
+                isLoading.setValue(false);
+                errorMessage.setValue(error);
+            }
+        });
     }
 
     public void loadDashboard() {
@@ -338,3 +360,9 @@ public class AdminViewModel extends AndroidViewModel {
         });
     }
 }
+
+
+
+
+
+
