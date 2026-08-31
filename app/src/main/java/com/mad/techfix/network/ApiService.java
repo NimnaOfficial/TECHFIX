@@ -7,6 +7,9 @@ import com.mad.techfix.models.RegisterRequest;
 import com.mad.techfix.models.SparePart;
 import com.mad.techfix.models.Appointment;
 import com.mad.techfix.models.Payment;
+import com.mad.techfix.models.AppointmentDetail;
+import com.mad.techfix.models.PaymentIntentResponse;
+import com.mad.techfix.models.PaymentIntentRequest;
 
 import java.util.List;
 import java.util.Map;
@@ -23,7 +26,6 @@ import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Part;
 import retrofit2.http.Path;
-import com.mad.techfix.models.AppointmentDetail;
 
 public interface ApiService {
 
@@ -79,8 +81,14 @@ public interface ApiService {
             @Path("id") String appointmentId
     );
 
+    @GET("api/appointments/{id}")
+    Call<ApiResponse<AppointmentDetail>> getAppointmentDetail(
+            @Header("Authorization") String auth,
+            @Path("id") String appointmentId
+    );
+
     // ==========================================
-    // MEMBER 4: PAYMENTS
+    // MEMBER 4: PAYMENTS (CASH & STRIPE)
     // ==========================================
     @POST("api/payments")
     Call<ApiResponse<Payment>> createPayment(
@@ -108,6 +116,15 @@ public interface ApiService {
     );
 
     // ==========================================
+    // MEMBER 4: STRIPE PAYMENT INTENT
+    // ==========================================
+    @POST("api/create-payment-intent")
+    Call<PaymentIntentResponse> createPaymentIntent(
+            @Header("Authorization") String auth,
+            @Body PaymentIntentRequest request
+    );
+
+    // ==========================================
     // MEMBER 4: CAMERA / IMAGES
     // ==========================================
     @Multipart
@@ -130,11 +147,5 @@ public interface ApiService {
             @Header("Authorization") String auth,
             @Path("id") String appointmentId,
             @Path("imageId") String imageId
-    );
-
-    @GET("api/appointments/{id}")
-    Call<ApiResponse<AppointmentDetail>> getAppointmentDetail(
-            @Header("Authorization") String auth,
-            @Path("id") String appointmentId
     );
 }
