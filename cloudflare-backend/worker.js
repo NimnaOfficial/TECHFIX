@@ -1929,7 +1929,7 @@ export default {
       // Branches CRUD
       if (path === "/api/branches" && request.method === "POST") {
         const user = await authenticate(request, env);
-        if (!user || !["ADMIN", "MANAGER"].includes(user.role))
+        if (!user || user.role.toUpperCase() !== "ADMIN")
           return json({ success: false, message: "Access denied" }, 403);
         const {
           name,
@@ -1982,7 +1982,7 @@ export default {
         !path.endsWith("/spare-parts")
       ) {
         const user = await authenticate(request, env);
-        if (!user || !["ADMIN", "MANAGER"].includes(user.role))
+        if (!user || user.role.toUpperCase() !== "ADMIN")
           return json({ success: false, message: "Access denied" }, 403);
         const branchId = path.split("/")[3];
 
