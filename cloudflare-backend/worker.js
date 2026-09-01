@@ -127,6 +127,15 @@ async function authenticate(request, env) {
 
   if (!user || user.is_active !== 1) return null;
 
+  if (user.role === "MANAGER") {
+    try {
+      const branch = await env.DB.prepare(`SELECT id FROM branches WHERE manager_id = ?`).bind(user.id).first();
+      user.managerBranchId = branch ? branch.id : null;
+    } catch (e) {
+      user.managerBranchId = null;
+    }
+  }
+
   return user;
 }
 
@@ -686,18 +695,26 @@ export default {
       // ==========================================
       if (path === "/api/appointments" && request.method === "GET") {
         const user = await authenticate(request, env);
-        if (!user)
-          return json({ success: false, message: "Unauthorized" }, 401);
+        if (!user) return json({ success: false, message: "Unauthorized" }, 401);
 
-        const query =
-          user.role === "CUSTOMER"
-            ? `SELECT * FROM appointments WHERE customer_id = ? ORDER BY created_at DESC`
-            : `SELECT * FROM appointments ORDER BY created_at DESC`;
+        let query;
+        let result;
 
-        const result =
-          user.role === "CUSTOMER"
-            ? await env.DB.prepare(query).bind(user.id).all()
-            : await env.DB.prepare(query).all();
+        if (user.role === "CUSTOMER") {
+          query = `SELECT * FROM appointments WHERE customer_id = ? ORDER BY created_at DESC`;
+          result = await env.DB.prepare(query).bind(user.id).all();
+        } else if (user.role === "MANAGER") {
+          if (!user.managerBranchId) {
+             return json({ success: true, data: [] }); // Manager has no branch assigned
+          }
+          query = `SELECT * FROM appointments WHERE branch_id = ? ORDER BY created_at DESC`;
+          result = await env.DB.prepare(query).bind(user.managerBranchId).all();
+        } else {
+          // ADMIN gets everything
+          query = `SELECT * FROM appointments ORDER BY created_at DESC`;
+          result = await env.DB.prepare(query).all();
+        }
+        
         return json({ success: true, data: result.results });
       }
 
@@ -1019,8 +1036,7 @@ export default {
         request.method === "GET"
       ) {
         const user = await authenticate(request, env);
-        if (!user)
-          return json({ success: false, message: "Unauthorized" }, 401);
+        if (!user) return json({ success: false, message: "Unauthorized" }, 401);
         const appointmentId = path.split("/").pop();
 
         const appointment = await env.DB.prepare(
@@ -1035,10 +1051,15 @@ export default {
           .first();
 
         if (!appointment)
-          return json(
-            { success: false, message: "Appointment not found" },
-            404,
-          );
+          return json({ success: false, message: "Appointment not found" }, 404);
+
+        if (user.role === "CUSTOMER" && appointment.customer_id !== user.id) {
+          return json({ success: false, message: "Access denied" }, 403);
+        }
+        if (user.role === "MANAGER" && appointment.branch_id !== user.managerBranchId) {
+          return json({ success: false, message: "Access denied: Branch mismatch" }, 403);
+        }
+
         return json({ success: true, data: appointment });
       }
       // ==========================================
@@ -1048,13 +1069,22 @@ export default {
         const user = await authenticate(request, env);
         if (!user || !["ADMIN", "MANAGER"].includes(user.role))
           return json({ success: false, message: "Access denied" }, 403);
-        const techs = await env.DB.prepare(
-          `
+        
+        let query = `
             SELECT t.*, u.first_name, u.last_name, b.name AS branch_name 
-            FROM technicians t JOIN users u ON u.id = t.user_id JOIN branches b ON b.id = t.branch_id
+            FROM technicians t JOIN users u ON u.id = t.user_id LEFT JOIN branches b ON b.id = t.branch_id
             WHERE t.is_active = 1
-        `,
-        ).all();
+        `;
+        let techs;
+
+        if (user.role === "MANAGER") {
+            if (!user.managerBranchId) return json({ success: true, data: [] });
+            query += " AND t.branch_id = ?";
+            techs = await env.DB.prepare(query).bind(user.managerBranchId).all();
+        } else {
+            techs = await env.DB.prepare(query).all();
+        }
+
         return json({ success: true, data: techs.results });
       }
 
@@ -1196,9 +1226,18 @@ export default {
         const user = await authenticate(request, env);
         if (!user || !["ADMIN", "MANAGER"].includes(user.role))
           return json({ success: false, message: "Access denied" }, 403);
-        const payments = await env.DB.prepare(
-          `SELECT * FROM payments ORDER BY created_at DESC`,
-        ).all();
+        
+        let payments;
+        if (user.role === "MANAGER") {
+          if (!user.managerBranchId) return json({ success: true, data: [] });
+          payments = await env.DB.prepare(
+            `SELECT p.* FROM payments p JOIN appointments a ON p.appointment_id = a.id WHERE a.branch_id = ? ORDER BY p.created_at DESC`
+          ).bind(user.managerBranchId).all();
+        } else {
+          payments = await env.DB.prepare(
+            `SELECT * FROM payments ORDER BY created_at DESC`
+          ).all();
+        }
         return json({ success: true, data: payments.results });
       }
 
@@ -1451,38 +1490,42 @@ export default {
         if (!user || !["ADMIN", "MANAGER"].includes(user.role))
           return json({ success: false, message: "Access denied" }, 403);
 
-        const totalAppointments = await env.DB.prepare(
-          `SELECT COUNT(*) as count FROM appointments`,
-        ).first();
-        const pendingAppointments = await env.DB.prepare(
-          `SELECT COUNT(*) as count FROM appointments WHERE status = 'REQUESTED'`,
-        ).first();
-        const activeRepairs = await env.DB.prepare(
-          `SELECT COUNT(*) as count FROM appointments WHERE status IN ('DEVICE_RECEIVED', 'DIAGNOSING', 'REPAIRING', 'TESTING')`,
-        ).first();
-        const completedRepairs = await env.DB.prepare(
-          `SELECT COUNT(*) as count FROM appointments WHERE status = 'COMPLETED'`,
-        ).first();
-        const revenue = await env.DB.prepare(
-          `SELECT SUM(amount) as total FROM payments WHERE payment_status = 'PAID'`,
-        ).first();
-        const availableTechs = await env.DB.prepare(
-          `SELECT COUNT(*) as count FROM technicians WHERE availability_status = 'AVAILABLE'`,
-        ).first();
-        const busyTechs = await env.DB.prepare(
-          `SELECT COUNT(*) as count FROM technicians WHERE availability_status = 'BUSY'`,
-        ).first();
+        let aptBase = "FROM appointments";
+        let techBase = "FROM technicians";
+        let payBase = "FROM payments";
+        let binds = [];
+
+        if (user.role === "MANAGER") {
+          if (!user.managerBranchId) return json({ success: true, data: { total_revenue: 0, total_appointments: 0, active_repairs: 0, pending_requests: 0, completed_repairs: 0, available_technicians: 0, busy_technicians: 0 } });
+          aptBase = "FROM appointments WHERE branch_id = ?";
+          techBase = "FROM technicians WHERE branch_id = ?";
+          payBase = "FROM payments p JOIN appointments a ON p.appointment_id = a.id WHERE a.branch_id = ?";
+          binds = [user.managerBranchId];
+        }
+
+        const runQ = async (query) => {
+           if (binds.length > 0) return await env.DB.prepare(query).bind(binds[0]).first();
+           return await env.DB.prepare(query).first();
+        };
+
+        const totalAppointments = await runQ(`SELECT COUNT(*) as count ${aptBase}`);
+        const pendingAppointments = await runQ(`SELECT COUNT(*) as count ${aptBase} ${binds.length > 0 ? "AND" : "WHERE"} status = 'REQUESTED'`);
+        const activeRepairs = await runQ(`SELECT COUNT(*) as count ${aptBase} ${binds.length > 0 ? "AND" : "WHERE"} status IN ('DEVICE_RECEIVED', 'DIAGNOSING', 'REPAIRING', 'TESTING')`);
+        const completedRepairs = await runQ(`SELECT COUNT(*) as count ${aptBase} ${binds.length > 0 ? "AND" : "WHERE"} status = 'COMPLETED'`);
+        const revenue = await runQ(`SELECT SUM(amount) as total ${payBase} ${binds.length > 0 ? "AND" : "WHERE"} payment_status = 'PAID'`);
+        const availableTechs = await runQ(`SELECT COUNT(*) as count ${techBase} ${binds.length > 0 ? "AND" : "WHERE"} availability_status = 'AVAILABLE'`);
+        const busyTechs = await runQ(`SELECT COUNT(*) as count ${techBase} ${binds.length > 0 ? "AND" : "WHERE"} availability_status = 'BUSY'`);
 
         return json({
           success: true,
           data: {
             total_revenue: revenue.total || 0,
-            pending_requests: pendingAppointments.count || 0,
-            active_repairs: activeRepairs.count || 0,
-            available_technicians: availableTechs.count || 0,
             total_appointments: totalAppointments.count || 0,
-            total_technicians:
-              (availableTechs.count || 0) + (busyTechs.count || 0),
+            active_repairs: activeRepairs.count || 0,
+            pending_requests: pendingAppointments.count || 0,
+            completed_repairs: completedRepairs.count || 0,
+            available_technicians: availableTechs.count || 0,
+            busy_technicians: busyTechs.count || 0,
           },
         });
       }
@@ -2023,15 +2066,16 @@ export default {
           latitude,
           longitude,
           opening_time,
-          closing_time,
-        } = await request.json();
+            closing_time,
+            manager_id,
+          } = await request.json();
 
         const branchId =
           "BR-" + crypto.randomUUID().split("-")[0].toUpperCase();
         await env.DB.prepare(
           `
-            INSERT INTO branches (id, name, address, city, phone, email, latitude, longitude, opening_time, closing_time)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO branches (id, name, address, city, phone, email, latitude, longitude, opening_time, closing_time, manager_id)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `,
         )
           .bind(
@@ -2044,8 +2088,9 @@ export default {
             latitude || null,
             longitude || null,
             opening_time || null,
-            closing_time || null,
-          )
+              closing_time || null,
+              manager_id || null,
+            )
           .run();
 
         const newBranch = await env.DB.prepare(
@@ -2080,10 +2125,11 @@ export default {
             longitude,
             opening_time,
             closing_time,
+            manager_id,
           } = await request.json();
           await env.DB.prepare(
             `
-                UPDATE branches SET name=?, address=?, city=?, phone=?, email=?, latitude=?, longitude=?, opening_time=?, closing_time=? WHERE id=?
+                UPDATE branches SET name=?, address=?, city=?, phone=?, email=?, latitude=?, longitude=?, opening_time=?, closing_time=?, manager_id=? WHERE id=?
             `,
           )
             .bind(
@@ -2095,9 +2141,10 @@ export default {
               latitude || null,
               longitude || null,
               opening_time || null,
-              closing_time || null,
-              branchId,
-            )
+                closing_time || null,
+                manager_id || null,
+                branchId,
+              )
             .run();
           const updated = await env.DB.prepare(
             `SELECT * FROM branches WHERE id = ?`,
