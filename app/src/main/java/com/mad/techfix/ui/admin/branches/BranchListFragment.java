@@ -69,6 +69,7 @@ public class BranchListFragment extends Fragment {
         TextInputEditText etAddress = view.findViewById(R.id.et_branch_address);
         TextInputEditText etCity = view.findViewById(R.id.et_branch_city);
         TextInputEditText etPhone = view.findViewById(R.id.et_branch_phone);
+        TextInputEditText etManager = view.findViewById(R.id.et_manager_id);
         TextInputEditText etEmail = view.findViewById(R.id.et_branch_email);
         TextInputEditText etLat = view.findViewById(R.id.et_branch_lat);
         TextInputEditText etLng = view.findViewById(R.id.et_branch_lng);
@@ -93,6 +94,7 @@ public class BranchListFragment extends Fragment {
             etAddress.setText(branch.getAddress());
             etCity.setText(branch.getCity());
             etPhone.setText(branch.getPhone());
+            etManager.setText(branch.getManagerId());
             etEmail.setText(branch.getEmail());
             etLat.setText(String.valueOf(branch.getLatitude()));
             etLng.setText(String.valueOf(branch.getLongitude()));
@@ -115,6 +117,7 @@ public class BranchListFragment extends Fragment {
             String addressStr = etAddress.getText() != null ? etAddress.getText().toString().trim() : "";
             String cityStr = etCity.getText() != null ? etCity.getText().toString().trim() : "";
             String phoneStr = etPhone.getText() != null ? etPhone.getText().toString().trim() : "";
+            String managerStr = etManager.getText() != null ? etManager.getText().toString().trim() : "";
 
             if (nameStr.isEmpty()) { etName.setError("Name is required"); etName.requestFocus(); return; }
             if (addressStr.isEmpty()) { etAddress.setError("Address is required"); etAddress.requestFocus(); return; }
@@ -126,6 +129,7 @@ public class BranchListFragment extends Fragment {
             b.setAddress(addressStr);
             b.setCity(cityStr);
             b.setPhone(phoneStr);
+            b.setManagerId(managerStr.isEmpty() ? null : managerStr);
             b.setEmail((etEmail.getText() != null ? etEmail.getText().toString().trim() : ""));
             b.setOpeningTime((etOpening.getText() != null ? etOpening.getText().toString().trim() : ""));
             b.setClosingTime((etClosing.getText() != null ? etClosing.getText().toString().trim() : ""));
