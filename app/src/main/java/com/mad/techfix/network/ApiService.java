@@ -10,6 +10,9 @@ import com.mad.techfix.models.Payment;
 import com.mad.techfix.models.AppointmentDetail;
 import com.mad.techfix.models.PaymentIntentResponse;
 import com.mad.techfix.models.PaymentIntentRequest;
+import com.mad.techfix.models.Device;
+import com.mad.techfix.models.admin.Branch;
+import com.mad.techfix.models.admin.Service;
 
 import java.util.List;
 import java.util.Map;
@@ -147,5 +150,50 @@ public interface ApiService {
             @Header("Authorization") String auth,
             @Path("id") String appointmentId,
             @Path("imageId") String imageId
+    );
+
+    // ==========================================
+// MEMBER 2: REPAIR BOOKING
+// ==========================================
+
+    @GET("api/devices")
+    Call<ApiResponse<List<Device>>> getMyDevices(
+            @Header("Authorization") String auth
+    );
+
+    @GET("api/services")
+    Call<ApiResponse<List<Service>>> getServices();
+
+    @GET("api/branches")
+    Call<ApiResponse<List<Branch>>> getBranches();
+
+    @POST("api/appointments")
+    Call<ApiResponse<Map<String, Object>>> createAppointment(
+            @Header("Authorization") String auth,
+            @Body Map<String, Object> body
+    );
+
+
+// ==========================================
+// MEMBER 2: TECHNICIAN WORKFLOW
+// ==========================================
+
+    @GET("api/technician/appointments")
+    Call<ApiResponse<List<Appointment>>> getTechnicianAppointments(
+            @Header("Authorization") String auth
+    );
+
+    @PUT("api/appointments/{id}/status")
+    Call<ApiResponse<Object>> updateAppointmentStatus(
+            @Header("Authorization") String auth,
+            @Path("id") String appointmentId,
+            @Body Map<String, Object> body
+    );
+
+    @POST("api/appointments/{id}/images")
+    Call<ApiResponse<Object>> addAppointmentImage(
+            @Header("Authorization") String auth,
+            @Path("id") String appointmentId,
+            @Body Map<String, Object> body
     );
 }
