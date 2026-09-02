@@ -5,7 +5,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -16,13 +15,26 @@ import com.mad.techfix.R;
 
 public class BookingConfirmationFragment extends Fragment {
 
-    private static final String ARG_APPOINTMENT_NUMBER = "appointment_number";
-    private static final String ARG_DEVICE_NAME = "device_name";
-    private static final String ARG_SERVICE_NAME = "service_name";
-    private static final String ARG_BRANCH_NAME = "branch_name";
-    private static final String ARG_DATE = "requested_date";
-    private static final String ARG_TIME = "requested_time";
-    private static final String ARG_STATUS = "status";
+    private static final String ARG_APPOINTMENT_NUMBER =
+            "appointment_number";
+
+    private static final String ARG_DEVICE_NAME =
+            "device_name";
+
+    private static final String ARG_SERVICE_NAME =
+            "service_name";
+
+    private static final String ARG_BRANCH_NAME =
+            "branch_name";
+
+    private static final String ARG_DATE =
+            "requested_date";
+
+    private static final String ARG_TIME =
+            "requested_time";
+
+    private static final String ARG_STATUS =
+            "status";
 
     private TextView tvAppointmentId;
     private TextView tvDevice;
@@ -60,7 +72,8 @@ public class BookingConfirmationFragment extends Fragment {
         BookingConfirmationFragment fragment =
                 new BookingConfirmationFragment();
 
-        Bundle args = new Bundle();
+        Bundle args =
+                new Bundle();
 
         args.putString(
                 ARG_APPOINTMENT_NUMBER,
@@ -97,7 +110,9 @@ public class BookingConfirmationFragment extends Fragment {
                 status
         );
 
-        fragment.setArguments(args);
+        fragment.setArguments(
+                args
+        );
 
         return fragment;
     }
@@ -122,17 +137,25 @@ public class BookingConfirmationFragment extends Fragment {
             @NonNull View view,
             @Nullable Bundle savedInstanceState
     ) {
-        super.onViewCreated(view, savedInstanceState);
+
+        super.onViewCreated(
+                view,
+                savedInstanceState
+        );
 
         readArguments();
+
         bindViews(view);
+
         displayConfirmation();
+
         setupListeners();
     }
 
     private void readArguments() {
 
-        Bundle args = getArguments();
+        Bundle args =
+                getArguments();
 
         if (args == null) {
             return;
@@ -174,7 +197,9 @@ public class BookingConfirmationFragment extends Fragment {
                 );
     }
 
-    private void bindViews(View view) {
+    private void bindViews(
+            View view
+    ) {
 
         tvAppointmentId =
                 view.findViewById(
@@ -267,45 +292,63 @@ public class BookingConfirmationFragment extends Fragment {
         );
 
         tvStatus.setText(
-                safeText(
-                        status,
-                        "REQUESTED"
+                formatStatus(
+                        safeText(
+                                status,
+                                "REQUESTED"
+                        )
                 )
         );
     }
 
     private void setupListeners() {
 
-        btnViewAppointments.setOnClickListener(v -> {
+        btnViewAppointments.setOnClickListener(
+                v -> openMyAppointments()
+        );
 
-            /*
-             * We will connect this to:
-             * MyAppointmentsFragment
-             *
-             * once that Java file is created.
-             */
+        btnHome.setOnClickListener(
+                v -> returnHome()
+        );
+    }
 
-            Toast.makeText(
-                    requireContext(),
-                    "My Appointments",
-                    Toast.LENGTH_SHORT
-            ).show();
-        });
+    private void openMyAppointments() {
 
-        btnHome.setOnClickListener(v -> {
+        MyAppointmentsFragment fragment =
+                new MyAppointmentsFragment();
 
-            /*
-             * Return through the booking back stack.
-             */
+        getParentFragmentManager()
+                .beginTransaction()
+                .replace(
+                        getId(),
+                        fragment
+                )
+                .addToBackStack(
+                        null
+                )
+                .commit();
+    }
 
-            requireActivity()
-                    .getSupportFragmentManager()
-                    .popBackStack(
-                            null,
-                            androidx.fragment.app.FragmentManager
-                                    .POP_BACK_STACK_INCLUSIVE
-                    );
-        });
+    private void returnHome() {
+
+        getParentFragmentManager()
+                .popBackStack(
+                        null,
+                        androidx.fragment.app.FragmentManager
+                                .POP_BACK_STACK_INCLUSIVE
+                );
+    }
+
+    private String formatStatus(
+            String value
+    ) {
+
+        return value
+                .replace(
+                        "_",
+                        " "
+                )
+                .toUpperCase();
     }
 
     private String safeText(
@@ -319,6 +362,6 @@ public class BookingConfirmationFragment extends Fragment {
             return fallback;
         }
 
-        return value;
+        return value.trim();
     }
 }
