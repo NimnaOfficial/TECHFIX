@@ -102,6 +102,13 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Create Payment Button (CASH) -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_create_payment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Record Cash Payment"
+                android:textColor="@color/white"
+                app:backgroundTint="@color/accent" />
 
             <!-- NEW: Pay with Stripe Button -->
             <com.google.android.material.button.MaterialButton
