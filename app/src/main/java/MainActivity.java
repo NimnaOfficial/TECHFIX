@@ -7,7 +7,7 @@ import com.mad.techfix.models.LoginRequest;
 import com.mad.techfix.models.AuthResponse;
 import com.mad.techfix.network.ApiService;
 import com.mad.techfix.network.RetrofitClient;
-import com.mad.techfix.ui.payment.PaymentFragment;
+import com.mad.techfix.ui.camera.CameraFragment;
 import com.mad.techfix.utils.TokenManager;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
         apiService = RetrofitClient.getClient().create(ApiService.class);
 
         if (tokenManager.getToken() != null) {
-            loadPaymentFragment();
+            loadCameraFragment();
             return;
         }
 
@@ -47,8 +47,8 @@ public class MainActivity extends AppCompatActivity {
                         tokenManager.saveUserId(response.body().getUser().getId());
                     }
 
-                    Toast.makeText(MainActivity.this, "✅ Login successful! Loading Payment Gateway...", Toast.LENGTH_SHORT).show();
-                    loadPaymentFragment();
+                    Toast.makeText(MainActivity.this, "✅ Login successful! Loading Camera...", Toast.LENGTH_SHORT).show();
+                    loadCameraFragment();
 
                 } else {
                     String errorMsg = "Login failed! Check credentials.";
@@ -60,21 +60,21 @@ public class MainActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                     Toast.makeText(MainActivity.this, "❌ " + errorMsg, Toast.LENGTH_LONG).show();
-                    loadPaymentFragment();
+                    loadCameraFragment();
                 }
             }
 
             @Override
             public void onFailure(Call<AuthResponse> call, Throwable t) {
                 Toast.makeText(MainActivity.this, "⚠️ Network error: " + t.getMessage(), Toast.LENGTH_LONG).show();
-                loadPaymentFragment();
+                loadCameraFragment();
             }
         });
     }
 
-    private void loadPaymentFragment() {
+    private void loadCameraFragment() {
         getSupportFragmentManager().beginTransaction()
-                .replace(android.R.id.content, new PaymentFragment())
+                .replace(android.R.id.content, new CameraFragment())
                 .commit();
     }
 }

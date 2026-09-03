@@ -69,4 +69,12 @@ dependencies {
 
     // Stripe SDK
     implementation("com.stripe:stripe-android:20.40.1")
+
+    // CameraX
+    implementation("androidx.camera:camera-camera2:1.4.0")
+    implementation("androidx.camera:camera-lifecycle:1.4.0")
+    implementation("androidx.camera:camera-view:1.4.0")
+
+    // Glide (for image loading)
+    implementation("com.github.bumptech.glide:glide:4.16.0")
 }
