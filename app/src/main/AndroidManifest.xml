@@ -5,9 +5,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-feature android:name="android.hardware.camera.any" android:required="true" />
 
     <application
@@ -51,11 +49,16 @@
             android:exported="false"
             android:theme="@style/Theme.TECHFIX" />
 
-        <activity android:name=".ui.technician.TechnicianActivity" android:exported="false" android:theme="@style/Theme.TECHFIX" />
-        <activity android:name=".ui.admin.SystemAdminActivity" android:exported="false" android:theme="@style/Theme.TECHFIX" />
+        <activity
+            android:name=".ui.technician.TechnicianActivity"
+            android:exported="false"
+            android:theme="@style/Theme.TECHFIX" />
+
+        <activity
+            android:name=".ui.admin.SystemAdminActivity"
+            android:exported="false"
+            android:theme="@style/Theme.TECHFIX" />
+
     </application>
 
 </manifest>
-
-
-
