@@ -32,6 +32,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -48,7 +49,6 @@ import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 
 import com.google.common.util.concurrent.ListenableFuture;
-import java.util.concurrent.ExecutionException;
 
 public class CameraFragment extends Fragment {
 
@@ -65,6 +65,7 @@ public class CameraFragment extends Fragment {
     private ImageAdapter imageAdapter;
     private ApiService apiService;
     private TokenManager tokenManager;
+    private boolean isCameraReady = false;
 
     @Nullable
     @Override
@@ -83,6 +84,8 @@ public class CameraFragment extends Fragment {
         btnUpload = view.findViewById(R.id.btn_upload);
         progressBar = view.findViewById(R.id.progress_bar);
         rvImages = view.findViewById(R.id.rv_images);
+
+        btnCapture.setEnabled(false); // Disabled until camera is ready
 
         // Setup RecyclerView
         rvImages.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
@@ -161,6 +164,9 @@ public class CameraFragment extends Fragment {
                 CameraSelector cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
                 cameraProvider.bindToLifecycle(getViewLifecycleOwner(), cameraSelector, preview, imageCapture);
 
+                isCameraReady = true;
+                btnCapture.setEnabled(true);
+
             } catch (ExecutionException | InterruptedException e) {
                 e.printStackTrace();
             }
@@ -168,8 +174,9 @@ public class CameraFragment extends Fragment {
     }
 
     private void capturePhoto() {
-        if (imageCapture == null) {
-            Toast.makeText(getContext(), "Camera not ready", Toast.LENGTH_SHORT).show();
+        if (!isCameraReady || imageCapture == null) {
+            Toast.makeText(getContext(), "⏳ Camera is initializing... Please wait.", Toast.LENGTH_SHORT).show();
+            btnCapture.postDelayed(this::capturePhoto, 1000);
             return;
         }
 
@@ -213,7 +220,6 @@ public class CameraFragment extends Fragment {
         progressBar.setVisibility(View.VISIBLE);
         btnUpload.setEnabled(false);
 
-        // Build multipart body
         RequestBody requestFile = RequestBody.create(MediaType.parse("image/jpeg"), capturedFile);
         MultipartBody.Part body = MultipartBody.Part.createFormData("image", capturedFile.getName(), requestFile);
         RequestBody imageType = RequestBody.create(MediaType.parse("text/plain"), "REPAIR_IMAGE");
