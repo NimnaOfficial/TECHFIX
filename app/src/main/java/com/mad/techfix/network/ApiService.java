@@ -10,7 +10,9 @@ import com.mad.techfix.models.Payment;
 import com.mad.techfix.models.AppointmentDetail;
 import com.mad.techfix.models.PaymentIntentResponse;
 import com.mad.techfix.models.PaymentIntentRequest;
-import com.mad.techfix.models.RepairImage;  // <-- ADD THIS IMPORT
+import com.mad.techfix.models.RepairImage;
+import com.mad.techfix.models.CloudinarySignatureResponse;
+import com.mad.techfix.models.ImageUploadRequest;
 
 import java.util.List;
 import java.util.Map;
@@ -126,23 +128,29 @@ public interface ApiService {
     );
 
     // ==========================================
-    // MEMBER 4: CAMERA / IMAGES
+    // MEMBER 4: CAMERA / IMAGES (CLOUDINARY)
     // ==========================================
-    @Multipart
+
+    // 1. Get Cloudinary upload signature from the Worker
+    @GET("api/cloudinary/signature")
+    Call<CloudinarySignatureResponse> getCloudinarySignature(@Header("Authorization") String auth);
+
+    // 2. Save image URL to the TechFix database (JSON body)
     @POST("api/appointments/{id}/images")
     Call<ApiResponse<Object>> uploadImage(
             @Header("Authorization") String auth,
             @Path("id") String appointmentId,
-            @Part MultipartBody.Part image,
-            @Part("image_type") RequestBody imageType
+            @Body ImageUploadRequest request
     );
 
+    // 3. Fetch all images for an appointment
     @GET("api/appointments/{id}/images")
-    Call<ApiResponse<List<RepairImage>>> getAppointmentImages(  // <-- CHANGED FROM List<Object>
-                                                                @Header("Authorization") String auth,
-                                                                @Path("id") String appointmentId
+    Call<ApiResponse<List<RepairImage>>> getAppointmentImages(
+            @Header("Authorization") String auth,
+            @Path("id") String appointmentId
     );
 
+    // 4. Delete an image
     @DELETE("api/appointments/{id}/images/{imageId}")
     Call<ApiResponse<Object>> deleteImage(
             @Header("Authorization") String auth,
