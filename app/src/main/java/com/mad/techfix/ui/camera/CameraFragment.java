@@ -3,7 +3,6 @@ package com.mad.techfix.ui.camera;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,7 +27,6 @@ import com.mad.techfix.network.RetrofitClient;
 import com.mad.techfix.utils.TokenManager;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -48,10 +46,8 @@ import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
-import androidx.core.content.ContextCompat;
 
 import com.google.common.util.concurrent.ListenableFuture;
-
 import java.util.concurrent.ExecutionException;
 
 public class CameraFragment extends Fragment {
@@ -69,7 +65,6 @@ public class CameraFragment extends Fragment {
     private ImageAdapter imageAdapter;
     private ApiService apiService;
     private TokenManager tokenManager;
-    private String currentAppointmentId;
 
     @Nullable
     @Override
@@ -91,7 +86,17 @@ public class CameraFragment extends Fragment {
 
         // Setup RecyclerView
         rvImages.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
-        imageAdapter = new ImageAdapter(this::onImageClick);
+        imageAdapter = new ImageAdapter(new ImageAdapter.OnImageClickListener() {
+            @Override
+            public void onImageClick(RepairImage image) {
+                Toast.makeText(getContext(), "Image clicked", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onDeleteClick(RepairImage image) {
+                deleteImage(image);
+            }
+        });
         rvImages.setAdapter(imageAdapter);
 
         // Init helpers
@@ -221,8 +226,8 @@ public class CameraFragment extends Fragment {
 
                 if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
                     Toast.makeText(getContext(), "✅ Image uploaded!", Toast.LENGTH_SHORT).show();
-                    capturedFile = null; // clear reference
-                    fetchImages(); // refresh list
+                    capturedFile = null;
+                    fetchImages();
                 } else {
                     String errorMsg = "Upload failed";
                     try {
@@ -258,24 +263,17 @@ public class CameraFragment extends Fragment {
             return;
         }
 
-        apiService.getAppointmentImages("Bearer " + token, appointmentId).enqueue(new Callback<ApiResponse<List<Object>>>() {
+        apiService.getAppointmentImages("Bearer " + token, appointmentId).enqueue(new Callback<ApiResponse<List<RepairImage>>>() {
             @Override
-            public void onResponse(@NonNull Call<ApiResponse<List<Object>>> call, @NonNull Response<ApiResponse<List<Object>>> response) {
+            public void onResponse(@NonNull Call<ApiResponse<List<RepairImage>>> call, @NonNull Response<ApiResponse<List<RepairImage>>> response) {
                 if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
-                    List<Object> data = response.body().getData();
-                    // Convert to RepairImage list (assuming the objects are maps or we can cast)
-                    // In practice, you'd parse them properly. For simplicity, we'll assume the API returns the correct type.
-                    // Since we have a generic list, we can manually map if needed.
-                    // For now, we'll just update with empty list if no data.
-                    if (data != null && !data.isEmpty()) {
-                        // If your API returns a list of RepairImage objects, you can cast.
-                        // But we'll treat as list of RepairImage.
-                        // Since we have a generic list, we can't directly cast. We'll assume the data is already correct.
-                        // You should ensure the API returns List<RepairImage>. I'll adjust the ApiService to return List<RepairImage>.
-                        // For now, let's just show a message and clear.
-                        Toast.makeText(getContext(), "Images loaded", Toast.LENGTH_SHORT).show();
+                    List<RepairImage> images = response.body().getData();
+                    if (images != null && !images.isEmpty()) {
+                        imageAdapter.updateList(images);
+                        Toast.makeText(getContext(), "✅ Loaded " + images.size() + " images", Toast.LENGTH_SHORT).show();
                     } else {
                         imageAdapter.updateList(null);
+                        Toast.makeText(getContext(), "No images found", Toast.LENGTH_SHORT).show();
                     }
                 } else {
                     Toast.makeText(getContext(), "Failed to fetch images", Toast.LENGTH_SHORT).show();
@@ -283,19 +281,13 @@ public class CameraFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(@NonNull Call<ApiResponse<List<Object>>> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<ApiResponse<List<RepairImage>>> call, @NonNull Throwable t) {
                 Toast.makeText(getContext(), "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    private void onImageClick(RepairImage image) {
-        // Optionally show full-screen image
-        Toast.makeText(getContext(), "Image clicked", Toast.LENGTH_SHORT).show();
-    }
-
-    private void onDeleteClick(RepairImage image) {
-        // Delete image from API
+    private void deleteImage(RepairImage image) {
         String token = tokenManager.getToken();
         if (token == null) {
             Toast.makeText(getContext(), "Please login first", Toast.LENGTH_SHORT).show();
@@ -307,7 +299,7 @@ public class CameraFragment extends Fragment {
             public void onResponse(@NonNull Call<ApiResponse<Object>> call, @NonNull Response<ApiResponse<Object>> response) {
                 if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
                     Toast.makeText(getContext(), "Image deleted", Toast.LENGTH_SHORT).show();
-                    fetchImages(); // refresh
+                    fetchImages();
                 } else {
                     Toast.makeText(getContext(), "Failed to delete", Toast.LENGTH_SHORT).show();
                 }

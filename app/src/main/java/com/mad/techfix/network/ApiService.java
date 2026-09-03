@@ -10,6 +10,7 @@ import com.mad.techfix.models.Payment;
 import com.mad.techfix.models.AppointmentDetail;
 import com.mad.techfix.models.PaymentIntentResponse;
 import com.mad.techfix.models.PaymentIntentRequest;
+import com.mad.techfix.models.RepairImage;  // <-- ADD THIS IMPORT
 
 import java.util.List;
 import java.util.Map;
@@ -137,9 +138,9 @@ public interface ApiService {
     );
 
     @GET("api/appointments/{id}/images")
-    Call<ApiResponse<List<Object>>> getAppointmentImages(
-            @Header("Authorization") String auth,
-            @Path("id") String appointmentId
+    Call<ApiResponse<List<RepairImage>>> getAppointmentImages(  // <-- CHANGED FROM List<Object>
+                                                                @Header("Authorization") String auth,
+                                                                @Path("id") String appointmentId
     );
 
     @DELETE("api/appointments/{id}/images/{imageId}")
