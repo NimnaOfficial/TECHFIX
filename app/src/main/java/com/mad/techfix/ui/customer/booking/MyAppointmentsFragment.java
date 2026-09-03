@@ -1,4 +1,4 @@
-package com.mad.techfix.ui.booking;
+package com.mad.techfix.ui.customer.booking;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -23,7 +23,6 @@ import com.mad.techfix.models.Appointment;
 import com.mad.techfix.viewmodel.MyAppointmentsViewModel;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class MyAppointmentsFragment extends Fragment {
 

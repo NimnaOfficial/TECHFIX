@@ -1,4 +1,4 @@
-package com.mad.techfix.ui.booking;
+package com.mad.techfix.ui.customer.booking;
 
 import android.view.LayoutInflater;
 import android.view.View;

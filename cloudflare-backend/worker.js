@@ -1225,24 +1225,24 @@ export default {
       }
 
       if (path === "/api/technician/appointments" && request.method === "GET") {
-        const user = await authenticate(request, env);
-        if (!user || !["TECHNICIAN", "MANAGER", "ADMIN"].includes(user.role))
-          return json({ success: false, message: "Access denied" }, 403);
-        const tech = await env.DB.prepare(
-          `SELECT id FROM technicians WHERE user_id = ?`,
-        )
-          .bind(user.id)
-          .first();
-        if (!tech)
-          return json({ success: false, message: "Profile not found" }, 404);
+             const user = await authenticate(request, env);
+             if (!user || !["TECHNICIAN", "MANAGER", "ADMIN"].includes(user.role))
+               return json({ success: false, message: "Access denied" }, 403);
+             const tech = await env.DB.prepare(
+               `SELECT id FROM technicians WHERE user_id = ?`,
+             )
+               .bind(user.id)
+               .first();
+             if (!tech)
+               return json({ success: false, message: "Profile not found" }, 404);
 
-        const tasks = await env.DB.prepare(
-          `SELECT * FROM appointments WHERE technician_id = ? ORDER BY created_at DESC`,
-        )
-          .bind(tech.id)
-          .all();
-        return json({ success: true, data: tasks.results });
-      }
+             const tasks = await env.DB.prepare(
+               `SELECT * FROM appointments WHERE technician_id = ? ORDER BY created_at DESC`,
+             )
+               .bind(tech.id)
+               .all();
+             return json({ success: true, data: tasks.results });
+           }
 
       if (
         path.startsWith("/api/technicians/") &&

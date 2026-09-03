@@ -1,4 +1,4 @@
-package com.mad.techfix.ui.booking;
+package com.mad.techfix.ui.customer.booking;
 
 import android.app.Dialog;
 import android.os.Bundle;
@@ -10,24 +10,18 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.button.MaterialButton;
 import com.mad.techfix.R;
-import com.mad.techfix.data.SessionManager;
-import com.mad.techfix.models.ApiResponse;
 import com.mad.techfix.models.AppointmentDetail;
-import com.mad.techfix.network.ApiService;
-import com.mad.techfix.network.RetrofitClient;
 import com.mad.techfix.ui.history.RepairHistoryDetailFragment;
+import com.mad.techfix.viewmodel.CustomerAppointmentDetailViewModel;
 
 import java.util.Locale;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class CustomerAppointmentDetailBottomSheet
         extends BottomSheetDialogFragment {
@@ -35,7 +29,9 @@ public class CustomerAppointmentDetailBottomSheet
     private static final String ARG_APPOINTMENT_ID =
             "appointment_id";
 
+
     private String appointmentId;
+
 
     private TextView tvAppointmentId;
     private TextView tvStatus;
@@ -52,36 +48,54 @@ public class CustomerAppointmentDetailBottomSheet
     private TextView tvCurrentStatus;
     private TextView tvStatusMessage;
 
+
     private MaterialButton btnViewRepairHistory;
     private MaterialButton btnCancelAppointment;
 
-    private ApiService apiService;
-    private SessionManager sessionManager;
 
-    private AppointmentDetail appointmentDetail;
+    private CustomerAppointmentDetailViewModel viewModel;
+
 
     public CustomerAppointmentDetailBottomSheet() {
         // Required empty constructor
     }
 
-    public static CustomerAppointmentDetailBottomSheet newInstance(
+
+    // ==========================================
+    // NEW INSTANCE
+    // ==========================================
+
+    public static CustomerAppointmentDetailBottomSheet
+    newInstance(
             String appointmentId
     ) {
 
         CustomerAppointmentDetailBottomSheet sheet =
                 new CustomerAppointmentDetailBottomSheet();
 
-        Bundle args = new Bundle();
+
+        Bundle args =
+                new Bundle();
+
 
         args.putString(
                 ARG_APPOINTMENT_ID,
                 appointmentId
         );
 
-        sheet.setArguments(args);
+
+        sheet.setArguments(
+                args
+        );
+
 
         return sheet;
     }
+
+
+    // ==========================================
+    // VIEW
+    // ==========================================
 
     @Nullable
     @Override
@@ -98,6 +112,7 @@ public class CustomerAppointmentDetailBottomSheet
         );
     }
 
+
     @Override
     public void onViewCreated(
             @NonNull View view,
@@ -109,22 +124,29 @@ public class CustomerAppointmentDetailBottomSheet
                 savedInstanceState
         );
 
-        apiService =
-                RetrofitClient.getApiService();
-
-        sessionManager =
-                new SessionManager(
-                        requireContext()
-                );
 
         readArguments();
 
-        bindViews(view);
+        bindViews(
+                view
+        );
+
+        setupViewModel();
+
+        observeViewModel();
 
         setupListeners();
 
-        loadAppointmentDetail();
+
+        viewModel.loadAppointmentDetail(
+                appointmentId
+        );
     }
+
+
+    // ==========================================
+    // EXPANDED BOTTOM SHEET
+    // ==========================================
 
     @NonNull
     @Override
@@ -138,6 +160,7 @@ public class CustomerAppointmentDetailBottomSheet
                                 savedInstanceState
                         );
 
+
         dialog.setOnShowListener(
                 dialogInterface -> {
 
@@ -147,16 +170,21 @@ public class CustomerAppointmentDetailBottomSheet
                                             .design_bottom_sheet
                             );
 
+
                     if (bottomSheet != null) {
 
                         BottomSheetBehavior<View> behavior =
                                 BottomSheetBehavior
-                                        .from(bottomSheet);
+                                        .from(
+                                                bottomSheet
+                                        );
+
 
                         behavior.setState(
                                 BottomSheetBehavior
                                         .STATE_EXPANDED
                         );
+
 
                         behavior.setSkipCollapsed(
                                 true
@@ -165,23 +193,37 @@ public class CustomerAppointmentDetailBottomSheet
                 }
         );
 
+
         return dialog;
     }
+
+
+    // ==========================================
+    // ARGUMENT
+    // ==========================================
 
     private void readArguments() {
 
         Bundle args =
                 getArguments();
 
+
         if (args == null) {
+
             return;
         }
+
 
         appointmentId =
                 args.getString(
                         ARG_APPOINTMENT_ID
                 );
     }
+
+
+    // ==========================================
+    // BIND VIEWS
+    // ==========================================
 
     private void bindViews(
             View view
@@ -192,60 +234,72 @@ public class CustomerAppointmentDetailBottomSheet
                         R.id.tv_detail_appointment_id
                 );
 
+
         tvStatus =
                 view.findViewById(
                         R.id.tv_detail_status
                 );
+
 
         tvDevice =
                 view.findViewById(
                         R.id.tv_detail_device
                 );
 
+
         tvService =
                 view.findViewById(
                         R.id.tv_detail_service
                 );
+
 
         tvProblem =
                 view.findViewById(
                         R.id.tv_detail_problem
                 );
 
+
         tvBranch =
                 view.findViewById(
                         R.id.tv_detail_branch
                 );
+
 
         tvDate =
                 view.findViewById(
                         R.id.tv_detail_date
                 );
 
+
         tvTime =
                 view.findViewById(
                         R.id.tv_detail_time
                 );
+
 
         tvTechnician =
                 view.findViewById(
                         R.id.tv_detail_technician
                 );
 
+
         tvCurrentStatus =
                 view.findViewById(
                         R.id.tv_detail_current_status
                 );
+
 
         tvStatusMessage =
                 view.findViewById(
                         R.id.tv_detail_status_message
                 );
 
+
         btnViewRepairHistory =
                 view.findViewById(
                         R.id.btn_view_repair_history
                 );
+
 
         btnCancelAppointment =
                 view.findViewById(
@@ -253,160 +307,373 @@ public class CustomerAppointmentDetailBottomSheet
                 );
     }
 
-    private void setupListeners() {
 
-        btnViewRepairHistory
-                .setOnClickListener(
-                        v -> openRepairHistory()
-                );
+    // ==========================================
+    // VIEW MODEL
+    // ==========================================
 
-        btnCancelAppointment
-                .setOnClickListener(
-                        v -> showCancellationMessage()
-                );
+    private void setupViewModel() {
+
+        viewModel =
+                new ViewModelProvider(this)
+                        .get(
+                                CustomerAppointmentDetailViewModel.class
+                        );
     }
 
-    private void loadAppointmentDetail() {
 
-        if (appointmentId == null
-                || appointmentId
-                .trim()
-                .isEmpty()) {
+    private void observeViewModel() {
 
-            Toast.makeText(
-                    requireContext(),
-                    "Appointment ID is missing",
-                    Toast.LENGTH_SHORT
-            ).show();
+        viewModel
+                .getIsLoading()
+                .observe(
+                        getViewLifecycleOwner(),
+                        loading -> {
 
-            dismiss();
+                            if (loading != null
+                                    && loading) {
 
-            return;
-        }
+                                displayLoadingState();
+                            }
+                        }
+                );
 
-        String token =
-                sessionManager
-                        .getBearerToken();
 
-        if (token == null
-                || token.trim().isEmpty()) {
+        viewModel
+                .getAppointmentDetail()
+                .observe(
+                        getViewLifecycleOwner(),
+                        detail -> {
 
-            Toast.makeText(
-                    requireContext(),
-                    "Please sign in again",
-                    Toast.LENGTH_SHORT
-            ).show();
+                            if (detail != null) {
 
-            return;
-        }
+                                displayAppointmentDetail(
+                                        detail
+                                );
+                            }
+                        }
+                );
 
-        setLoadingState();
 
-        apiService
-                .getAppointmentDetail(
-                        token,
-                        appointmentId
-                )
-                .enqueue(
-                        new Callback<
-                                ApiResponse<
-                                        AppointmentDetail
-                                        >
-                                >() {
+        viewModel
+                .getErrorMessage()
+                .observe(
+                        getViewLifecycleOwner(),
+                        message -> {
 
-                            @Override
-                            public void onResponse(
+                            if (message == null
+                                    || message.trim().isEmpty()) {
 
-                                    @NonNull
-                                    Call<
-                                            ApiResponse<
-                                                    AppointmentDetail
-                                                    >
-                                            > call,
-
-                                    @NonNull
-                                    Response<
-                                            ApiResponse<
-                                                    AppointmentDetail
-                                                    >
-                                            > response
-                            ) {
-
-                                if (!isAdded()) {
-                                    return;
-                                }
-
-                                if (response.isSuccessful()
-                                        && response.body() != null
-                                        && response.body()
-                                        .isSuccess()
-                                        && response.body()
-                                        .getData() != null) {
-
-                                    appointmentDetail =
-                                            response.body()
-                                                    .getData();
-
-                                    displayAppointmentDetail(
-                                            appointmentDetail
-                                    );
-
-                                } else {
-
-                                    displayLoadError();
-
-                                    Toast.makeText(
-                                            requireContext(),
-                                            "Unable to load appointment details",
-                                            Toast.LENGTH_SHORT
-                                    ).show();
-                                }
+                                return;
                             }
 
-                            @Override
-                            public void onFailure(
 
-                                    @NonNull
-                                    Call<
-                                            ApiResponse<
-                                                    AppointmentDetail
-                                                    >
-                                            > call,
+                            displayLoadError();
 
-                                    @NonNull
-                                    Throwable t
-                            ) {
 
-                                if (!isAdded()) {
-                                    return;
-                                }
+                            Toast.makeText(
+                                    requireContext(),
+                                    message,
+                                    Toast.LENGTH_LONG
+                            ).show();
 
-                                displayLoadError();
 
-                                String message =
-                                        "Unable to load appointment details";
-
-                                if (t.getMessage() != null
-                                        && !t.getMessage()
-                                        .trim()
-                                        .isEmpty()) {
-
-                                    message +=
-                                            ": "
-                                                    + t.getMessage();
-                                }
-
-                                Toast.makeText(
-                                        requireContext(),
-                                        message,
-                                        Toast.LENGTH_LONG
-                                ).show();
-                            }
+                            viewModel.clearError();
                         }
                 );
     }
 
-    private void setLoadingState() {
+
+    // ==========================================
+    // LISTENERS
+    // ==========================================
+
+    private void setupListeners() {
+
+        btnViewRepairHistory
+                .setOnClickListener(
+                        view -> openRepairHistory()
+                );
+
+
+        btnCancelAppointment
+                .setOnClickListener(
+                        view -> showCancellationMessage()
+                );
+    }
+
+
+    // ==========================================
+    // DISPLAY DETAIL
+    // ==========================================
+
+    private void displayAppointmentDetail(
+            AppointmentDetail detail
+    ) {
+
+        String status =
+                safeText(
+                        detail.getStatus(),
+                        "UNKNOWN"
+                );
+
+
+        String formattedStatus =
+                formatStatus(
+                        status
+                );
+
+
+        tvAppointmentId.setText(
+                safeText(
+                        detail.getAppointment_number(),
+                        "Appointment"
+                )
+        );
+
+
+        tvStatus.setText(
+                formattedStatus
+        );
+
+
+        tvDevice.setText(
+                safeText(
+                        detail.getDevice_full_name(),
+                        "Device information unavailable"
+                )
+        );
+
+
+        tvService.setText(
+                safeText(
+                        detail.getService_name(),
+                        "Service information unavailable"
+                )
+        );
+
+
+        tvProblem.setText(
+                safeText(
+                        detail.getProblem_description(),
+                        "No problem description provided"
+                )
+        );
+
+
+        // Branch
+        String branchDisplay =
+                safeText(
+                        detail.getBranch_name(),
+                        "TECHFIX Branch"
+                );
+
+
+        if (detail.getBranch_city() != null
+                && !detail.getBranch_city()
+                .trim()
+                .isEmpty()) {
+
+            branchDisplay +=
+                    " - "
+                            + detail.getBranch_city()
+                            .trim();
+        }
+
+
+        tvBranch.setText(
+                branchDisplay
+        );
+
+
+        tvDate.setText(
+                safeText(
+                        detail.getRequested_date(),
+                        "Not available"
+                )
+        );
+
+
+        tvTime.setText(
+                safeText(
+                        detail.getRequested_time(),
+                        "Not specified"
+                )
+        );
+
+
+        tvTechnician.setText(
+                getTechnicianName(
+                        detail
+                )
+        );
+
+
+        tvCurrentStatus.setText(
+                formattedStatus
+        );
+
+
+        tvStatusMessage.setText(
+                getStatusMessage(
+                        status
+                )
+        );
+
+
+        btnViewRepairHistory.setEnabled(
+                true
+        );
+
+
+        updateCancelButton(
+                status
+        );
+    }
+
+
+    // ==========================================
+    // TECHNICIAN
+    // ==========================================
+
+    private String getTechnicianName(
+            AppointmentDetail detail
+    ) {
+
+        if (detail.getTechnician_id() == null
+                || detail.getTechnician_id()
+                .trim()
+                .isEmpty()) {
+
+            return "Not assigned yet";
+        }
+
+
+        String fullName =
+                detail.getTechnician_full_name();
+
+
+        if (fullName == null
+                || fullName.trim().isEmpty()) {
+
+            return "Technician assigned";
+        }
+
+
+        return fullName.trim();
+    }
+
+
+    // ==========================================
+    // CANCEL BUTTON
+    // ==========================================
+
+    private void updateCancelButton(
+            String status
+    ) {
+
+        String normalized =
+                status == null
+                        ? ""
+                        : status.trim()
+                        .toUpperCase(
+                                Locale.US
+                        );
+
+
+        boolean cancellable =
+                normalized.equals(
+                        "REQUESTED"
+                )
+                        || normalized.equals(
+                        "ASSIGNED"
+                );
+
+
+        btnCancelAppointment.setEnabled(
+                cancellable
+        );
+
+
+        if (cancellable) {
+
+            btnCancelAppointment.setText(
+                    "Cancel Appointment"
+            );
+
+        } else {
+
+            btnCancelAppointment.setText(
+                    "Appointment Cannot Be Cancelled"
+            );
+        }
+    }
+
+
+    // ==========================================
+    // BACKEND CANCELLATION PLACEHOLDER
+    // ==========================================
+
+    private void showCancellationMessage() {
+
+        /*
+         * Customer cancellation endpoint is not
+         * available in the current backend.
+         *
+         * Keep the required cancellation UI
+         * without faking a successful cancellation.
+         */
+
+        Toast.makeText(
+                requireContext(),
+                "Appointment cancellation is not available from the server yet.",
+                Toast.LENGTH_LONG
+        ).show();
+    }
+
+
+    // ==========================================
+    // REPAIR HISTORY
+    // ==========================================
+
+    private void openRepairHistory() {
+
+        if (appointmentId == null
+                || appointmentId.trim().isEmpty()) {
+
+            return;
+        }
+
+
+        dismiss();
+
+
+        RepairHistoryDetailFragment fragment =
+                RepairHistoryDetailFragment
+                        .newInstance(
+                                appointmentId
+                        );
+
+
+        requireActivity()
+                .getSupportFragmentManager()
+                .beginTransaction()
+                .replace(
+                        android.R.id.content,
+                        fragment
+                )
+                .addToBackStack(
+                        null
+                )
+                .commit();
+    }
+
+
+    // ==========================================
+    // LOADING
+    // ==========================================
+
+    private void displayLoadingState() {
 
         tvAppointmentId.setText(
                 "Loading..."
@@ -452,6 +719,7 @@ public class CustomerAppointmentDetailBottomSheet
                 "Loading appointment information..."
         );
 
+
         btnViewRepairHistory.setEnabled(
                 false
         );
@@ -461,287 +729,10 @@ public class CustomerAppointmentDetailBottomSheet
         );
     }
 
-    private void displayAppointmentDetail(
-            AppointmentDetail detail
-    ) {
 
-        String status =
-                safeText(
-                        detail.getStatus(),
-                        "UNKNOWN"
-                );
-
-        String formattedStatus =
-                formatStatus(status);
-
-        tvAppointmentId.setText(
-                safeText(
-                        detail.getAppointment_number(),
-                        "Appointment"
-                )
-        );
-
-        tvStatus.setText(
-                formattedStatus
-        );
-
-        String deviceName =
-                detail.getDevice_full_name();
-
-        tvDevice.setText(
-                safeText(
-                        deviceName,
-                        "Device information unavailable"
-                )
-        );
-
-        tvService.setText(
-                safeText(
-                        detail.getService_name(),
-                        "Service information unavailable"
-                )
-        );
-
-        tvProblem.setText(
-                safeText(
-                        detail.getProblem_description(),
-                        "No problem description provided"
-                )
-        );
-
-        String branchDisplay =
-                safeText(
-                        detail.getBranch_name(),
-                        "TECHFIX Branch"
-                );
-
-        String branchCity =
-                detail.getBranch_city();
-
-        if (branchCity != null
-                && !branchCity.trim().isEmpty()) {
-
-            branchDisplay +=
-                    " - "
-                            + branchCity.trim();
-        }
-
-        tvBranch.setText(
-                branchDisplay
-        );
-
-        tvDate.setText(
-                safeText(
-                        detail.getRequested_date(),
-                        "Not available"
-                )
-        );
-
-        tvTime.setText(
-                safeText(
-                        detail.getRequested_time(),
-                        "Not specified"
-                )
-        );
-
-        tvTechnician.setText(
-                getTechnicianName(detail)
-        );
-
-        tvCurrentStatus.setText(
-                formattedStatus
-        );
-
-        tvStatusMessage.setText(
-                getStatusMessage(status)
-        );
-
-        btnViewRepairHistory.setEnabled(
-                true
-        );
-
-        updateCancelButton(status);
-    }
-
-    private String getTechnicianName(
-            AppointmentDetail detail
-    ) {
-
-        if (detail.getTechnician_id() == null
-                || detail.getTechnician_id()
-                .trim()
-                .isEmpty()) {
-
-            return "Not assigned yet";
-        }
-
-        String fullName =
-                detail.getTechnician_full_name();
-
-        if (fullName == null
-                || fullName.trim().isEmpty()) {
-
-            return "Technician assigned";
-        }
-
-        return fullName.trim();
-    }
-
-    private void updateCancelButton(
-            String status
-    ) {
-
-        if (status == null) {
-
-            btnCancelAppointment
-                    .setEnabled(false);
-
-            return;
-        }
-
-        String normalized =
-                status.trim()
-                        .toUpperCase(
-                                Locale.US
-                        );
-
-        boolean potentiallyCancellable =
-                normalized.equals(
-                        "REQUESTED"
-                )
-                        || normalized.equals(
-                        "ASSIGNED"
-                );
-
-        btnCancelAppointment
-                .setEnabled(
-                        potentiallyCancellable
-                );
-
-        if (!potentiallyCancellable) {
-
-            btnCancelAppointment
-                    .setText(
-                            "Appointment Cannot Be Cancelled"
-                    );
-
-        } else {
-
-            btnCancelAppointment
-                    .setText(
-                            "Cancel Appointment"
-                    );
-        }
-    }
-
-    private String getStatusMessage(
-            String status
-    ) {
-
-        if (status == null) {
-
-            return "Appointment status is unavailable.";
-        }
-
-        switch (
-                status.trim()
-                        .toUpperCase(
-                                Locale.US
-                        )
-        ) {
-
-            case "REQUESTED":
-
-                return "Your appointment is waiting for technician assignment.";
-
-            case "ASSIGNED":
-
-                return "A technician has been assigned to your repair.";
-
-            case "DEVICE_RECEIVED":
-
-                return "Your device has been received by TECHFIX.";
-
-            case "DIAGNOSING":
-
-                return "The technician is diagnosing your device.";
-
-            case "REPAIRING":
-
-                return "Your device is currently being repaired.";
-
-            case "TESTING":
-
-                return "Your repaired device is currently being tested.";
-
-            case "READY":
-
-                return "Your device is ready for collection.";
-
-            case "COMPLETED":
-
-                return "This repair has been completed.";
-
-            case "CANCELLED":
-
-                return "This appointment has been cancelled.";
-
-            default:
-
-                return "Your repair status has been updated.";
-        }
-    }
-
-    private void showCancellationMessage() {
-
-        /*
-         * The current backend does not expose a
-         * customer cancellation API.
-         *
-         * Keep this button visible because cancellation
-         * is part of the required customer UI.
-         *
-         * Once the backend endpoint is added,
-         * this method can call it.
-         */
-
-        Toast.makeText(
-                requireContext(),
-                "Appointment cancellation is not available from the server yet.",
-                Toast.LENGTH_LONG
-        ).show();
-    }
-
-    private void openRepairHistory() {
-
-        if (appointmentId == null
-                || appointmentId
-                .trim()
-                .isEmpty()) {
-
-            return;
-        }
-
-        dismiss();
-
-        RepairHistoryDetailFragment fragment =
-                RepairHistoryDetailFragment
-                        .newInstance(
-                                appointmentId
-                        );
-
-        requireActivity()
-                .getSupportFragmentManager()
-                .beginTransaction()
-                .replace(
-                        android.R.id.content,
-                        fragment
-                )
-                .addToBackStack(
-                        null
-                )
-                .commit();
-    }
+    // ==========================================
+    // ERROR
+    // ==========================================
 
     private void displayLoadError() {
 
@@ -789,6 +780,7 @@ public class CustomerAppointmentDetailBottomSheet
                 "Appointment information could not be loaded."
         );
 
+
         btnViewRepairHistory.setEnabled(
                 false
         );
@@ -797,6 +789,84 @@ public class CustomerAppointmentDetailBottomSheet
                 false
         );
     }
+
+
+    // ==========================================
+    // STATUS MESSAGE
+    // ==========================================
+
+    private String getStatusMessage(
+            String status
+    ) {
+
+        if (status == null) {
+
+            return "Appointment status is unavailable.";
+        }
+
+
+        switch (
+                status.trim()
+                        .toUpperCase(
+                                Locale.US
+                        )
+        ) {
+
+            case "REQUESTED":
+
+                return "Your appointment is waiting for technician assignment.";
+
+
+            case "ASSIGNED":
+
+                return "A technician has been assigned to your repair.";
+
+
+            case "DEVICE_RECEIVED":
+
+                return "Your device has been received by TECHFIX.";
+
+
+            case "DIAGNOSING":
+
+                return "The technician is diagnosing your device.";
+
+
+            case "REPAIRING":
+
+                return "Your device is currently being repaired.";
+
+
+            case "TESTING":
+
+                return "Your repaired device is currently being tested.";
+
+
+            case "READY":
+
+                return "Your device is ready for collection.";
+
+
+            case "COMPLETED":
+
+                return "This repair has been completed.";
+
+
+            case "CANCELLED":
+
+                return "This appointment has been cancelled.";
+
+
+            default:
+
+                return "Your repair status has been updated.";
+        }
+    }
+
+
+    // ==========================================
+    // HELPERS
+    // ==========================================
 
     private String formatStatus(
             String status
@@ -807,6 +877,7 @@ public class CustomerAppointmentDetailBottomSheet
 
             return "UNKNOWN";
         }
+
 
         return status
                 .trim()
@@ -819,6 +890,7 @@ public class CustomerAppointmentDetailBottomSheet
                 );
     }
 
+
     private String safeText(
             String value,
             String fallback
@@ -829,6 +901,7 @@ public class CustomerAppointmentDetailBottomSheet
 
             return fallback;
         }
+
 
         return value.trim();
     }

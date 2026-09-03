@@ -9,7 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.mad.techfix.R;
-import com.mad.techfix.models.AppointmentDetail;
+import com.mad.techfix.models.Appointment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,26 +20,35 @@ public class AssignedRepairAdapter
         AssignedRepairAdapter.RepairViewHolder> {
 
     public interface OnRepairClickListener {
-        void onRepairClick(AppointmentDetail repair);
+
+        void onRepairClick(
+                Appointment repair
+        );
     }
 
-    private final List<AppointmentDetail> repairs =
+
+    private final List<Appointment> repairs =
             new ArrayList<>();
 
+
     private final OnRepairClickListener listener;
+
 
     public AssignedRepairAdapter(
             OnRepairClickListener listener
     ) {
 
-        this.listener = listener;
+        this.listener =
+                listener;
     }
 
+
     public void setRepairs(
-            List<AppointmentDetail> newRepairs
+            List<Appointment> newRepairs
     ) {
 
         repairs.clear();
+
 
         if (newRepairs != null) {
 
@@ -48,26 +57,10 @@ public class AssignedRepairAdapter
             );
         }
 
+
         notifyDataSetChanged();
     }
 
-    public int getRepairCount() {
-
-        return repairs.size();
-    }
-
-    public AppointmentDetail getRepairAt(
-            int position
-    ) {
-
-        if (position < 0
-                || position >= repairs.size()) {
-
-            return null;
-        }
-
-        return repairs.get(position);
-    }
 
     @NonNull
     @Override
@@ -87,10 +80,12 @@ public class AssignedRepairAdapter
                                 false
                         );
 
+
         return new RepairViewHolder(
                 view
         );
     }
+
 
     @Override
     public void onBindViewHolder(
@@ -98,8 +93,11 @@ public class AssignedRepairAdapter
             int position
     ) {
 
-        AppointmentDetail repair =
-                repairs.get(position);
+        Appointment repair =
+                repairs.get(
+                        position
+                );
+
 
         holder.tvRepairId.setText(
                 safeText(
@@ -108,21 +106,20 @@ public class AssignedRepairAdapter
                 )
         );
 
-        String deviceName =
-                repair.getDevice_full_name();
 
         holder.tvDevice.setText(
-                safeText(
-                        deviceName,
-                        "Device information unavailable"
+                getDeviceName(
+                        repair
                 )
         );
+
 
         holder.tvStatus.setText(
                 formatStatus(
                         repair.getStatus()
                 )
         );
+
 
         holder.tvService.setText(
                 safeText(
@@ -131,18 +128,20 @@ public class AssignedRepairAdapter
                 )
         );
 
+
         holder.tvCustomer.setText(
-                safeText(
-                        repair.getCustomer_full_name(),
-                        "Customer"
+                getCustomerName(
+                        repair
                 )
         );
+
 
         String branch =
                 safeText(
                         repair.getBranch_name(),
                         "TECHFIX Branch"
                 );
+
 
         if (repair.getBranch_city() != null
                 && !repair.getBranch_city()
@@ -156,9 +155,11 @@ public class AssignedRepairAdapter
                             .trim();
         }
 
+
         holder.tvBranch.setText(
                 branch
         );
+
 
         String date =
                 safeText(
@@ -166,20 +167,24 @@ public class AssignedRepairAdapter
                         "Date unavailable"
                 );
 
-        String time =
-                repair.getRequested_time();
 
-        if (time != null
-                && !time.trim().isEmpty()) {
+        if (repair.getRequested_time() != null
+                && !repair.getRequested_time()
+                .trim()
+                .isEmpty()) {
 
             date +=
                     " • "
-                            + time.trim();
+                            + repair
+                            .getRequested_time()
+                            .trim();
         }
+
 
         holder.tvDate.setText(
                 date
         );
+
 
         holder.tvProblem.setText(
                 safeText(
@@ -188,30 +193,35 @@ public class AssignedRepairAdapter
                 )
         );
 
-        holder.itemView.setOnClickListener(
-                v -> {
 
-                    int clickedPosition =
-                            holder
-                                    .getBindingAdapterPosition();
+        holder.itemView
+                .setOnClickListener(
+                        view -> {
 
-                    if (clickedPosition
-                            == RecyclerView.NO_POSITION) {
+                            int clickedPosition =
+                                    holder
+                                            .getBindingAdapterPosition();
 
-                        return;
-                    }
 
-                    if (listener != null) {
+                            if (clickedPosition
+                                    == RecyclerView.NO_POSITION) {
 
-                        listener.onRepairClick(
-                                repairs.get(
-                                        clickedPosition
-                                )
-                        );
-                    }
-                }
-        );
+                                return;
+                            }
+
+
+                            if (listener != null) {
+
+                                listener.onRepairClick(
+                                        repairs.get(
+                                                clickedPosition
+                                        )
+                                );
+                            }
+                        }
+                );
     }
+
 
     @Override
     public int getItemCount() {
@@ -219,15 +229,120 @@ public class AssignedRepairAdapter
         return repairs.size();
     }
 
+
+    private String getDeviceName(
+            Appointment appointment
+    ) {
+
+        if (appointment.getDevice_name() != null
+                && !appointment.getDevice_name()
+                .trim()
+                .isEmpty()) {
+
+            return appointment
+                    .getDevice_name()
+                    .trim();
+        }
+
+
+        String brand =
+                appointment.getDevice_brand();
+
+        String model =
+                appointment.getDevice_model();
+
+
+        String value =
+                (
+                        brand == null
+                                ? ""
+                                : brand.trim()
+                )
+                        + " "
+                        + (
+                        model == null
+                                ? ""
+                                : model.trim()
+                );
+
+
+        value =
+                value.trim();
+
+
+        if (value.isEmpty()) {
+
+            return "Device information unavailable";
+        }
+
+
+        return value;
+    }
+
+
+    private String getCustomerName(
+            Appointment appointment
+    ) {
+
+        if (appointment.getCustomer_name() != null
+                && !appointment.getCustomer_name()
+                .trim()
+                .isEmpty()) {
+
+            return appointment
+                    .getCustomer_name()
+                    .trim();
+        }
+
+
+        String first =
+                appointment
+                        .getCustomer_first_name();
+
+        String last =
+                appointment
+                        .getCustomer_last_name();
+
+
+        String value =
+                (
+                        first == null
+                                ? ""
+                                : first.trim()
+                )
+                        + " "
+                        + (
+                        last == null
+                                ? ""
+                                : last.trim()
+                );
+
+
+        value =
+                value.trim();
+
+
+        if (value.isEmpty()) {
+
+            return "Customer";
+        }
+
+
+        return value;
+    }
+
+
     private String formatStatus(
             String status
     ) {
 
         if (status == null
-                || status.trim().isEmpty()) {
+                || status.trim()
+                .isEmpty()) {
 
             return "UNKNOWN";
         }
+
 
         return status
                 .trim()
@@ -240,19 +355,23 @@ public class AssignedRepairAdapter
                 );
     }
 
+
     private String safeText(
             String value,
             String fallback
     ) {
 
         if (value == null
-                || value.trim().isEmpty()) {
+                || value.trim()
+                .isEmpty()) {
 
             return fallback;
         }
 
+
         return value.trim();
     }
+
 
     static class RepairViewHolder
             extends RecyclerView.ViewHolder {
@@ -266,46 +385,55 @@ public class AssignedRepairAdapter
         TextView tvDate;
         TextView tvProblem;
 
-        public RepairViewHolder(
+
+        RepairViewHolder(
                 @NonNull View itemView
         ) {
 
             super(itemView);
+
 
             tvRepairId =
                     itemView.findViewById(
                             R.id.tv_assigned_repair_id
                     );
 
+
             tvDevice =
                     itemView.findViewById(
                             R.id.tv_assigned_device
                     );
+
 
             tvStatus =
                     itemView.findViewById(
                             R.id.tv_assigned_status
                     );
 
+
             tvService =
                     itemView.findViewById(
                             R.id.tv_assigned_service
                     );
+
 
             tvCustomer =
                     itemView.findViewById(
                             R.id.tv_assigned_customer
                     );
 
+
             tvBranch =
                     itemView.findViewById(
                             R.id.tv_assigned_branch
                     );
 
+
             tvDate =
                     itemView.findViewById(
                             R.id.tv_assigned_date
                     );
+
 
             tvProblem =
                     itemView.findViewById(
