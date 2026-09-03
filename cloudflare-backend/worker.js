@@ -686,19 +686,97 @@ export default {
       // ==========================================
       if (path === "/api/appointments" && request.method === "GET") {
         const user = await authenticate(request, env);
-        if (!user)
-          return json({ success: false, message: "Unauthorized" }, 401);
 
-        const query =
-          user.role === "CUSTOMER"
-            ? `SELECT * FROM appointments WHERE customer_id = ? ORDER BY created_at DESC`
-            : `SELECT * FROM appointments ORDER BY created_at DESC`;
+        if (!user) {
+          return json(
+            {
+              success: false,
+              message: "Unauthorized",
+            },
+            401,
+          );
+        }
 
-        const result =
-          user.role === "CUSTOMER"
-            ? await env.DB.prepare(query).bind(user.id).all()
-            : await env.DB.prepare(query).all();
-        return json({ success: true, data: result.results });
+        const baseQuery = `
+          SELECT
+            a.*,
+
+            d.brand AS device_brand,
+            d.model AS device_model,
+            d.serial_number AS device_serial_number,
+
+            TRIM(
+              COALESCE(d.brand, '') || ' ' || COALESCE(d.model, '')
+            ) AS device_name,
+
+            s.name AS service_name,
+            s.description AS service_description,
+            s.base_price AS service_base_price,
+
+            b.name AS branch_name,
+            b.city AS branch_city,
+            b.address AS branch_address,
+
+            cu.first_name AS customer_first_name,
+            cu.last_name AS customer_last_name,
+
+            TRIM(
+              COALESCE(cu.first_name, '') || ' ' || COALESCE(cu.last_name, '')
+            ) AS customer_name,
+
+            tu.first_name AS technician_first_name,
+            tu.last_name AS technician_last_name,
+
+            TRIM(
+              COALESCE(tu.first_name, '') || ' ' || COALESCE(tu.last_name, '')
+            ) AS technician_name
+
+          FROM appointments a
+
+          LEFT JOIN devices d
+            ON d.id = a.device_id
+
+          LEFT JOIN services s
+            ON s.id = a.service_id
+
+          LEFT JOIN branches b
+            ON b.id = a.branch_id
+
+          LEFT JOIN users cu
+            ON cu.id = a.customer_id
+
+          LEFT JOIN technicians t
+            ON t.id = a.technician_id
+
+          LEFT JOIN users tu
+            ON tu.id = t.user_id
+        `;
+
+        let result;
+
+        if (user.role === "CUSTOMER") {
+          result = await env.DB.prepare(
+            `
+              ${baseQuery}
+              WHERE a.customer_id = ?
+              ORDER BY a.created_at DESC
+            `,
+          )
+            .bind(user.id)
+            .all();
+        } else {
+          result = await env.DB.prepare(
+            `
+              ${baseQuery}
+              ORDER BY a.created_at DESC
+            `,
+          ).all();
+        }
+
+        return json({
+          success: true,
+          data: result.results,
+        });
       }
 
       if (path === "/api/appointments" && request.method === "POST") {
@@ -1008,39 +1086,127 @@ export default {
         }
       }
 
-      // -- GET SINGLE APPOINTMENT (Guarded) --
-      if (
-        path.startsWith("/api/appointments/") &&
-        !path.includes("/history") &&
-        !path.includes("/assign") &&
-        !path.includes("/status") &&
-        !path.includes("/payments") &&
-        !path.includes("/images") &&
-        request.method === "GET"
-      ) {
-        const user = await authenticate(request, env);
-        if (!user)
-          return json({ success: false, message: "Unauthorized" }, 401);
-        const appointmentId = path.split("/").pop();
+     // -- GET SINGLE APPOINTMENT (Guarded) --
+     if (
+       path.startsWith("/api/appointments/") &&
+       !path.includes("/history") &&
+       !path.includes("/assign") &&
+       !path.includes("/status") &&
+       !path.includes("/payments") &&
+       !path.includes("/images") &&
+       request.method === "GET"
+     ) {
+       const user = await authenticate(request, env);
 
-        const appointment = await env.DB.prepare(
-          `
-            SELECT a.*, d.brand, d.model, s.name AS service_name, b.name AS branch_name
-            FROM appointments a LEFT JOIN devices d ON d.id = a.device_id
-            LEFT JOIN services s ON s.id = a.service_id LEFT JOIN branches b ON b.id = a.branch_id
-            WHERE a.id = ? LIMIT 1
-        `,
-        )
-          .bind(appointmentId)
-          .first();
+       if (!user) {
+         return json(
+           {
+             success: false,
+             message: "Unauthorized",
+           },
+           401,
+         );
+       }
 
-        if (!appointment)
-          return json(
-            { success: false, message: "Appointment not found" },
-            404,
-          );
-        return json({ success: true, data: appointment });
-      }
+       const appointmentId = path.split("/").pop();
+
+       let ownershipCondition = "";
+       let bindings = [appointmentId];
+
+       if (user.role === "CUSTOMER") {
+         ownershipCondition = "AND a.customer_id = ?";
+         bindings.push(user.id);
+       }
+
+       if (user.role === "TECHNICIAN") {
+         ownershipCondition = `
+           AND a.technician_id = (
+             SELECT id
+             FROM technicians
+             WHERE user_id = ?
+             LIMIT 1
+           )
+         `;
+
+         bindings.push(user.id);
+       }
+
+       const appointment = await env.DB.prepare(
+         `
+           SELECT
+             a.*,
+
+             cu.first_name AS customer_first_name,
+             cu.last_name AS customer_last_name,
+             cu.email AS customer_email,
+             cu.phone AS customer_phone,
+
+             d.brand AS device_brand,
+             d.model AS device_model,
+             d.serial_number AS serial_number,
+             d.purchase_year AS purchase_year,
+
+             s.name AS service_name,
+             s.description AS service_description,
+             s.base_price AS service_base_price,
+
+             b.name AS branch_name,
+             b.city AS branch_city,
+             b.address AS branch_address,
+             b.phone AS branch_phone,
+
+             t.employee_code AS technician_employee_code,
+             t.specialization AS technician_specialization,
+
+             tu.first_name AS technician_first_name,
+             tu.last_name AS technician_last_name,
+             tu.email AS technician_email,
+             tu.phone AS technician_phone
+
+           FROM appointments a
+
+           LEFT JOIN users cu
+             ON cu.id = a.customer_id
+
+           LEFT JOIN devices d
+             ON d.id = a.device_id
+
+           LEFT JOIN services s
+             ON s.id = a.service_id
+
+           LEFT JOIN branches b
+             ON b.id = a.branch_id
+
+           LEFT JOIN technicians t
+             ON t.id = a.technician_id
+
+           LEFT JOIN users tu
+             ON tu.id = t.user_id
+
+           WHERE a.id = ?
+           ${ownershipCondition}
+
+           LIMIT 1
+         `,
+       )
+         .bind(...bindings)
+         .first();
+
+       if (!appointment) {
+         return json(
+           {
+             success: false,
+             message: "Appointment not found or access denied",
+           },
+           404,
+         );
+       }
+
+       return json({
+         success: true,
+         data: appointment,
+       });
+     }
       // ==========================================
       // 5. TECHNICIANS & SERVICES
       // ==========================================

@@ -10,15 +10,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.mad.techfix.R;
 import com.mad.techfix.models.Appointment;
-import com.mad.techfix.models.Device;
-import com.mad.techfix.models.admin.Branch;
-import com.mad.techfix.models.admin.Service;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 public class CustomerAppointmentAdapter
         extends RecyclerView.Adapter<
@@ -34,25 +29,17 @@ public class CustomerAppointmentAdapter
     private final List<Appointment> visibleAppointments =
             new ArrayList<>();
 
-    private final Map<String, String> deviceNames =
-            new HashMap<>();
-
-    private final Map<String, String> serviceNames =
-            new HashMap<>();
-
-    private final Map<String, String> branchNames =
-            new HashMap<>();
-
     private final OnAppointmentClickListener listener;
 
     private String currentFilter = "ALL";
 
+
     public CustomerAppointmentAdapter(
             OnAppointmentClickListener listener
     ) {
-
         this.listener = listener;
     }
+
 
     public void setAppointments(
             List<Appointment> appointments
@@ -69,93 +56,6 @@ public class CustomerAppointmentAdapter
         applyCurrentFilter();
     }
 
-    public void setLookupData(
-            List<Device> devices,
-            List<Service> services,
-            List<Branch> branches
-    ) {
-
-        deviceNames.clear();
-        serviceNames.clear();
-        branchNames.clear();
-
-        if (devices != null) {
-
-            for (Device device : devices) {
-
-                if (device == null
-                        || device.getId() == null) {
-                    continue;
-                }
-
-                String name =
-                        device.getDisplayName();
-
-                if (name == null
-                        || name.trim().isEmpty()) {
-
-                    name = "Device";
-                }
-
-                deviceNames.put(
-                        device.getId(),
-                        name
-                );
-            }
-        }
-
-        if (services != null) {
-
-            for (Service service : services) {
-
-                if (service == null
-                        || service.getId() == null) {
-                    continue;
-                }
-
-                String name =
-                        service.getName();
-
-                if (name == null
-                        || name.trim().isEmpty()) {
-
-                    name = "Repair Service";
-                }
-
-                serviceNames.put(
-                        service.getId(),
-                        name
-                );
-            }
-        }
-
-        if (branches != null) {
-
-            for (Branch branch : branches) {
-
-                if (branch == null
-                        || branch.getId() == null) {
-                    continue;
-                }
-
-                String name =
-                        branch.getName();
-
-                if (name == null
-                        || name.trim().isEmpty()) {
-
-                    name = "TECHFIX Branch";
-                }
-
-                branchNames.put(
-                        branch.getId(),
-                        name
-                );
-            }
-        }
-
-        notifyDataSetChanged();
-    }
 
     public void filterByStatus(
             String filter
@@ -178,6 +78,7 @@ public class CustomerAppointmentAdapter
         applyCurrentFilter();
     }
 
+
     private void applyCurrentFilter() {
 
         visibleAppointments.clear();
@@ -198,6 +99,7 @@ public class CustomerAppointmentAdapter
 
         notifyDataSetChanged();
     }
+
 
     private boolean matchesFilter(
             Appointment appointment,
@@ -243,10 +145,11 @@ public class CustomerAppointmentAdapter
         return status.equals(filter);
     }
 
-    public int getVisibleCount() {
 
+    public int getVisibleCount() {
         return visibleAppointments.size();
     }
+
 
     @NonNull
     @Override
@@ -271,6 +174,7 @@ public class CustomerAppointmentAdapter
         );
     }
 
+
     @Override
     public void onBindViewHolder(
             @NonNull AppointmentViewHolder holder,
@@ -282,21 +186,39 @@ public class CustomerAppointmentAdapter
                         position
                 );
 
-        String appointmentNumber =
-                appointment
-                        .getAppointment_number();
-
+        // Appointment number
         holder.tvAppointmentId.setText(
                 safeText(
-                        appointmentNumber,
+                        appointment.getAppointment_number(),
                         "Appointment"
                 )
         );
 
+
+        // Device information now comes directly
+        // from the backend JOIN.
         String deviceName =
-                deviceNames.get(
-                        appointment.getDevice_id()
-                );
+                appointment.getDevice_name();
+
+        if (deviceName == null
+                || deviceName.trim().isEmpty()) {
+
+            String brand =
+                    safeText(
+                            appointment.getDevice_brand(),
+                            ""
+                    );
+
+            String model =
+                    safeText(
+                            appointment.getDevice_model(),
+                            ""
+                    );
+
+            deviceName =
+                    (brand + " " + model)
+                            .trim();
+        }
 
         holder.tvDevice.setText(
                 safeText(
@@ -305,67 +227,75 @@ public class CustomerAppointmentAdapter
                 )
         );
 
-        String serviceName =
-                serviceNames.get(
-                        appointment.getService_id()
-                );
 
+        // Service information from backend JOIN.
         holder.tvService.setText(
                 safeText(
-                        serviceName,
+                        appointment.getService_name(),
                         "Repair Service"
                 )
         );
 
-        String branchName =
-                branchNames.get(
-                        appointment.getBranch_id()
+
+        // Branch information from backend JOIN.
+        String branchDisplay =
+                safeText(
+                        appointment.getBranch_name(),
+                        "TECHFIX Branch"
                 );
 
+        if (appointment.getBranch_city() != null
+                && !appointment
+                .getBranch_city()
+                .trim()
+                .isEmpty()) {
+
+            branchDisplay +=
+                    " - "
+                            + appointment
+                            .getBranch_city()
+                            .trim();
+        }
+
         holder.tvBranch.setText(
-                safeText(
-                        branchName,
-                        "TECHFIX Branch"
-                )
+                branchDisplay
         );
 
-        String date =
-                appointment
-                        .getRequested_date();
 
+        // Date
         holder.tvDate.setText(
                 safeText(
-                        date,
+                        appointment.getRequested_date(),
                         "Not available"
                 )
         );
 
-        String time =
-                appointment
-                        .getRequested_time();
 
+        // Time
         holder.tvTime.setText(
                 safeText(
-                        time,
+                        appointment.getRequested_time(),
                         "Not specified"
                 )
         );
 
-        String status =
-                appointment.getStatus();
 
+        // Status
         holder.tvStatus.setText(
                 formatStatus(
-                        status
+                        appointment.getStatus()
                 )
         );
 
-        String technicianId =
-                appointment
-                        .getTechnician_id();
 
-        if (technicianId == null
-                || technicianId
+        // Technician name now comes directly
+        // from the joined API response.
+        String technicianName =
+                appointment.getTechnician_name();
+
+        if (appointment.getTechnician_id() == null
+                || appointment
+                .getTechnician_id()
                 .trim()
                 .isEmpty()) {
 
@@ -373,46 +303,52 @@ public class CustomerAppointmentAdapter
                     "Not assigned yet"
             );
 
-        } else {
+        } else if (technicianName == null
+                || technicianName.trim().isEmpty()) {
 
             holder.tvTechnician.setText(
                     "Technician assigned"
             );
+
+        } else {
+
+            holder.tvTechnician.setText(
+                    technicianName.trim()
+            );
         }
 
-        holder.itemView
-                .setOnClickListener(
-                        v -> {
 
-                            int clickedPosition =
-                                    holder
-                                            .getBindingAdapterPosition();
+        holder.itemView.setOnClickListener(
+                v -> {
 
-                            if (clickedPosition
-                                    == RecyclerView.NO_POSITION) {
+                    int clickedPosition =
+                            holder
+                                    .getBindingAdapterPosition();
 
-                                return;
-                            }
+                    if (clickedPosition
+                            == RecyclerView.NO_POSITION) {
 
-                            if (listener != null) {
+                        return;
+                    }
 
-                                listener
-                                        .onAppointmentClick(
-                                                visibleAppointments
-                                                        .get(
-                                                                clickedPosition
-                                                        )
-                                        );
-                            }
-                        }
-                );
+                    if (listener != null) {
+
+                        listener.onAppointmentClick(
+                                visibleAppointments.get(
+                                        clickedPosition
+                                )
+                        );
+                    }
+                }
+        );
     }
+
 
     @Override
     public int getItemCount() {
-
         return visibleAppointments.size();
     }
+
 
     private String formatStatus(
             String status
@@ -435,6 +371,7 @@ public class CustomerAppointmentAdapter
                 );
     }
 
+
     private String safeText(
             String value,
             String fallback
@@ -446,8 +383,9 @@ public class CustomerAppointmentAdapter
             return fallback;
         }
 
-        return value;
+        return value.trim();
     }
+
 
     static class AppointmentViewHolder
             extends RecyclerView.ViewHolder {
@@ -460,6 +398,7 @@ public class CustomerAppointmentAdapter
         TextView tvDate;
         TextView tvTime;
         TextView tvTechnician;
+
 
         public AppointmentViewHolder(
                 @NonNull View itemView

@@ -12,27 +12,18 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
 import com.mad.techfix.R;
-import com.mad.techfix.data.SessionManager;
-import com.mad.techfix.models.ApiResponse;
 import com.mad.techfix.models.Appointment;
-import com.mad.techfix.models.Device;
-import com.mad.techfix.models.admin.Branch;
-import com.mad.techfix.models.admin.Service;
-import com.mad.techfix.network.ApiService;
-import com.mad.techfix.network.RetrofitClient;
+import com.mad.techfix.viewmodel.MyAppointmentsViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class MyAppointmentsFragment extends Fragment {
 
@@ -57,21 +48,15 @@ public class MyAppointmentsFragment extends Fragment {
 
     private CustomerAppointmentAdapter appointmentAdapter;
 
-    private ApiService apiService;
-    private SessionManager sessionManager;
+    private MyAppointmentsViewModel viewModel;
 
-    private final List<Device> devices =
-            new ArrayList<>();
+    private String currentFilter = "ALL";
 
-    private final List<Service> services =
-            new ArrayList<>();
-
-    private final List<Branch> branches =
-            new ArrayList<>();
 
     public MyAppointmentsFragment() {
         // Required empty constructor
     }
+
 
     @Nullable
     @Override
@@ -88,6 +73,7 @@ public class MyAppointmentsFragment extends Fragment {
         );
     }
 
+
     @Override
     public void onViewCreated(
             @NonNull View view,
@@ -99,14 +85,6 @@ public class MyAppointmentsFragment extends Fragment {
                 savedInstanceState
         );
 
-        apiService =
-                RetrofitClient.getApiService();
-
-        sessionManager =
-                new SessionManager(
-                        requireContext()
-                );
-
         bindViews(view);
 
         setupRecyclerView();
@@ -115,8 +93,17 @@ public class MyAppointmentsFragment extends Fragment {
 
         setupListeners();
 
-        loadAllData();
+        setupViewModel();
+
+        observeViewModel();
+
+        viewModel.loadAppointments();
     }
+
+
+    // ==========================================
+    // VIEW BINDING
+    // ==========================================
 
     private void bindViews(
             View view
@@ -183,39 +170,19 @@ public class MyAppointmentsFragment extends Fragment {
                 );
     }
 
+
+    // ==========================================
+    // RECYCLER VIEW
+    // ==========================================
+
     private void setupRecyclerView() {
 
         appointmentAdapter =
                 new CustomerAppointmentAdapter(
-                        appointment -> {
-
-                            String appointmentId =
-                                    appointment.getId();
-
-                            if (appointmentId == null
-                                    || appointmentId.trim().isEmpty()) {
-
-                                Toast.makeText(
-                                        requireContext(),
-                                        "Appointment ID is unavailable",
-                                        Toast.LENGTH_SHORT
-                                ).show();
-
-                                return;
-                            }
-
-                            CustomerAppointmentDetailBottomSheet
-                                    bottomSheet =
-                                    CustomerAppointmentDetailBottomSheet
-                                            .newInstance(
-                                                    appointmentId
-                                            );
-
-                            bottomSheet.show(
-                                    getParentFragmentManager(),
-                                    "CustomerAppointmentDetail"
-                            );
-                        }
+                        appointment ->
+                                openAppointmentDetail(
+                                        appointment
+                                )
                 );
 
         recyclerAppointments.setLayoutManager(
@@ -229,38 +196,177 @@ public class MyAppointmentsFragment extends Fragment {
         );
     }
 
+
+    // ==========================================
+    // VIEW MODEL
+    // ==========================================
+
+    private void setupViewModel() {
+
+        viewModel =
+                new ViewModelProvider(this)
+                        .get(
+                                MyAppointmentsViewModel.class
+                        );
+    }
+
+
+    private void observeViewModel() {
+
+        viewModel
+                .getAppointments()
+                .observe(
+                        getViewLifecycleOwner(),
+                        appointments -> {
+
+                            if (appointments == null) {
+
+                                appointments =
+                                        new ArrayList<>();
+                            }
+
+                            appointmentAdapter
+                                    .setAppointments(
+                                            appointments
+                                    );
+
+                            appointmentAdapter
+                                    .filterByStatus(
+                                            currentFilter
+                                    );
+
+                            updateAppointmentState();
+                        }
+                );
+
+
+        viewModel
+                .getIsLoading()
+                .observe(
+                        getViewLifecycleOwner(),
+                        loading -> {
+
+                            boolean isLoading =
+                                    loading != null
+                                            && loading;
+
+                            showLoading(
+                                    isLoading
+                            );
+
+                            btnRefreshAppointments
+                                    .setEnabled(
+                                            !isLoading
+                                    );
+                        }
+                );
+
+
+        viewModel
+                .getErrorMessage()
+                .observe(
+                        getViewLifecycleOwner(),
+                        message -> {
+
+                            if (message == null
+                                    || message
+                                    .trim()
+                                    .isEmpty()) {
+
+                                return;
+                            }
+
+                            Toast.makeText(
+                                    requireContext(),
+                                    message,
+                                    Toast.LENGTH_LONG
+                            ).show();
+
+                            viewModel.clearError();
+                        }
+                );
+    }
+
+
+    // ==========================================
+    // FILTERS
+    // ==========================================
+
     private void setupFilters() {
 
         chipAll.setOnClickListener(
-                v -> applyFilter("ALL")
+                v -> applyFilter(
+                        "ALL"
+                )
         );
 
         chipRequested.setOnClickListener(
-                v -> applyFilter("REQUESTED")
+                v -> applyFilter(
+                        "REQUESTED"
+                )
         );
 
         chipAssigned.setOnClickListener(
-                v -> applyFilter("ASSIGNED")
+                v -> applyFilter(
+                        "ASSIGNED"
+                )
         );
 
         chipInProgress.setOnClickListener(
-                v -> applyFilter("IN_PROGRESS")
+                v -> applyFilter(
+                        "IN_PROGRESS"
+                )
         );
 
         chipCompleted.setOnClickListener(
-                v -> applyFilter("COMPLETED")
+                v -> applyFilter(
+                        "COMPLETED"
+                )
         );
 
         chipCancelled.setOnClickListener(
-                v -> applyFilter("CANCELLED")
+                v -> applyFilter(
+                        "CANCELLED"
+                )
         );
     }
+
+
+    private void applyFilter(
+            String filter
+    ) {
+
+        if (filter == null
+                || filter.trim().isEmpty()) {
+
+            currentFilter =
+                    "ALL";
+
+        } else {
+
+            currentFilter =
+                    filter;
+        }
+
+        appointmentAdapter
+                .filterByStatus(
+                        currentFilter
+                );
+
+        updateAppointmentState();
+    }
+
+
+    // ==========================================
+    // BUTTONS
+    // ==========================================
 
     private void setupListeners() {
 
         btnRefreshAppointments
                 .setOnClickListener(
-                        v -> loadAllData()
+                        v -> viewModel
+                                .refreshAppointments()
                 );
 
         btnBookRepairEmpty
@@ -269,386 +375,54 @@ public class MyAppointmentsFragment extends Fragment {
                 );
     }
 
-    private void loadAllData() {
 
-        loadAppointments();
+    // ==========================================
+    // APPOINTMENT DETAILS
+    // ==========================================
 
-        loadDevices();
+    private void openAppointmentDetail(
+            Appointment appointment
+    ) {
 
-        loadServices();
+        if (appointment == null) {
+            return;
+        }
 
-        loadBranches();
-    }
+        String appointmentId =
+                appointment.getId();
 
-    private void loadAppointments() {
-
-        String token =
-                sessionManager
-                        .getBearerToken();
-
-        if (token == null
-                || token.trim().isEmpty()) {
+        if (appointmentId == null
+                || appointmentId
+                .trim()
+                .isEmpty()) {
 
             Toast.makeText(
                     requireContext(),
-                    "Please sign in again",
+                    "Appointment ID is unavailable",
                     Toast.LENGTH_SHORT
             ).show();
 
             return;
         }
 
-        showLoading(true);
 
-        apiService
-                .getAppointments(token)
-                .enqueue(
-                        new Callback<
-                                ApiResponse<
-                                        List<Appointment>
-                                        >
-                                >() {
+        CustomerAppointmentDetailBottomSheet
+                bottomSheet =
+                CustomerAppointmentDetailBottomSheet
+                        .newInstance(
+                                appointmentId
+                        );
 
-                            @Override
-                            public void onResponse(
-                                    @NonNull
-                                    Call<
-                                            ApiResponse<
-                                                    List<Appointment>
-                                                    >
-                                            > call,
-
-                                    @NonNull
-                                    Response<
-                                            ApiResponse<
-                                                    List<Appointment>
-                                                    >
-                                            > response
-                            ) {
-
-                                if (!isAdded()) {
-                                    return;
-                                }
-
-                                showLoading(false);
-
-                                if (response.isSuccessful()
-                                        && response.body() != null
-                                        && response.body()
-                                        .isSuccess()) {
-
-                                    List<Appointment> appointments =
-                                            response.body()
-                                                    .getData();
-
-                                    appointmentAdapter
-                                            .setAppointments(
-                                                    appointments
-                                            );
-
-                                    updateAppointmentState();
-
-                                } else {
-
-                                    appointmentAdapter
-                                            .setAppointments(
-                                                    new ArrayList<>()
-                                            );
-
-                                    updateAppointmentState();
-
-                                    Toast.makeText(
-                                            requireContext(),
-                                            "Unable to load appointments",
-                                            Toast.LENGTH_SHORT
-                                    ).show();
-                                }
-                            }
-
-                            @Override
-                            public void onFailure(
-                                    @NonNull
-                                    Call<
-                                            ApiResponse<
-                                                    List<Appointment>
-                                                    >
-                                            > call,
-
-                                    @NonNull
-                                    Throwable t
-                            ) {
-
-                                if (!isAdded()) {
-                                    return;
-                                }
-
-                                showLoading(false);
-
-                                appointmentAdapter
-                                        .setAppointments(
-                                                new ArrayList<>()
-                                        );
-
-                                updateAppointmentState();
-
-                                Toast.makeText(
-                                        requireContext(),
-                                        "Appointment loading failed: "
-                                                + getErrorMessage(t),
-                                        Toast.LENGTH_LONG
-                                ).show();
-                            }
-                        }
-                );
+        bottomSheet.show(
+                getParentFragmentManager(),
+                "CustomerAppointmentDetail"
+        );
     }
 
-    private void loadDevices() {
 
-        String token =
-                sessionManager
-                        .getBearerToken();
-
-        if (token == null
-                || token.trim().isEmpty()) {
-
-            return;
-        }
-
-        apiService
-                .getMyDevices(token)
-                .enqueue(
-                        new Callback<
-                                ApiResponse<
-                                        List<Device>
-                                        >
-                                >() {
-
-                            @Override
-                            public void onResponse(
-                                    @NonNull
-                                    Call<
-                                            ApiResponse<
-                                                    List<Device>
-                                                    >
-                                            > call,
-
-                                    @NonNull
-                                    Response<
-                                            ApiResponse<
-                                                    List<Device>
-                                                    >
-                                            > response
-                            ) {
-
-                                if (!isAdded()) {
-                                    return;
-                                }
-
-                                if (response.isSuccessful()
-                                        && response.body() != null
-                                        && response.body()
-                                        .isSuccess()) {
-
-                                    devices.clear();
-
-                                    if (response.body()
-                                            .getData() != null) {
-
-                                        devices.addAll(
-                                                response.body()
-                                                        .getData()
-                                        );
-                                    }
-
-                                    updateLookupData();
-                                }
-                            }
-
-                            @Override
-                            public void onFailure(
-                                    @NonNull
-                                    Call<
-                                            ApiResponse<
-                                                    List<Device>
-                                                    >
-                                            > call,
-
-                                    @NonNull
-                                    Throwable t
-                            ) {
-
-                                // List can still work
-                                // without device display names.
-                            }
-                        }
-                );
-    }
-
-    private void loadServices() {
-
-        apiService
-                .getServices()
-                .enqueue(
-                        new Callback<
-                                ApiResponse<
-                                        List<Service>
-                                        >
-                                >() {
-
-                            @Override
-                            public void onResponse(
-                                    @NonNull
-                                    Call<
-                                            ApiResponse<
-                                                    List<Service>
-                                                    >
-                                            > call,
-
-                                    @NonNull
-                                    Response<
-                                            ApiResponse<
-                                                    List<Service>
-                                                    >
-                                            > response
-                            ) {
-
-                                if (!isAdded()) {
-                                    return;
-                                }
-
-                                if (response.isSuccessful()
-                                        && response.body() != null
-                                        && response.body()
-                                        .isSuccess()) {
-
-                                    services.clear();
-
-                                    if (response.body()
-                                            .getData() != null) {
-
-                                        services.addAll(
-                                                response.body()
-                                                        .getData()
-                                        );
-                                    }
-
-                                    updateLookupData();
-                                }
-                            }
-
-                            @Override
-                            public void onFailure(
-                                    @NonNull
-                                    Call<
-                                            ApiResponse<
-                                                    List<Service>
-                                                    >
-                                            > call,
-
-                                    @NonNull
-                                    Throwable t
-                            ) {
-
-                                // List can still work
-                                // without service display names.
-                            }
-                        }
-                );
-    }
-
-    private void loadBranches() {
-
-        apiService
-                .getBranches()
-                .enqueue(
-                        new Callback<
-                                ApiResponse<
-                                        List<Branch>
-                                        >
-                                >() {
-
-                            @Override
-                            public void onResponse(
-                                    @NonNull
-                                    Call<
-                                            ApiResponse<
-                                                    List<Branch>
-                                                    >
-                                            > call,
-
-                                    @NonNull
-                                    Response<
-                                            ApiResponse<
-                                                    List<Branch>
-                                                    >
-                                            > response
-                            ) {
-
-                                if (!isAdded()) {
-                                    return;
-                                }
-
-                                if (response.isSuccessful()
-                                        && response.body() != null
-                                        && response.body()
-                                        .isSuccess()) {
-
-                                    branches.clear();
-
-                                    if (response.body()
-                                            .getData() != null) {
-
-                                        branches.addAll(
-                                                response.body()
-                                                        .getData()
-                                        );
-                                    }
-
-                                    updateLookupData();
-                                }
-                            }
-
-                            @Override
-                            public void onFailure(
-                                    @NonNull
-                                    Call<
-                                            ApiResponse<
-                                                    List<Branch>
-                                                    >
-                                            > call,
-
-                                    @NonNull
-                                    Throwable t
-                            ) {
-
-                                // List can still work
-                                // without branch display names.
-                            }
-                        }
-                );
-    }
-
-    private void updateLookupData() {
-
-        appointmentAdapter
-                .setLookupData(
-                        devices,
-                        services,
-                        branches
-                );
-    }
-
-    private void applyFilter(
-            String filter
-    ) {
-
-        appointmentAdapter
-                .filterByStatus(
-                        filter
-                );
-
-        updateAppointmentState();
-    }
+    // ==========================================
+    // UI STATE
+    // ==========================================
 
     private void updateAppointmentState() {
 
@@ -665,31 +439,38 @@ public class MyAppointmentsFragment extends Fragment {
         } else {
 
             tvAppointmentCount.setText(
-                    count + " appointments"
+                    count
+                            + " appointments"
             );
         }
+
 
         if (count == 0) {
 
-            recyclerAppointments.setVisibility(
-                    View.GONE
-            );
+            recyclerAppointments
+                    .setVisibility(
+                            View.GONE
+                    );
 
-            layoutEmptyAppointments.setVisibility(
-                    View.VISIBLE
-            );
+            layoutEmptyAppointments
+                    .setVisibility(
+                            View.VISIBLE
+                    );
 
         } else {
 
-            recyclerAppointments.setVisibility(
-                    View.VISIBLE
-            );
+            recyclerAppointments
+                    .setVisibility(
+                            View.VISIBLE
+                    );
 
-            layoutEmptyAppointments.setVisibility(
-                    View.GONE
-            );
+            layoutEmptyAppointments
+                    .setVisibility(
+                            View.GONE
+                    );
         }
     }
+
 
     private void showLoading(
             boolean loading
@@ -697,56 +478,51 @@ public class MyAppointmentsFragment extends Fragment {
 
         if (loading) {
 
-            progressAppointments.setVisibility(
-                    View.VISIBLE
-            );
+            progressAppointments
+                    .setVisibility(
+                            View.VISIBLE
+                    );
 
-            recyclerAppointments.setVisibility(
-                    View.GONE
-            );
+            recyclerAppointments
+                    .setVisibility(
+                            View.GONE
+                    );
 
-            layoutEmptyAppointments.setVisibility(
-                    View.GONE
-            );
+            layoutEmptyAppointments
+                    .setVisibility(
+                            View.GONE
+                    );
 
         } else {
 
-            progressAppointments.setVisibility(
-                    View.GONE
-            );
+            progressAppointments
+                    .setVisibility(
+                            View.GONE
+                    );
+
+            updateAppointmentState();
         }
     }
+
+
+    // ==========================================
+    // BOOK REPAIR
+    // ==========================================
 
     private void openRepairBooking() {
 
-        RepairBookingFragment repairBookingFragment =
+        RepairBookingFragment fragment =
                 new RepairBookingFragment();
 
-        requireActivity()
-                .getSupportFragmentManager()
+        getParentFragmentManager()
                 .beginTransaction()
                 .replace(
                         getId(),
-                        repairBookingFragment
+                        fragment
                 )
-                .addToBackStack(null)
+                .addToBackStack(
+                        null
+                )
                 .commit();
-    }
-
-    private String getErrorMessage(
-            Throwable throwable
-    ) {
-
-        if (throwable == null
-                || throwable.getMessage() == null
-                || throwable.getMessage()
-                .trim()
-                .isEmpty()) {
-
-            return "Unknown error";
-        }
-
-        return throwable
-                .getMessage();
     }
 }
