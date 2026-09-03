@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -32,7 +31,6 @@ import com.stripe.android.paymentsheet.PaymentSheetResult;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -43,9 +41,7 @@ import retrofit2.Response;
 public class PaymentFragment extends Fragment {
 
     private TextInputEditText etAppointmentId, etAmount;
-    private android.widget.Spinner spinnerPaymentMethod;
-    private MaterialButton btnCreatePayment;
-    private MaterialButton btnStripePay; // NEW
+    private MaterialButton btnStripePay;
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
     private TextView tvEmpty;
@@ -71,9 +67,7 @@ public class PaymentFragment extends Fragment {
         // Init views
         etAppointmentId = view.findViewById(R.id.et_appointment_id);
         etAmount = view.findViewById(R.id.et_amount);
-        spinnerPaymentMethod = view.findViewById(R.id.spinner_payment_method);
-        btnCreatePayment = view.findViewById(R.id.btn_create_payment);
-        btnStripePay = view.findViewById(R.id.btn_stripe_pay); // NEW
+        btnStripePay = view.findViewById(R.id.btn_stripe_pay);
         recyclerView = view.findViewById(R.id.rv_payments);
         progressBar = view.findViewById(R.id.progress_bar);
         tvEmpty = view.findViewById(R.id.tv_empty);
@@ -87,25 +81,11 @@ public class PaymentFragment extends Fragment {
         apiService = RetrofitClient.getClient().create(ApiService.class);
         tokenManager = new TokenManager(requireContext());
 
-        // ==========================================
         // Initialize Stripe PaymentSheet
-        // ==========================================
         PaymentConfiguration.init(requireContext(), StripeConfig.PUBLISHABLE_KEY);
         paymentSheet = new PaymentSheet(this, this::onPaymentSheetResult);
 
-        // Setup Spinner
-        ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter.createFromResource(
-                requireContext(),
-                R.array.payment_methods,
-                android.R.layout.simple_spinner_item
-        );
-        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerPaymentMethod.setAdapter(spinnerAdapter);
-
-        // Create Payment Button (CASH)
-        btnCreatePayment.setOnClickListener(v -> createPayment());
-
-        // NEW: Stripe Payment Button
+        // Stripe Payment Button
         btnStripePay.setOnClickListener(v -> startStripePayment());
 
         // Auto-fetch payments when appointment ID changes
@@ -117,80 +97,7 @@ public class PaymentFragment extends Fragment {
     }
 
     // ==========================================
-    // 1. CREATE CASH PAYMENT (Existing)
-    // ==========================================
-    private void createPayment() {
-        String appointmentId = etAppointmentId.getText() != null ? etAppointmentId.getText().toString().trim() : "";
-        String amountStr = etAmount.getText() != null ? etAmount.getText().toString().trim() : "";
-        String method = spinnerPaymentMethod.getSelectedItem() != null ? spinnerPaymentMethod.getSelectedItem().toString() : "CASH";
-
-        if (appointmentId.isEmpty()) {
-            Toast.makeText(getContext(), "Please enter an Appointment ID", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (amountStr.isEmpty()) {
-            Toast.makeText(getContext(), "Please enter an amount", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        double amount;
-        try {
-            amount = Double.parseDouble(amountStr);
-        } catch (NumberFormatException e) {
-            Toast.makeText(getContext(), "Invalid amount format", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        String token = tokenManager.getToken();
-        if (token == null) {
-            Toast.makeText(getContext(), "Please login first", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        Payment payment = new Payment();
-        payment.setAppointment_id(appointmentId);
-        payment.setAmount(amount);
-        payment.setPayment_method(method);
-        payment.setPayment_status("PENDING");
-        payment.setCreated_at(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date()));
-
-        progressBar.setVisibility(View.VISIBLE);
-        btnCreatePayment.setEnabled(false);
-
-        apiService.createPayment("Bearer " + token, payment).enqueue(new Callback<ApiResponse<Payment>>() {
-            @Override
-            public void onResponse(@NonNull Call<ApiResponse<Payment>> call, @NonNull Response<ApiResponse<Payment>> response) {
-                progressBar.setVisibility(View.GONE);
-                btnCreatePayment.setEnabled(true);
-
-                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
-                    Toast.makeText(getContext(), "✅ Payment created successfully!", Toast.LENGTH_SHORT).show();
-                    etAmount.setText("");
-                    fetchPayments();
-                } else {
-                    String errorMsg = "Failed to create payment";
-                    try {
-                        if (response.errorBody() != null) {
-                            errorMsg = response.errorBody().string();
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    Toast.makeText(getContext(), "❌ " + errorMsg, Toast.LENGTH_LONG).show();
-                }
-            }
-
-            @Override
-            public void onFailure(@NonNull Call<ApiResponse<Payment>> call, @NonNull Throwable t) {
-                progressBar.setVisibility(View.GONE);
-                btnCreatePayment.setEnabled(true);
-                Toast.makeText(getContext(), "Network error: " + t.getMessage(), Toast.LENGTH_LONG).show();
-            }
-        });
-    }
-
-    // ==========================================
-    // 2. STRIPE PAYMENT (NEW)
+    // STRIPE PAYMENT
     // ==========================================
     private void startStripePayment() {
         String appointmentId = etAppointmentId.getText() != null ? etAppointmentId.getText().toString().trim() : "";
@@ -222,7 +129,6 @@ public class PaymentFragment extends Fragment {
         progressBar.setVisibility(View.VISIBLE);
         btnStripePay.setEnabled(false);
 
-        // Call the backend to create a PaymentIntent
         apiService.createPaymentIntent("Bearer " + token, new PaymentIntentRequest(appointmentId, amount))
                 .enqueue(new Callback<PaymentIntentResponse>() {
                     @Override
@@ -233,7 +139,6 @@ public class PaymentFragment extends Fragment {
                         if (response.isSuccessful() && response.body() != null) {
                             clientSecret = response.body().getClientSecret();
                             currentPaymentId = response.body().getPaymentId();
-                            // Present the Stripe Payment Sheet
                             presentPaymentSheet();
                         } else {
                             String errorMsg = "Failed to create payment intent";
@@ -264,9 +169,7 @@ public class PaymentFragment extends Fragment {
 
     private void onPaymentSheetResult(@NonNull PaymentSheetResult result) {
         if (result instanceof PaymentSheetResult.Completed) {
-            // Payment succeeded!
             Toast.makeText(getContext(), "✅ Stripe payment successful!", Toast.LENGTH_SHORT).show();
-            // Update payment status to PAID
             updatePaymentStatus(currentPaymentId, "PAID");
 
         } else if (result instanceof PaymentSheetResult.Canceled) {
@@ -291,7 +194,7 @@ public class PaymentFragment extends Fragment {
                     public void onResponse(@NonNull Call<ApiResponse<Object>> call, @NonNull Response<ApiResponse<Object>> response) {
                         if (response.isSuccessful()) {
                             Toast.makeText(getContext(), "✅ Payment confirmed!", Toast.LENGTH_SHORT).show();
-                            fetchPayments(); // Refresh the payment list
+                            fetchPayments();
                         } else {
                             Toast.makeText(getContext(), "Failed to update payment status", Toast.LENGTH_SHORT).show();
                         }
@@ -305,7 +208,7 @@ public class PaymentFragment extends Fragment {
     }
 
     // ==========================================
-    // 3. FETCH PAYMENTS (Existing)
+    // FETCH PAYMENTS
     // ==========================================
     private void fetchPayments() {
         String appointmentId = etAppointmentId.getText() != null ? etAppointmentId.getText().toString().trim() : "";
