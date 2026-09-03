@@ -1,0 +1,451 @@
+From df18fbf189f6a335ec46c6fff6fda3518c14d9fa Mon Sep 17 00:00:00 2001
+From: NimnaOfficial <codse251f-003@student.nibm.lk>
+Date: Wed, 2 Sep 2026 01:13:35 +0530
+Subject: [PATCH] Implement 1:1 Manager-to-Branch security isolation
+
+---
+ .../com/mad/techfix/models/admin/Branch.java  |   6 +
+ .../ui/admin/branches/BranchListFragment.java |   4 +
+ .../main/res/layout/dialog_branch_form.xml    |  21 +++
+ cloudflare-backend/worker.js                  | 165 +++++++++++-------
+ inject_stripe2.js                             |  77 --------
+ 5 files changed, 137 insertions(+), 136 deletions(-)
+ delete mode 100644 inject_stripe2.js
+
+diff --git a/app/src/main/java/com/mad/techfix/models/admin/Branch.java b/app/src/main/java/com/mad/techfix/models/admin/Branch.java
+index ebf0237..450fef7 100644
+--- a/app/src/main/java/com/mad/techfix/models/admin/Branch.java
++++ b/app/src/main/java/com/mad/techfix/models/admin/Branch.java
+@@ -24,7 +24,13 @@ public class Branch {
+     @SerializedName("created_at")
+     private String createdAt;
+ 
++    @SerializedName("manager_id")
++    private String managerId;
++
+     // Getters and setters
++    public String getManagerId() { return managerId; }
++    public void setManagerId(String managerId) { this.managerId = managerId; }
++
+     public String getId() { return id; }
+     public void setId(String id) { this.id = id; }
+ 
+diff --git a/app/src/main/java/com/mad/techfix/ui/admin/branches/BranchListFragment.java b/app/src/main/java/com/mad/techfix/ui/admin/branches/BranchListFragment.java
+index 03711fa..d2200c0 100644
+--- a/app/src/main/java/com/mad/techfix/ui/admin/branches/BranchListFragment.java
++++ b/app/src/main/java/com/mad/techfix/ui/admin/branches/BranchListFragment.java
+@@ -69,6 +69,7 @@ public class BranchListFragment extends Fragment {
+         TextInputEditText etAddress = view.findViewById(R.id.et_branch_address);
+         TextInputEditText etCity = view.findViewById(R.id.et_branch_city);
+         TextInputEditText etPhone = view.findViewById(R.id.et_branch_phone);
++        TextInputEditText etManager = view.findViewById(R.id.et_manager_id);
+         TextInputEditText etEmail = view.findViewById(R.id.et_branch_email);
+         TextInputEditText etLat = view.findViewById(R.id.et_branch_lat);
+         TextInputEditText etLng = view.findViewById(R.id.et_branch_lng);
+@@ -93,6 +94,7 @@ public class BranchListFragment extends Fragment {
+             etAddress.setText(branch.getAddress());
+             etCity.setText(branch.getCity());
+             etPhone.setText(branch.getPhone());
++            etManager.setText(branch.getManagerId());
+             etEmail.setText(branch.getEmail());
+             etLat.setText(String.valueOf(branch.getLatitude()));
+             etLng.setText(String.valueOf(branch.getLongitude()));
+@@ -115,6 +117,7 @@ public class BranchListFragment extends Fragment {
+             String addressStr = etAddress.getText() != null ? etAddress.getText().toString().trim() : "";
+             String cityStr = etCity.getText() != null ? etCity.getText().toString().trim() : "";
+             String phoneStr = etPhone.getText() != null ? etPhone.getText().toString().trim() : "";
++            String managerStr = etManager.getText() != null ? etManager.getText().toString().trim() : "";
+ 
+             if (nameStr.isEmpty()) { etName.setError("Name is required"); etName.requestFocus(); return; }
+             if (addressStr.isEmpty()) { etAddress.setError("Address is required"); etAddress.requestFocus(); return; }
+@@ -126,6 +129,7 @@ public class BranchListFragment extends Fragment {
+             b.setAddress(addressStr);
+             b.setCity(cityStr);
+             b.setPhone(phoneStr);
++            b.setManagerId(managerStr.isEmpty() ? null : managerStr);
+             b.setEmail((etEmail.getText() != null ? etEmail.getText().toString().trim() : ""));
+             b.setOpeningTime((etOpening.getText() != null ? etOpening.getText().toString().trim() : ""));
+             b.setClosingTime((etClosing.getText() != null ? etClosing.getText().toString().trim() : ""));
+diff --git a/app/src/main/res/layout/dialog_branch_form.xml b/app/src/main/res/layout/dialog_branch_form.xml
+index afe1c40..8fa686e 100644
+--- a/app/src/main/res/layout/dialog_branch_form.xml
++++ b/app/src/main/res/layout/dialog_branch_form.xml
+@@ -105,6 +105,27 @@
+                     android:textColor="?android:attr/textColorPrimary"/>
+             </com.google.android.material.textfield.TextInputLayout>
+ 
++            <com.google.android.material.textfield.TextInputLayout
++                android:id="@+id/til_manager_id"
++                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
++                android:layout_width="match_parent"
++                android:layout_height="wrap_content"
++                android:layout_marginBottom="16dp"
++                app:boxCornerRadiusTopStart="16dp"
++                app:boxCornerRadiusBottomEnd="16dp"
++                app:boxStrokeColor="?attr/colorPrimary"
++                app:hintTextColor="?attr/colorPrimary"
++                app:startIconDrawable="@android:drawable/ic_menu_info_details"
++                app:startIconTint="?attr/colorPrimary"
++                android:hint="Manager ID (Optional)">
++                <com.google.android.material.textfield.TextInputEditText
++                    android:id="@+id/et_manager_id"
++                    android:layout_width="match_parent"
++                    android:layout_height="wrap_content"
++                    android:textColor="?android:attr/textColorPrimary"
++                    android:inputType="text"/>
++            </com.google.android.material.textfield.TextInputLayout>
++
+             <com.google.android.material.textfield.TextInputLayout
+                 android:id="@+id/til_branch_phone"
+                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+diff --git a/cloudflare-backend/worker.js b/cloudflare-backend/worker.js
+index 54e21e7..411cf39 100644
+--- a/cloudflare-backend/worker.js
++++ b/cloudflare-backend/worker.js
+@@ -127,6 +127,15 @@ async function authenticate(request, env) {
+ 
+   if (!user || user.is_active !== 1) return null;
+ 
++  if (user.role === "MANAGER") {
++    try {
++      const branch = await env.DB.prepare(`SELECT id FROM branches WHERE manager_id = ?`).bind(user.id).first();
++      user.managerBranchId = branch ? branch.id : null;
++    } catch (e) {
++      user.managerBranchId = null;
++    }
++  }
++
+   return user;
+ }
+ 
+@@ -686,18 +695,26 @@ export default {
+       // ==========================================
+       if (path === "/api/appointments" && request.method === "GET") {
+         const user = await authenticate(request, env);
+-        if (!user)
+-          return json({ success: false, message: "Unauthorized" }, 401);
++        if (!user) return json({ success: false, message: "Unauthorized" }, 401);
+ 
+-        const query =
+-          user.role === "CUSTOMER"
+-            ? `SELECT * FROM appointments WHERE customer_id = ? ORDER BY created_at DESC`
+-            : `SELECT * FROM appointments ORDER BY created_at DESC`;
++        let query;
++        let result;
+ 
+-        const result =
+-          user.role === "CUSTOMER"
+-            ? await env.DB.prepare(query).bind(user.id).all()
+-            : await env.DB.prepare(query).all();
++        if (user.role === "CUSTOMER") {
++          query = `SELECT * FROM appointments WHERE customer_id = ? ORDER BY created_at DESC`;
++          result = await env.DB.prepare(query).bind(user.id).all();
++        } else if (user.role === "MANAGER") {
++          if (!user.managerBranchId) {
++             return json({ success: true, data: [] }); // Manager has no branch assigned
++          }
++          query = `SELECT * FROM appointments WHERE branch_id = ? ORDER BY created_at DESC`;
++          result = await env.DB.prepare(query).bind(user.managerBranchId).all();
++        } else {
++          // ADMIN gets everything
++          query = `SELECT * FROM appointments ORDER BY created_at DESC`;
++          result = await env.DB.prepare(query).all();
++        }
++        
+         return json({ success: true, data: result.results });
+       }
+ 
+@@ -1019,8 +1036,7 @@ export default {
+         request.method === "GET"
+       ) {
+         const user = await authenticate(request, env);
+-        if (!user)
+-          return json({ success: false, message: "Unauthorized" }, 401);
++        if (!user) return json({ success: false, message: "Unauthorized" }, 401);
+         const appointmentId = path.split("/").pop();
+ 
+         const appointment = await env.DB.prepare(
+@@ -1035,10 +1051,15 @@ export default {
+           .first();
+ 
+         if (!appointment)
+-          return json(
+-            { success: false, message: "Appointment not found" },
+-            404,
+-          );
++          return json({ success: false, message: "Appointment not found" }, 404);
++
++        if (user.role === "CUSTOMER" && appointment.customer_id !== user.id) {
++          return json({ success: false, message: "Access denied" }, 403);
++        }
++        if (user.role === "MANAGER" && appointment.branch_id !== user.managerBranchId) {
++          return json({ success: false, message: "Access denied: Branch mismatch" }, 403);
++        }
++
+         return json({ success: true, data: appointment });
+       }
+       // ==========================================
+@@ -1048,13 +1069,22 @@ export default {
+         const user = await authenticate(request, env);
+         if (!user || !["ADMIN", "MANAGER"].includes(user.role))
+           return json({ success: false, message: "Access denied" }, 403);
+-        const techs = await env.DB.prepare(
+-          `
++        
++        let query = `
+             SELECT t.*, u.first_name, u.last_name, b.name AS branch_name 
+-            FROM technicians t JOIN users u ON u.id = t.user_id JOIN branches b ON b.id = t.branch_id
++            FROM technicians t JOIN users u ON u.id = t.user_id LEFT JOIN branches b ON b.id = t.branch_id
+             WHERE t.is_active = 1
+-        `,
+-        ).all();
++        `;
++        let techs;
++
++        if (user.role === "MANAGER") {
++            if (!user.managerBranchId) return json({ success: true, data: [] });
++            query += " AND t.branch_id = ?";
++            techs = await env.DB.prepare(query).bind(user.managerBranchId).all();
++        } else {
++            techs = await env.DB.prepare(query).all();
++        }
++
+         return json({ success: true, data: techs.results });
+       }
+ 
+@@ -1196,9 +1226,18 @@ export default {
+         const user = await authenticate(request, env);
+         if (!user || !["ADMIN", "MANAGER"].includes(user.role))
+           return json({ success: false, message: "Access denied" }, 403);
+-        const payments = await env.DB.prepare(
+-          `SELECT * FROM payments ORDER BY created_at DESC`,
+-        ).all();
++        
++        let payments;
++        if (user.role === "MANAGER") {
++          if (!user.managerBranchId) return json({ success: true, data: [] });
++          payments = await env.DB.prepare(
++            `SELECT p.* FROM payments p JOIN appointments a ON p.appointment_id = a.id WHERE a.branch_id = ? ORDER BY p.created_at DESC`
++          ).bind(user.managerBranchId).all();
++        } else {
++          payments = await env.DB.prepare(
++            `SELECT * FROM payments ORDER BY created_at DESC`
++          ).all();
++        }
+         return json({ success: true, data: payments.results });
+       }
+ 
+@@ -1451,38 +1490,42 @@ export default {
+         if (!user || !["ADMIN", "MANAGER"].includes(user.role))
+           return json({ success: false, message: "Access denied" }, 403);
+ 
+-        const totalAppointments = await env.DB.prepare(
+-          `SELECT COUNT(*) as count FROM appointments`,
+-        ).first();
+-        const pendingAppointments = await env.DB.prepare(
+-          `SELECT COUNT(*) as count FROM appointments WHERE status = 'REQUESTED'`,
+-        ).first();
+-        const activeRepairs = await env.DB.prepare(
+-          `SELECT COUNT(*) as count FROM appointments WHERE status IN ('DEVICE_RECEIVED', 'DIAGNOSING', 'REPAIRING', 'TESTING')`,
+-        ).first();
+-        const completedRepairs = await env.DB.prepare(
+-          `SELECT COUNT(*) as count FROM appointments WHERE status = 'COMPLETED'`,
+-        ).first();
+-        const revenue = await env.DB.prepare(
+-          `SELECT SUM(amount) as total FROM payments WHERE payment_status = 'PAID'`,
+-        ).first();
+-        const availableTechs = await env.DB.prepare(
+-          `SELECT COUNT(*) as count FROM technicians WHERE availability_status = 'AVAILABLE'`,
+-        ).first();
+-        const busyTechs = await env.DB.prepare(
+-          `SELECT COUNT(*) as count FROM technicians WHERE availability_status = 'BUSY'`,
+-        ).first();
++        let aptBase = "FROM appointments";
++        let techBase = "FROM technicians";
++        let payBase = "FROM payments";
++        let binds = [];
++
++        if (user.role === "MANAGER") {
++          if (!user.managerBranchId) return json({ success: true, data: { total_revenue: 0, total_appointments: 0, active_repairs: 0, pending_requests: 0, completed_repairs: 0, available_technicians: 0, busy_technicians: 0 } });
++          aptBase = "FROM appointments WHERE branch_id = ?";
++          techBase = "FROM technicians WHERE branch_id = ?";
++          payBase = "FROM payments p JOIN appointments a ON p.appointment_id = a.id WHERE a.branch_id = ?";
++          binds = [user.managerBranchId];
++        }
++
++        const runQ = async (query) => {
++           if (binds.length > 0) return await env.DB.prepare(query).bind(binds[0]).first();
++           return await env.DB.prepare(query).first();
++        };
++
++        const totalAppointments = await runQ(`SELECT COUNT(*) as count ${aptBase}`);
++        const pendingAppointments = await runQ(`SELECT COUNT(*) as count ${aptBase} ${binds.length > 0 ? "AND" : "WHERE"} status = 'REQUESTED'`);
++        const activeRepairs = await runQ(`SELECT COUNT(*) as count ${aptBase} ${binds.length > 0 ? "AND" : "WHERE"} status IN ('DEVICE_RECEIVED', 'DIAGNOSING', 'REPAIRING', 'TESTING')`);
++        const completedRepairs = await runQ(`SELECT COUNT(*) as count ${aptBase} ${binds.length > 0 ? "AND" : "WHERE"} status = 'COMPLETED'`);
++        const revenue = await runQ(`SELECT SUM(amount) as total ${payBase} ${binds.length > 0 ? "AND" : "WHERE"} payment_status = 'PAID'`);
++        const availableTechs = await runQ(`SELECT COUNT(*) as count ${techBase} ${binds.length > 0 ? "AND" : "WHERE"} availability_status = 'AVAILABLE'`);
++        const busyTechs = await runQ(`SELECT COUNT(*) as count ${techBase} ${binds.length > 0 ? "AND" : "WHERE"} availability_status = 'BUSY'`);
+ 
+         return json({
+           success: true,
+           data: {
+             total_revenue: revenue.total || 0,
+-            pending_requests: pendingAppointments.count || 0,
++            total_appointments: totalAppointments.count || 0,
+             active_repairs: activeRepairs.count || 0,
++            pending_requests: pendingAppointments.count || 0,
++            completed_repairs: completedRepairs.count || 0,
+             available_technicians: availableTechs.count || 0,
+-            total_appointments: totalAppointments.count || 0,
+-            total_technicians:
+-              (availableTechs.count || 0) + (busyTechs.count || 0),
++            busy_technicians: busyTechs.count || 0,
+           },
+         });
+       }
+@@ -2023,15 +2066,16 @@ export default {
+           latitude,
+           longitude,
+           opening_time,
+-          closing_time,
+-        } = await request.json();
++            closing_time,
++            manager_id,
++          } = await request.json();
+ 
+         const branchId =
+           "BR-" + crypto.randomUUID().split("-")[0].toUpperCase();
+         await env.DB.prepare(
+           `
+-            INSERT INTO branches (id, name, address, city, phone, email, latitude, longitude, opening_time, closing_time)
+-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
++            INSERT INTO branches (id, name, address, city, phone, email, latitude, longitude, opening_time, closing_time, manager_id)
++              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+         `,
+         )
+           .bind(
+@@ -2044,8 +2088,9 @@ export default {
+             latitude || null,
+             longitude || null,
+             opening_time || null,
+-            closing_time || null,
+-          )
++              closing_time || null,
++              manager_id || null,
++            )
+           .run();
+ 
+         const newBranch = await env.DB.prepare(
+@@ -2080,10 +2125,11 @@ export default {
+             longitude,
+             opening_time,
+             closing_time,
++            manager_id,
+           } = await request.json();
+           await env.DB.prepare(
+             `
+-                UPDATE branches SET name=?, address=?, city=?, phone=?, email=?, latitude=?, longitude=?, opening_time=?, closing_time=? WHERE id=?
++                UPDATE branches SET name=?, address=?, city=?, phone=?, email=?, latitude=?, longitude=?, opening_time=?, closing_time=?, manager_id=? WHERE id=?
+             `,
+           )
+             .bind(
+@@ -2095,9 +2141,10 @@ export default {
+               latitude || null,
+               longitude || null,
+               opening_time || null,
+-              closing_time || null,
+-              branchId,
+-            )
++                closing_time || null,
++                manager_id || null,
++                branchId,
++              )
+             .run();
+           const updated = await env.DB.prepare(
+             `SELECT * FROM branches WHERE id = ?`,
+diff --git a/inject_stripe2.js b/inject_stripe2.js
+deleted file mode 100644
+index 0419e7d..0000000
+--- a/inject_stripe2.js
++++ /dev/null
+@@ -1,77 +0,0 @@
+-const fs = require('fs');
+-let code = fs.readFileSync('cloudflare-backend/worker.js', 'utf8');
+-
+-const marker = '      // ==========================================\n      // 8. NOTIFICATIONS';
+-
+-const stripeCode = '      // ==========================================\n' +
+-'      // STRIPE PAYMENT INTENT\n' +
+-'      // ==========================================\n' +
+-'      if (path === "/api/create-payment-intent" && request.method === "POST") {\n' +
+-'        const user = await authenticate(request, env);\n' +
+-'        if (!user) return json({ success: false, message: "Unauthorized" }, 401);\n' +
+-'\n' +
+-'        const body = await request.json();\n' +
+-'        const { repairId, amount } = body;\n' +
+-'\n' +
+-'        if (!repairId) {\n' +
+-'          return json({ success: false, message: "repairId is required" }, 400);\n' +
+-'        }\n' +
+-'        if (!amount || typeof amount !== "number" || amount <= 0) {\n' +
+-'          return json({ success: false, message: "Valid amount (in cents) is required" }, 400);\n' +
+-'        }\n' +
+-'\n' +
+-'        const stripeSecretKey = env.STRIPE_SECRET_KEY;\n' +
+-'        if (!stripeSecretKey) {\n' +
+-'          console.error("STRIPE_SECRET_KEY is not set in environment variables");\n' +
+-'          return json({ success: false, message: "Payment service configuration error" }, 500);\n' +
+-'        }\n' +
+-'\n' +
+-'        try {\n' +
+-'          const formData = new URLSearchParams();\n' +
+-'          formData.append("amount", amount.toString());\n' +
+-'          formData.append("currency", "usd");\n' +
+-'          formData.append("metadata[repair_id]", repairId);\n' +
+-'          formData.append("metadata[user_id]", user.id);\n' +
+-'\n' +
+-'          const stripeResponse = await fetch("https://api.stripe.com/v1/payment_intents", {\n' +
+-'            method: "POST",\n' +
+-'            headers: {\n' +
+-'              "Authorization": "Bearer " + stripeSecretKey,\n' +
+-'              "Content-Type": "application/x-www-form-urlencoded",\n' +
+-'            },\n' +
+-'            body: formData.toString(),\n' +
+-'          });\n' +
+-'\n' +
+-'          const stripeData = await stripeResponse.json();\n' +
+-'\n' +
+-'          if (!stripeResponse.ok) {\n' +
+-'            console.error("Stripe API Error:", stripeData);\n' +
+-'            return json({\n' +
+-'              success: false,\n' +
+-'              message: stripeData.error?.message || "Payment service error"\n' +
+-'            }, 400);\n' +
+-'          }\n' +
+-'\n' +
+-'          return json({\n' +
+-'            success: true,\n' +
+-'            clientSecret: stripeData.client_secret,\n' +
+-'            paymentId: stripeData.id,\n' +
+-'            status: stripeData.status\n' +
+-'          });\n' +
+-'\n' +
+-'        } catch (error) {\n' +
+-'          console.error("Stripe request failed:", error);\n' +
+-'          return json({\n' +
+-'            success: false,\n' +
+-'            message: "Payment service unavailable"\n' +
+-'          }, 500);\n' +
+-'        }\n' +
+-'      }\n';
+-
+-if (code.includes(marker)) {
+-    code = code.replace(marker, stripeCode + '\n' + marker);
+-    fs.writeFileSync('cloudflare-backend/worker.js', code);
+-    console.log("Stripe endpoint injected successfully!");
+-} else {
+-    console.log("Marker not found!");
+-}
+-- 
+2.52.0.windows.1
+
