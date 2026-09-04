@@ -847,6 +847,98 @@ export default {
         return json({ success: true, data: history.results });
       }
 
+      // ==========================================
+      // SMART ASSIGNMENT - ELIGIBLE TECHNICIANS
+      // ==========================================
+      if (
+        path.startsWith("/api/appointments/") &&
+        path.endsWith("/eligible-technicians") &&
+        request.method === "GET"
+      ) {
+        const user = await authenticate(request, env);
+        if (!user || !["ADMIN", "MANAGER"].includes(user.role))
+          return json({ success: false, message: "Access denied" }, 403);
+        const appointmentId = path.split("/")[3];
+
+        // 1. Get the appointment's branch_id and service_id
+        const appointment = await env.DB.prepare(
+          `SELECT branch_id, service_id FROM appointments WHERE id = ?`,
+        )
+          .bind(appointmentId)
+          .first();
+
+        if (!appointment)
+          return json(
+            { success: false, message: "Appointment not found" },
+            404,
+          );
+
+        // 2. Manager branch guard
+        if (
+          user.role === "MANAGER" &&
+          user.managerBranchId &&
+          appointment.branch_id !== user.managerBranchId
+        ) {
+          return json(
+            { success: false, message: "Access denied: Branch mismatch" },
+            403,
+          );
+        }
+
+        // 3. Query eligible technicians: same branch + AVAILABLE + has the required service skill
+        const eligible = await env.DB.prepare(
+          `
+            SELECT t.id, t.employee_code, t.specialization, t.availability_status,
+                   u.first_name, u.last_name, u.profile_image_url,
+                   b.name AS branch_name
+            FROM technicians t
+            JOIN users u ON u.id = t.user_id
+            LEFT JOIN branches b ON b.id = t.branch_id
+            INNER JOIN technician_services ts ON ts.technician_id = t.id AND ts.service_id = ?
+            WHERE t.branch_id = ?
+              AND t.availability_status = 'AVAILABLE'
+              AND t.is_active = 1
+            ORDER BY u.first_name, u.last_name
+          `,
+        )
+          .bind(appointment.service_id, appointment.branch_id)
+          .all();
+
+        // 4. Also get all available technicians from same branch (without service filter) as fallback
+        const allAvailable = await env.DB.prepare(
+          `
+            SELECT t.id, t.employee_code, t.specialization, t.availability_status,
+                   u.first_name, u.last_name, u.profile_image_url,
+                   b.name AS branch_name
+            FROM technicians t
+            JOIN users u ON u.id = t.user_id
+            LEFT JOIN branches b ON b.id = t.branch_id
+            WHERE t.branch_id = ?
+              AND t.availability_status = 'AVAILABLE'
+              AND t.is_active = 1
+            ORDER BY u.first_name, u.last_name
+          `,
+        )
+          .bind(appointment.branch_id)
+          .all();
+
+        // 5. Mark which technicians are "recommended" (have the skill) vs "other available"
+        const eligibleIds = new Set(eligible.results.map((t) => t.id));
+        const otherAvailable = allAvailable.results.filter(
+          (t) => !eligibleIds.has(t.id),
+        );
+
+        return json({
+          success: true,
+          data: {
+            recommended: eligible.results,
+            other_available: otherAvailable,
+            appointment_branch_id: appointment.branch_id,
+            appointment_service_id: appointment.service_id,
+          },
+        });
+      }
+
       if (
         path.startsWith("/api/appointments/") &&
         path.endsWith("/assign") &&

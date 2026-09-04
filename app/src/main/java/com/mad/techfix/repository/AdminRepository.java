@@ -235,6 +235,25 @@ public class AdminRepository {
         });
     }
 
+    // --- Smart Assignment: Eligible Technicians ---
+    public void getEligibleTechnicians(String token, String appointmentId, AdminCallback<com.mad.techfix.models.admin.EligibleTechniciansResponse> callback) {
+        apiService.getEligibleTechnicians(token, appointmentId).enqueue(new Callback<ApiResponse<com.mad.techfix.models.admin.EligibleTechniciansResponse>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<com.mad.techfix.models.admin.EligibleTechniciansResponse>> call, Response<ApiResponse<com.mad.techfix.models.admin.EligibleTechniciansResponse>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                    callback.onSuccess(response.body().getData());
+                } else {
+                    callback.onError("Failed to fetch eligible technicians");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<com.mad.techfix.models.admin.EligibleTechniciansResponse>> call, Throwable t) {
+                callback.onError(t.getMessage() != null ? t.getMessage() : "Network error");
+            }
+        });
+    }
+
     // --- All Appointments ---
         public void getAllAppointments(String token, AdminCallback<List<Appointment>> callback) {
         apiService.getAllAppointments(token).enqueue(new Callback<ApiResponse<List<Appointment>>>() {

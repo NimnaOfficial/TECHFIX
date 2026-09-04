@@ -67,7 +67,10 @@ public class AppointmentsFragment extends Fragment {
                     appointment.getRequested_date(),
                     appointment.getRequested_time(),
                     appointment.getCustomer_id(),
-                    appointment.getBranch_id()
+                    appointment.getBranch_id(),
+                    appointment.getService_id(),
+                    appointment.getService_name(),
+                    appointment.getBranch_name()
             );
             detailSheet.show(getParentFragmentManager(), "AppointmentDetail");
         });

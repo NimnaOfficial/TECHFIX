@@ -745,7 +745,7 @@ public class TechnicianRepository {
     public void getRepairImages(
             String token,
             String appointmentId,
-            RepositoryCallback<List<Object>> callback
+            RepositoryCallback<List<com.mad.techfix.models.RepairImage>> callback
     ) {
 
         apiService
@@ -755,20 +755,20 @@ public class TechnicianRepository {
                 )
                 .enqueue(
                         new Callback<
-                                ApiResponse<List<Object>>
+                                ApiResponse<List<com.mad.techfix.models.RepairImage>>
                                 >() {
 
                             @Override
                             public void onResponse(
-                                    Call<ApiResponse<List<Object>>> call,
-                                    Response<ApiResponse<List<Object>>> response
+                                    Call<ApiResponse<List<com.mad.techfix.models.RepairImage>>> call,
+                                    Response<ApiResponse<List<com.mad.techfix.models.RepairImage>>> response
                             ) {
 
                                 if (response.isSuccessful()
                                         && response.body() != null
                                         && response.body().isSuccess()) {
 
-                                    List<Object> images =
+                                    List<com.mad.techfix.models.RepairImage> images =
                                             response.body()
                                                     .getData();
 
@@ -795,7 +795,7 @@ public class TechnicianRepository {
 
                             @Override
                             public void onFailure(
-                                    Call<ApiResponse<List<Object>>> call,
+                                    Call<ApiResponse<List<com.mad.techfix.models.RepairImage>>> call,
                                     Throwable throwable
                             ) {
 

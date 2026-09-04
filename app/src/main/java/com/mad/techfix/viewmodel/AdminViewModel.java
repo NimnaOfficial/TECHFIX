@@ -39,6 +39,7 @@ public class AdminViewModel extends AndroidViewModel {
     private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>();
     private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
     private final MutableLiveData<Boolean> assignmentSuccess = new MutableLiveData<>();
+    private final MutableLiveData<com.mad.techfix.models.admin.EligibleTechniciansResponse> eligibleTechnicians = new MutableLiveData<>();
     
     private String pendingUserFilter = null;
     public String getPendingUserFilter() { return pendingUserFilter; }
@@ -69,6 +70,7 @@ public class AdminViewModel extends AndroidViewModel {
     public MutableLiveData<String> getErrorMessage() { return errorMessage; }
     public MutableLiveData<Boolean> getAssignmentSuccess() { return assignmentSuccess; }
     public MutableLiveData<Boolean> getSkillUpdateSuccess() { return skillUpdateSuccess; }
+    public MutableLiveData<com.mad.techfix.models.admin.EligibleTechniciansResponse> getEligibleTechnicians() { return eligibleTechnicians; }
     public MutableLiveData<Boolean> getCrudSuccess() { return crudSuccess; }
 
     private String getToken() {
@@ -374,6 +376,24 @@ public class AdminViewModel extends AndroidViewModel {
             public void onSuccess(List<Service> data) {
                 isLoading.setValue(false);
                 allServices.setValue(data);
+            }
+            @Override
+            public void onError(String error) {
+                isLoading.setValue(false);
+                errorMessage.setValue(error);
+            }
+        });
+    }
+
+    public void loadEligibleTechnicians(String appointmentId) {
+        String token = getToken();
+        if (token == null) return;
+        isLoading.setValue(true);
+        repository.getEligibleTechnicians(token, appointmentId, new AdminRepository.AdminCallback<com.mad.techfix.models.admin.EligibleTechniciansResponse>() {
+            @Override
+            public void onSuccess(com.mad.techfix.models.admin.EligibleTechniciansResponse data) {
+                isLoading.setValue(false);
+                eligibleTechnicians.setValue(data);
             }
             @Override
             public void onError(String error) {

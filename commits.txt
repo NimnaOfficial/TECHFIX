@@ -1,3 +1,43 @@
+20aafa6 | SANDANIMNE K G L | 2026-09-04 | Merge pull request #30 from NimnaOfficial/feature/member4-inventory-media
+225b654 | SANDANIMNE K G L | 2026-09-04 | Merge branch 'main' into feature/member4-inventory-media
+49b9b3c | SANDANIMNE K G L | 2026-09-04 | Merge pull request #28 from NimnaOfficial/member01/managments
+af9dee6 | SANDANIMNE K G L | 2026-09-04 | Merge pull request #27 from NimnaOfficial/vidura
+b0556d3 | NimnaOfficial | 2026-09-04 | update worker js
+3df53bc | SANDANIMNE K G L | 2026-09-04 | Merge branch 'main' into vidura
+fa10a7b | NimnaOfficial | 2026-09-04 | update mem
+877a49c | NimnaOfficial | 2026-09-04 | mem add
+acf6989 | Dulan Dhanush | 2026-09-04 | updated the worker.js 1
+dcb4862 | Dulan Dhanush | 2026-09-04 | updated the worker.js
+ced52fc | Vidura | 2026-09-04 | Complete M2 MVVM booking and technician refactor
+46e450f | Vidura | 2026-09-03 | Refactor appointments with; backend joins rooms and mvvm
+acb9b56 | Dulan Dhanush | 2026-09-03 | uploaded failed error 404!
+a0cd288 | Dulan Dhanush | 2026-09-03 | while fixing the cloudinary dependicies error
+229dfb6 | Dulan Dhanush | 2026-09-03 | fixed the button errors in payment section
+fa639f9 | Dulan Dhanush | 2026-09-03 | added the missing image place holder and fixed other errors
+7b75e0c | Dulan Dhanush | 2026-09-03 | added the missing ic_delete file to drawble
+4feb9d5 | Dulan Dhanush | 2026-09-03 | fixed the manifest file duplication
+246aca8 | Dulan Dhanush | 2026-09-03 | added the all the files that needs to do camera modules
+bbf1c9a | NimnaOfficial | 2026-09-03 | review
+8a93766 | SANDANIMNE K G L | 2026-09-03 | Merge pull request #25 from NimnaOfficial/demo
+6ae54e1 | NimnaOfficial | 2026-09-03 | test
+a77499d | SANDANIMNE K G L | 2026-09-03 | Merge pull request #24 from NimnaOfficial/member01/managments
+02bd715 | NimnaOfficial | 2026-09-03 | update branch
+e929700 | Vidura | 2026-09-03 | complete technician repair workflow
+55b42db | Vidura | 2026-09-03 | complete customer booking and appointment workflow
+f99fe6f | Vidura | 2026-09-03 | edited
+903fdd4 | Vidura | 2026-09-02 | add repair booking adapters
+3a54729 | Vidura | 2026-09-02 | add M2 models and API endpoints
+37f282a | Vidura | 2026-09-02 | last]
+f831d6e | Vidura | 2026-09-02 | complete technician repair notes
+d8207b7 | Vidura | 2026-09-02 | add technician repair workflow
+3668d42 | Vidura | 2026-09-02 | add assigned repairs UI
+c703802 | Vidura | 2026-09-02 | build the technician dashboard
+c7b7cb3 | Vidura | 2026-09-02 | add customer appointment details UI
+1c96f74 | Vidura | 2026-09-02 | add customer appointment and managemrnt ui
+bcb923c | Vidura | 2026-09-02 | add repair booking confirmation ui
+4f81760 | Vidura | 2026-09-02 | add booking date time and review UI
+bd643d7 | Vidura | 2026-09-02 | add service and branch selection ui
+d59a00f | Vidura | 2026-09-02 | Add repair booking and device selection UI
 0a8973c | SANDANIMNE K G L | 2026-09-02 | Merge pull request #23 from NimnaOfficial/member01/managments
 df18fbf | NimnaOfficial | 2026-09-02 | Implement 1:1 Manager-to-Branch security isolation
 88c5697 | NimnaOfficial | 2026-09-02 | move branch mgr to admin
@@ -8,6 +48,7 @@ e5fd244 | Dulan Dhanush | 2026-08-31 | completed the payment method
 ce02ff1 | SANDANIMNE K G L | 2026-08-31 | Merge pull request #21 from NimnaOfficial/member01/managments
 a31146a | NimnaOfficial | 2026-08-31 | Implement Dashboard navigation flows for Managers and System Logs
 94237a5 | NimnaOfficial | 2026-08-31 | Fix Admin file save & backend backup logic, and clean temp scripts
+fd53ebb | Huwinfenando | 2026-08-30 | complete the crud operations and customer ui part
 a17272f | NimnaOfficial | 2026-08-30 | fix theme mode isssue
 5b40c52 | NimnaOfficial | 2026-08-30 | fix admin settings fetching issues
 0b71596 | SANDANIMNE K G L | 2026-08-30 | Merge pull request #20 from NimnaOfficial/member01/managments

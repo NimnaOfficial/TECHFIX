@@ -52,7 +52,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginBottom="20dp"
+        android:layout_marginBottom="16dp"
         android:background="?android:attr/colorBackground"
         android:padding="12dp"
         app:cornerRadius="8dp">
@@ -76,14 +76,52 @@
         </LinearLayout>
     </LinearLayout>
 
+    <!-- Loading Indicator -->
+    <ProgressBar
+        android:id="@+id/progress_eligible"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Empty State -->
     <TextView
+        android:id="@+id/tv_no_eligible"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Eligible Available Technicians"
+        android:text="No eligible technicians found."
         android:textSize="14sp"
+        android:textColor="?android:attr/textColorSecondary"
+        android:gravity="center"
+        android:visibility="gone"
+        android:padding="24dp" />
+
+    <!-- Recommended Section Label -->
+    <TextView
+        android:id="@+id/tv_recommended_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="⭐ Recommended (skill-matched)"
+        android:textSize="13sp"
         android:textStyle="bold"
-        android:textColor="?android:attr/textColorPrimary"
-        android:layout_marginBottom="8dp"/>
+        android:textColor="?attr/colorPrimary"
+        android:visibility="gone"
+        android:layout_marginBottom="6dp" />
+
+    <!-- Other Available Section Label -->
+    <TextView
+        android:id="@+id/tv_other_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Other Available"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:textColor="?android:attr/textColorSecondary"
+        android:visibility="gone"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="6dp" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_available_techs"
@@ -116,8 +154,3 @@
     </LinearLayout>
 
 </LinearLayout>
-
-
-
-
-
