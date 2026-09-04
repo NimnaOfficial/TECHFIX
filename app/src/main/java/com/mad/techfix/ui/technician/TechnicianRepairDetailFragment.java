@@ -17,40 +17,36 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.mad.techfix.R;
-import com.mad.techfix.data.SessionManager;
-import com.mad.techfix.models.ApiResponse;
 import com.mad.techfix.models.AppointmentDetail;
-import com.mad.techfix.network.ApiService;
-import com.mad.techfix.network.RetrofitClient;
 import com.mad.techfix.ui.history.RepairHistoryDetailFragment;
+import com.mad.techfix.viewmodel.TechnicianRepairDetailViewModel;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
-public class TechnicianRepairDetailFragment extends Fragment {
+public class TechnicianRepairDetailFragment
+        extends Fragment {
 
     private static final String ARG_APPOINTMENT_ID =
             "appointment_id";
 
+
     private String appointmentId;
 
-    private ApiService apiService;
-    private SessionManager sessionManager;
 
     private AppointmentDetail currentDetail;
+
+
+    private TechnicianRepairDetailViewModel viewModel;
+
 
     private ImageButton btnBack;
 
@@ -85,34 +81,46 @@ public class TechnicianRepairDetailFragment extends Fragment {
     private MaterialButton btnUpdateRepairStatus;
     private MaterialButton btnViewRepairHistory;
 
+
     private final List<String> repairImageUrls =
             new ArrayList<>();
 
+
     private RepairImageUrlAdapter repairImageAdapter;
+
 
     public TechnicianRepairDetailFragment() {
         // Required empty constructor
     }
 
-    public static TechnicianRepairDetailFragment newInstance(
+
+    public static TechnicianRepairDetailFragment
+    newInstance(
             String appointmentId
     ) {
 
         TechnicianRepairDetailFragment fragment =
                 new TechnicianRepairDetailFragment();
 
+
         Bundle args =
                 new Bundle();
+
 
         args.putString(
                 ARG_APPOINTMENT_ID,
                 appointmentId
         );
 
-        fragment.setArguments(args);
+
+        fragment.setArguments(
+                args
+        );
+
 
         return fragment;
     }
+
 
     @Nullable
     @Override
@@ -129,6 +137,7 @@ public class TechnicianRepairDetailFragment extends Fragment {
         );
     }
 
+
     @Override
     public void onViewCreated(
             @NonNull View view,
@@ -140,21 +149,21 @@ public class TechnicianRepairDetailFragment extends Fragment {
                 savedInstanceState
         );
 
-        apiService =
-                RetrofitClient.getApiService();
-
-        sessionManager =
-                new SessionManager(
-                        requireContext()
-                );
 
         readArguments();
 
-        bindViews(view);
+        bindViews(
+                view
+        );
 
         setupRecyclerView();
 
+        setupViewModel();
+
+        observeViewModel();
+
         setupListeners();
+
 
         if (!isAppointmentIdValid()) {
 
@@ -167,23 +176,28 @@ public class TechnicianRepairDetailFragment extends Fragment {
             return;
         }
 
-        loadRepairData();
+
+        viewModel.loadRepairData(
+                appointmentId
+        );
     }
+
 
     private void readArguments() {
 
         Bundle args =
                 getArguments();
 
-        if (args == null) {
-            return;
-        }
 
-        appointmentId =
-                args.getString(
-                        ARG_APPOINTMENT_ID
-                );
+        if (args != null) {
+
+            appointmentId =
+                    args.getString(
+                            ARG_APPOINTMENT_ID
+                    );
+        }
     }
+
 
     private void bindViews(
             View view
@@ -194,116 +208,139 @@ public class TechnicianRepairDetailFragment extends Fragment {
                         R.id.btn_back_repair_detail
                 );
 
+
         tvRepairId =
                 view.findViewById(
                         R.id.tv_repair_detail_id
                 );
+
 
         tvRepairStatus =
                 view.findViewById(
                         R.id.tv_repair_detail_status
                 );
 
+
         tvCustomerName =
                 view.findViewById(
                         R.id.tv_repair_customer_name
                 );
+
 
         tvCustomerPhone =
                 view.findViewById(
                         R.id.tv_repair_customer_phone
                 );
 
+
         tvCustomerEmail =
                 view.findViewById(
                         R.id.tv_repair_customer_email
                 );
+
 
         tvDeviceName =
                 view.findViewById(
                         R.id.tv_repair_device_name
                 );
 
+
         tvDeviceModel =
                 view.findViewById(
                         R.id.tv_repair_device_model
                 );
+
 
         tvDeviceSerial =
                 view.findViewById(
                         R.id.tv_repair_device_serial
                 );
 
+
         tvService =
                 view.findViewById(
                         R.id.tv_repair_service
                 );
+
 
         tvProblem =
                 view.findViewById(
                         R.id.tv_repair_problem
                 );
 
+
         tvBranch =
                 view.findViewById(
                         R.id.tv_repair_branch
                 );
+
 
         tvStatusReceived =
                 view.findViewById(
                         R.id.tv_status_received
                 );
 
+
         tvStatusDiagnosing =
                 view.findViewById(
                         R.id.tv_status_diagnosing
                 );
+
 
         tvStatusRepairing =
                 view.findViewById(
                         R.id.tv_status_repairing
                 );
 
+
         tvStatusTesting =
                 view.findViewById(
                         R.id.tv_status_testing
                 );
+
 
         tvStatusCompleted =
                 view.findViewById(
                         R.id.tv_status_completed
                 );
 
+
         btnEditRepairNotes =
                 view.findViewById(
                         R.id.btn_edit_repair_notes
                 );
+
 
         tvRepairNotes =
                 view.findViewById(
                         R.id.tv_repair_notes
                 );
 
+
         btnAddRepairImage =
                 view.findViewById(
                         R.id.btn_add_repair_image
                 );
+
 
         recyclerRepairImages =
                 view.findViewById(
                         R.id.recycler_repair_images
                 );
 
+
         btnUpdateRepairStatus =
                 view.findViewById(
                         R.id.btn_update_repair_status
                 );
+
 
         btnViewRepairHistory =
                 view.findViewById(
                         R.id.btn_view_repair_history_technician
                 );
     }
+
 
     private void setupRecyclerView() {
 
@@ -312,152 +349,261 @@ public class TechnicianRepairDetailFragment extends Fragment {
                         repairImageUrls
                 );
 
-        recyclerRepairImages.setLayoutManager(
-                new LinearLayoutManager(
-                        requireContext()
-                )
-        );
 
-        recyclerRepairImages.setAdapter(
-                repairImageAdapter
-        );
+        recyclerRepairImages
+                .setLayoutManager(
+                        new LinearLayoutManager(
+                                requireContext()
+                        )
+                );
 
-        recyclerRepairImages.setNestedScrollingEnabled(
-                false
-        );
+
+        recyclerRepairImages
+                .setAdapter(
+                        repairImageAdapter
+                );
+
+
+        recyclerRepairImages
+                .setNestedScrollingEnabled(
+                        false
+                );
     }
+
+
+    private void setupViewModel() {
+
+        viewModel =
+                new ViewModelProvider(this)
+                        .get(
+                                TechnicianRepairDetailViewModel.class
+                        );
+    }
+
+
+    private void observeViewModel() {
+
+        viewModel
+                .getRepairDetail()
+                .observe(
+                        getViewLifecycleOwner(),
+                        detail -> {
+
+                            if (detail == null) {
+
+                                return;
+                            }
+
+
+                            currentDetail =
+                                    detail;
+
+
+                            displayRepairDetail(
+                                    detail
+                            );
+                        }
+                );
+
+
+        viewModel
+                .getRepairNote()
+                .observe(
+                        getViewLifecycleOwner(),
+                        note -> {
+
+                            tvRepairNotes.setText(
+                                    safeText(
+                                            note,
+                                            "No repair notes added yet."
+                                    )
+                            );
+                        }
+                );
+
+
+        viewModel
+                .getRepairImages()
+                .observe(
+                        getViewLifecycleOwner(),
+                        images -> {
+
+                            repairImageUrls.clear();
+
+
+                            if (images != null) {
+
+                                repairImageUrls.addAll(
+                                        images
+                                );
+                            }
+
+
+                            repairImageAdapter
+                                    .notifyDataSetChanged();
+                        }
+                );
+
+
+        viewModel
+                .getIsLoading()
+                .observe(
+                        getViewLifecycleOwner(),
+                        loading -> {
+
+                            boolean active =
+                                    loading != null
+                                            && loading;
+
+
+                            if (active) {
+
+                                btnUpdateRepairStatus
+                                        .setEnabled(
+                                                false
+                                        );
+
+                            } else if (currentDetail
+                                    != null) {
+
+                                updateActionButtons(
+                                        normalizeStatus(
+                                                currentDetail
+                                                        .getStatus()
+                                        )
+                                );
+                            }
+                        }
+                );
+
+
+        viewModel
+                .getActionLoading()
+                .observe(
+                        getViewLifecycleOwner(),
+                        loading -> {
+
+                            boolean active =
+                                    loading != null
+                                            && loading;
+
+
+                            if (active) {
+
+                                btnUpdateRepairStatus
+                                        .setEnabled(false);
+
+                                btnEditRepairNotes
+                                        .setEnabled(false);
+
+                                btnAddRepairImage
+                                        .setEnabled(false);
+
+                            } else if (currentDetail
+                                    != null) {
+
+                                updateActionButtons(
+                                        normalizeStatus(
+                                                currentDetail
+                                                        .getStatus()
+                                        )
+                                );
+                            }
+                        }
+                );
+
+
+        viewModel
+                .getSuccessMessage()
+                .observe(
+                        getViewLifecycleOwner(),
+                        message -> {
+
+                            if (message == null
+                                    || message.trim()
+                                    .isEmpty()) {
+
+                                return;
+                            }
+
+
+                            Toast.makeText(
+                                    requireContext(),
+                                    message,
+                                    Toast.LENGTH_SHORT
+                            ).show();
+
+
+                            viewModel
+                                    .clearSuccessMessage();
+                        }
+                );
+
+
+        viewModel
+                .getErrorMessage()
+                .observe(
+                        getViewLifecycleOwner(),
+                        message -> {
+
+                            if (message == null
+                                    || message.trim()
+                                    .isEmpty()) {
+
+                                return;
+                            }
+
+
+                            Toast.makeText(
+                                    requireContext(),
+                                    message,
+                                    Toast.LENGTH_LONG
+                            ).show();
+
+
+                            viewModel.clearError();
+                        }
+                );
+    }
+
 
     private void setupListeners() {
 
         btnBack.setOnClickListener(
-                v -> getParentFragmentManager()
-                        .popBackStack()
+                view ->
+                        getParentFragmentManager()
+                                .popBackStack()
         );
 
-        btnUpdateRepairStatus.setOnClickListener(
-                v -> showStatusDialog()
-        );
 
-        btnEditRepairNotes.setOnClickListener(
-                v -> showRepairNotesDialog()
-        );
+        btnUpdateRepairStatus
+                .setOnClickListener(
+                        view ->
+                                showStatusDialog()
+                );
 
-        btnAddRepairImage.setOnClickListener(
-                v -> showAddImageDialog()
-        );
 
-        btnViewRepairHistory.setOnClickListener(
-                v -> openRepairHistory()
-        );
-    }
+        btnEditRepairNotes
+                .setOnClickListener(
+                        view ->
+                                showRepairNotesDialog()
+                );
 
-    private void loadRepairData() {
 
-        loadAppointmentDetail();
+        btnAddRepairImage
+                .setOnClickListener(
+                        view ->
+                                showAddImageDialog()
+                );
 
-        loadRepairNotes();
 
-        loadRepairImages();
-    }
-
-    private void loadAppointmentDetail() {
-
-        String token =
-                getToken();
-
-        if (token == null) {
-            return;
-        }
-
-        btnUpdateRepairStatus.setEnabled(
-                false
-        );
-
-        apiService
-                .getAppointmentDetail(
-                        token,
-                        appointmentId
-                )
-                .enqueue(
-                        new Callback<
-                                ApiResponse<
-                                        AppointmentDetail
-                                        >
-                                >() {
-
-                            @Override
-                            public void onResponse(
-                                    @NonNull
-                                    Call<
-                                            ApiResponse<
-                                                    AppointmentDetail
-                                                    >
-                                            > call,
-
-                                    @NonNull
-                                    Response<
-                                            ApiResponse<
-                                                    AppointmentDetail
-                                                    >
-                                            > response
-                            ) {
-
-                                if (!isAdded()) {
-                                    return;
-                                }
-
-                                if (response.isSuccessful()
-                                        && response.body() != null
-                                        && response.body()
-                                        .isSuccess()
-                                        && response.body()
-                                        .getData() != null) {
-
-                                    currentDetail =
-                                            response.body()
-                                                    .getData();
-
-                                    displayRepairDetail(
-                                            currentDetail
-                                    );
-
-                                } else {
-
-                                    Toast.makeText(
-                                            requireContext(),
-                                            "Unable to load repair details",
-                                            Toast.LENGTH_SHORT
-                                    ).show();
-                                }
-                            }
-
-                            @Override
-                            public void onFailure(
-                                    @NonNull
-                                    Call<
-                                            ApiResponse<
-                                                    AppointmentDetail
-                                                    >
-                                            > call,
-
-                                    @NonNull
-                                    Throwable t
-                            ) {
-
-                                if (!isAdded()) {
-                                    return;
-                                }
-
-                                Toast.makeText(
-                                        requireContext(),
-                                        "Repair loading failed: "
-                                                + safeError(t),
-                                        Toast.LENGTH_LONG
-                                ).show();
-                            }
-                        }
+        btnViewRepairHistory
+                .setOnClickListener(
+                        view ->
+                                openRepairHistory()
                 );
     }
+
 
     private void displayRepairDetail(
             AppointmentDetail detail
@@ -470,20 +616,28 @@ public class TechnicianRepairDetailFragment extends Fragment {
                 )
         );
 
+
         String status =
                 normalizeStatus(
                         detail.getStatus()
                 );
 
+
         tvRepairStatus.setText(
-                formatStatus(status)
+                formatStatus(
+                        status
+                )
         );
 
-        String customerName =
-                detail.getCustomer_full_name();
 
-        if (customerName == null
-                || customerName.trim().isEmpty()) {
+        String customerName =
+                safeText(
+                        detail.getCustomer_full_name(),
+                        ""
+                );
+
+
+        if (customerName.isEmpty()) {
 
             if (detail.getCustomer_id() != null
                     && !detail.getCustomer_id()
@@ -492,7 +646,8 @@ public class TechnicianRepairDetailFragment extends Fragment {
 
                 customerName =
                         "Customer "
-                                + detail.getCustomer_id();
+                                + detail
+                                .getCustomer_id();
 
             } else {
 
@@ -501,47 +656,40 @@ public class TechnicianRepairDetailFragment extends Fragment {
             }
         }
 
+
         tvCustomerName.setText(
-                customerName.trim()
+                customerName
         );
 
-        /*
-         * The current appointment-detail API
-         * does not return customer phone/email.
-         */
+
         tvCustomerPhone.setText(
                 "Phone: Not available"
         );
+
 
         tvCustomerEmail.setText(
                 "Email: Not available"
         );
 
+
         String deviceName =
-                detail.getDevice_full_name();
+                safeText(
+                        detail.getDevice_full_name(),
+                        ""
+                );
 
-        if (deviceName == null
-                || deviceName.trim().isEmpty()) {
 
-            if (detail.getDevice_id() != null
-                    && !detail.getDevice_id()
-                    .trim()
-                    .isEmpty()) {
+        if (deviceName.isEmpty()) {
 
-                deviceName =
-                        "Device "
-                                + detail.getDevice_id();
-
-            } else {
-
-                deviceName =
-                        "Device information unavailable";
-            }
+            deviceName =
+                    "Device information unavailable";
         }
 
+
         tvDeviceName.setText(
-                deviceName.trim()
+                deviceName
         );
+
 
         tvDeviceModel.setText(
                 "Model: "
@@ -551,6 +699,7 @@ public class TechnicianRepairDetailFragment extends Fragment {
                 )
         );
 
+
         tvDeviceSerial.setText(
                 "Serial: "
                         + safeText(
@@ -559,12 +708,14 @@ public class TechnicianRepairDetailFragment extends Fragment {
                 )
         );
 
+
         tvService.setText(
                 safeText(
                         detail.getService_name(),
-                        "Repair Service"
+                        "Repair service unavailable"
                 )
         );
+
 
         tvProblem.setText(
                 safeText(
@@ -573,11 +724,13 @@ public class TechnicianRepairDetailFragment extends Fragment {
                 )
         );
 
+
         String branch =
                 safeText(
                         detail.getBranch_name(),
                         "TECHFIX Branch"
                 );
+
 
         if (detail.getBranch_city() != null
                 && !detail.getBranch_city()
@@ -586,29 +739,37 @@ public class TechnicianRepairDetailFragment extends Fragment {
 
             branch +=
                     " - "
-                            + detail.getBranch_city()
+                            + detail
+                            .getBranch_city()
                             .trim();
         }
+
 
         tvBranch.setText(
                 branch
         );
 
+
         updateRepairProgress(
                 status
         );
+
 
         updateActionButtons(
                 status
         );
     }
 
+
     private void updateRepairProgress(
             String status
     ) {
 
         int currentStage =
-                getStageIndex(status);
+                getStageIndex(
+                        status
+                );
+
 
         setStageText(
                 tvStatusReceived,
@@ -617,12 +778,14 @@ public class TechnicianRepairDetailFragment extends Fragment {
                 currentStage
         );
 
+
         setStageText(
                 tvStatusDiagnosing,
                 "DIAGNOSING",
                 1,
                 currentStage
         );
+
 
         setStageText(
                 tvStatusRepairing,
@@ -631,6 +794,7 @@ public class TechnicianRepairDetailFragment extends Fragment {
                 currentStage
         );
 
+
         setStageText(
                 tvStatusTesting,
                 "TESTING",
@@ -638,13 +802,23 @@ public class TechnicianRepairDetailFragment extends Fragment {
                 currentStage
         );
 
+
+        /*
+         * READY is stage 4.
+         * COMPLETED is stage 5.
+         *
+         * This means READY correctly shows
+         * TESTING as finished but COMPLETED
+         * as still pending.
+         */
         setStageText(
                 tvStatusCompleted,
                 "COMPLETED",
-                4,
+                5,
                 currentStage
         );
     }
+
 
     private void setStageText(
             TextView textView,
@@ -655,23 +829,31 @@ public class TechnicianRepairDetailFragment extends Fragment {
 
         String prefix;
 
+
         if (currentStage > stageIndex) {
 
-            prefix = "✓ ";
+            prefix =
+                    "✓ ";
 
-        } else if (currentStage == stageIndex) {
+        } else if (currentStage
+                == stageIndex) {
 
-            prefix = "● ";
+            prefix =
+                    "● ";
 
         } else {
 
-            prefix = "○ ";
+            prefix =
+                    "○ ";
         }
 
+
         textView.setText(
-                prefix + stageName
+                prefix
+                        + stageName
         );
     }
+
 
     private int getStageIndex(
             String status
@@ -680,61 +862,92 @@ public class TechnicianRepairDetailFragment extends Fragment {
         switch (status) {
 
             case "DEVICE_RECEIVED":
+
                 return 0;
 
+
             case "DIAGNOSING":
+
                 return 1;
 
+
             case "REPAIRING":
+
                 return 2;
 
+
             case "TESTING":
+
                 return 3;
 
+
             case "READY":
-                /*
-                 * READY comes after TESTING but
-                 * before COMPLETED.
-                 */
+
                 return 4;
 
+
             case "COMPLETED":
+
                 return 5;
 
+
             default:
+
                 return -1;
         }
     }
+
 
     private void updateActionButtons(
             String status
     ) {
 
         boolean finished =
-                "COMPLETED".equals(status)
-                        || "CANCELLED".equals(status);
+                "COMPLETED".equals(
+                        status
+                )
+                        || "CANCELLED".equals(
+                        status
+                );
 
-        btnUpdateRepairStatus.setEnabled(
-                !finished
-        );
 
-        btnEditRepairNotes.setEnabled(
-                !finished
-        );
+        btnUpdateRepairStatus
+                .setEnabled(
+                        !finished
+                );
+
+
+        btnEditRepairNotes
+                .setEnabled(
+                        !finished
+                                && canSaveRepairNote(
+                                status
+                        )
+                );
+
+
+        btnAddRepairImage
+                .setEnabled(
+                        !finished
+                );
+
 
         if (finished) {
 
-            btnUpdateRepairStatus.setText(
-                    "Repair Finished"
-            );
+            btnUpdateRepairStatus
+                    .setText(
+                            "Repair Finished"
+                    );
 
         } else {
 
-            btnUpdateRepairStatus.setText(
-                    "Update Repair Status"
-            );
+            btnUpdateRepairStatus
+                    .setText(
+                            "Update Repair Status"
+                    );
         }
     }
+
 
     private void showStatusDialog() {
 
@@ -749,6 +962,7 @@ public class TechnicianRepairDetailFragment extends Fragment {
             return;
         }
 
+
         View dialogView =
                 LayoutInflater
                         .from(
@@ -760,35 +974,43 @@ public class TechnicianRepairDetailFragment extends Fragment {
                                 false
                         );
 
+
         TextView tvCurrentStatus =
                 dialogView.findViewById(
                         R.id.tv_current_repair_status
                 );
+
 
         RadioGroup radioGroup =
                 dialogView.findViewById(
                         R.id.radio_group_repair_status
                 );
 
+
         TextInputEditText etStatusNote =
                 dialogView.findViewById(
                         R.id.et_status_note
                 );
+
 
         MaterialButton btnCancel =
                 dialogView.findViewById(
                         R.id.btn_cancel_status_update
                 );
 
+
         MaterialButton btnConfirm =
                 dialogView.findViewById(
                         R.id.btn_confirm_status_update
                 );
 
+
         String currentStatus =
                 normalizeStatus(
-                        currentDetail.getStatus()
+                        currentDetail
+                                .getStatus()
                 );
+
 
         tvCurrentStatus.setText(
                 formatStatus(
@@ -796,29 +1018,37 @@ public class TechnicianRepairDetailFragment extends Fragment {
                 )
         );
 
+
         selectCurrentStatus(
                 radioGroup,
                 currentStatus
         );
 
+
         AlertDialog dialog =
                 new AlertDialog.Builder(
                         requireContext()
                 )
-                        .setView(dialogView)
+                        .setView(
+                                dialogView
+                        )
                         .create();
 
+
         btnCancel.setOnClickListener(
-                v -> dialog.dismiss()
+                view ->
+                        dialog.dismiss()
         );
 
+
         btnConfirm.setOnClickListener(
-                v -> {
+                view -> {
 
                     String selectedStatus =
                             getSelectedStatus(
                                     radioGroup
                             );
+
 
                     if (selectedStatus == null) {
 
@@ -831,8 +1061,10 @@ public class TechnicianRepairDetailFragment extends Fragment {
                         return;
                     }
 
+
                     String note =
                             "";
+
 
                     if (etStatusNote.getText()
                             != null) {
@@ -844,20 +1076,26 @@ public class TechnicianRepairDetailFragment extends Fragment {
                                         .trim();
                     }
 
-                    updateRepairStatus(
-                            selectedStatus,
-                            note,
-                            dialog,
-                            btnConfirm
-                    );
+
+                    viewModel
+                            .updateRepairStatus(
+                                    appointmentId,
+                                    selectedStatus,
+                                    note
+                            );
+
+
+                    dialog.dismiss();
                 }
         );
+
 
         dialog.show();
     }
 
+
     private void selectCurrentStatus(
-            RadioGroup radioGroup,
+            RadioGroup group,
             String status
     ) {
 
@@ -865,39 +1103,43 @@ public class TechnicianRepairDetailFragment extends Fragment {
 
             case "DEVICE_RECEIVED":
 
-                radioGroup.check(
+                group.check(
                         R.id.radio_device_received
                 );
 
                 break;
 
+
             case "DIAGNOSING":
 
-                radioGroup.check(
+                group.check(
                         R.id.radio_diagnosing
                 );
 
                 break;
 
+
             case "REPAIRING":
 
-                radioGroup.check(
+                group.check(
                         R.id.radio_repairing
                 );
 
                 break;
 
+
             case "TESTING":
 
-                radioGroup.check(
+                group.check(
                         R.id.radio_testing
                 );
 
                 break;
 
+
             case "COMPLETED":
 
-                radioGroup.check(
+                group.check(
                         R.id.radio_completed
                 );
 
@@ -905,323 +1147,49 @@ public class TechnicianRepairDetailFragment extends Fragment {
         }
     }
 
+
+    @Nullable
     private String getSelectedStatus(
-            RadioGroup radioGroup
+            RadioGroup group
     ) {
 
-        int checkedId =
-                radioGroup
-                        .getCheckedRadioButtonId();
+        int id =
+                group.getCheckedRadioButtonId();
 
-        if (checkedId
-                == R.id.radio_device_received) {
+
+        if (id == R.id.radio_device_received) {
 
             return "DEVICE_RECEIVED";
         }
 
-        if (checkedId
-                == R.id.radio_diagnosing) {
+
+        if (id == R.id.radio_diagnosing) {
 
             return "DIAGNOSING";
         }
 
-        if (checkedId
-                == R.id.radio_repairing) {
+
+        if (id == R.id.radio_repairing) {
 
             return "REPAIRING";
         }
 
-        if (checkedId
-                == R.id.radio_testing) {
+
+        if (id == R.id.radio_testing) {
 
             return "TESTING";
         }
 
-        if (checkedId
-                == R.id.radio_completed) {
+
+        if (id == R.id.radio_completed) {
 
             return "COMPLETED";
         }
 
+
         return null;
     }
 
-    private void updateRepairStatus(
-            String newStatus,
-            String note,
-            AlertDialog dialog,
-            MaterialButton btnConfirm
-    ) {
-
-        String token =
-                getToken();
-
-        if (token == null) {
-            return;
-        }
-
-        Map<String, Object> body =
-                new HashMap<>();
-
-        body.put(
-                "status",
-                newStatus
-        );
-
-        body.put(
-                "note",
-                note
-        );
-
-        btnConfirm.setEnabled(
-                false
-        );
-
-        btnConfirm.setText(
-                "Updating..."
-        );
-
-        apiService
-                .updateAppointmentStatus(
-                        token,
-                        appointmentId,
-                        body
-                )
-                .enqueue(
-                        new Callback<
-                                ApiResponse<Object>
-                                >() {
-
-                            @Override
-                            public void onResponse(
-                                    @NonNull
-                                    Call<
-                                            ApiResponse<Object>
-                                            > call,
-
-                                    @NonNull
-                                    Response<
-                                            ApiResponse<Object>
-                                            > response
-                            ) {
-
-                                if (!isAdded()) {
-                                    return;
-                                }
-
-                                if (response.isSuccessful()
-                                        && response.body() != null
-                                        && response.body()
-                                        .isSuccess()) {
-
-                                    dialog.dismiss();
-
-                                    Toast.makeText(
-                                            requireContext(),
-                                            "Repair status updated",
-                                            Toast.LENGTH_SHORT
-                                    ).show();
-
-                                    loadAppointmentDetail();
-
-                                    loadRepairNotes();
-
-                                } else {
-
-                                    btnConfirm.setEnabled(
-                                            true
-                                    );
-
-                                    btnConfirm.setText(
-                                            "Update Status"
-                                    );
-
-                                    Toast.makeText(
-                                            requireContext(),
-                                            getResponseMessage(
-                                                    response,
-                                                    "Unable to update status"
-                                            ),
-                                            Toast.LENGTH_LONG
-                                    ).show();
-                                }
-                            }
-
-                            @Override
-                            public void onFailure(
-                                    @NonNull
-                                    Call<
-                                            ApiResponse<Object>
-                                            > call,
-
-                                    @NonNull
-                                    Throwable t
-                            ) {
-
-                                if (!isAdded()) {
-                                    return;
-                                }
-
-                                btnConfirm.setEnabled(
-                                        true
-                                );
-
-                                btnConfirm.setText(
-                                        "Update Status"
-                                );
-
-                                Toast.makeText(
-                                        requireContext(),
-                                        "Status update failed: "
-                                                + safeError(t),
-                                        Toast.LENGTH_LONG
-                                ).show();
-                            }
-                        }
-                );
-    }
-
-    private void loadRepairNotes() {
-
-        String token =
-                getToken();
-
-        if (token == null
-                || !isAppointmentIdValid()) {
-
-            return;
-        }
-
-        apiService
-                .getAppointmentHistory(
-                        token,
-                        appointmentId
-                )
-                .enqueue(
-                        new Callback<
-                                ApiResponse<
-                                        List<Object>
-                                        >
-                                >() {
-
-                            @Override
-                            public void onResponse(
-                                    @NonNull
-                                    Call<
-                                            ApiResponse<
-                                                    List<Object>
-                                                    >
-                                            > call,
-
-                                    @NonNull
-                                    Response<
-                                            ApiResponse<
-                                                    List<Object>
-                                                    >
-                                            > response
-                            ) {
-
-                                if (!isAdded()) {
-                                    return;
-                                }
-
-                                if (response.isSuccessful()
-                                        && response.body() != null
-                                        && response.body()
-                                        .isSuccess()) {
-
-                                    String latestNote =
-                                            findLatestRepairNote(
-                                                    response.body()
-                                                            .getData()
-                                            );
-
-                                    tvRepairNotes.setText(
-                                            latestNote
-                                    );
-                                }
-                            }
-
-                            @Override
-                            public void onFailure(
-                                    @NonNull
-                                    Call<
-                                            ApiResponse<
-                                                    List<Object>
-                                                    >
-                                            > call,
-
-                                    @NonNull
-                                    Throwable t
-                            ) {
-
-                                // The rest of the repair screen
-                                // can still work without notes.
-                            }
-                        }
-                );
-    }
-
-    private String findLatestRepairNote(
-            List<Object> history
-    ) {
-
-        if (history == null
-                || history.isEmpty()) {
-
-            return "No repair notes added yet.";
-        }
-
-        for (int i =
-             history.size() - 1;
-             i >= 0;
-             i--) {
-
-            Object item =
-                    history.get(i);
-
-            if (!(item instanceof Map)) {
-                continue;
-            }
-
-            Map<?, ?> map =
-                    (Map<?, ?>) item;
-
-            Object noteValue =
-                    map.get("note");
-
-            if (noteValue == null) {
-                continue;
-            }
-
-            String note =
-                    String.valueOf(
-                            noteValue
-                    ).trim();
-
-            if (note.isEmpty()) {
-                continue;
-            }
-
-            if (note.startsWith(
-                    "System "
-            )) {
-
-                continue;
-            }
-
-            if (note.equalsIgnoreCase(
-                    "Status updated"
-            )) {
-
-                continue;
-            }
-
-            return note;
-        }
-
-        return "No repair notes added yet.";
-    }
 
     private void showRepairNotesDialog() {
 
@@ -1236,10 +1204,13 @@ public class TechnicianRepairDetailFragment extends Fragment {
             return;
         }
 
+
         String currentStatus =
                 normalizeStatus(
-                        currentDetail.getStatus()
+                        currentDetail
+                                .getStatus()
                 );
+
 
         if (!canSaveRepairNote(
                 currentStatus
@@ -1254,6 +1225,7 @@ public class TechnicianRepairDetailFragment extends Fragment {
             return;
         }
 
+
         View dialogView =
                 LayoutInflater
                         .from(
@@ -1265,30 +1237,36 @@ public class TechnicianRepairDetailFragment extends Fragment {
                                 false
                         );
 
+
         TextView tvNotesRepairId =
                 dialogView.findViewById(
                         R.id.tv_notes_repair_id
                 );
+
 
         TextView tvNotesDevice =
                 dialogView.findViewById(
                         R.id.tv_notes_device
                 );
 
+
         TextInputEditText etRepairNote =
                 dialogView.findViewById(
                         R.id.et_repair_note
                 );
+
 
         MaterialButton btnCancel =
                 dialogView.findViewById(
                         R.id.btn_cancel_repair_note
                 );
 
+
         MaterialButton btnSave =
                 dialogView.findViewById(
                         R.id.btn_save_repair_note
                 );
+
 
         tvNotesRepairId.setText(
                 safeText(
@@ -1298,24 +1276,24 @@ public class TechnicianRepairDetailFragment extends Fragment {
                 )
         );
 
-        String deviceName =
-                currentDetail
-                        .getDevice_full_name();
 
         tvNotesDevice.setText(
                 safeText(
-                        deviceName,
+                        currentDetail
+                                .getDevice_full_name(),
                         "Device"
                 )
         );
 
-        String existingNote =
-                tvRepairNotes
-                        .getText()
-                        .toString()
-                        .trim();
 
-        if (!existingNote.equals(
+        String existingNote =
+                viewModel
+                        .getRepairNote()
+                        .getValue();
+
+
+        if (existingNote != null
+                && !existingNote.equals(
                 "No repair notes added yet."
         )) {
 
@@ -1324,25 +1302,32 @@ public class TechnicianRepairDetailFragment extends Fragment {
             );
         }
 
+
         AlertDialog dialog =
                 new AlertDialog.Builder(
                         requireContext()
                 )
-                        .setView(dialogView)
+                        .setView(
+                                dialogView
+                        )
                         .create();
 
+
         btnCancel.setOnClickListener(
-                v -> dialog.dismiss()
+                view ->
+                        dialog.dismiss()
         );
 
+
         btnSave.setOnClickListener(
-                v -> {
+                view -> {
 
                     String note =
                             "";
 
-                    if (etRepairNote.getText()
-                            != null) {
+
+                    if (etRepairNote
+                            .getText() != null) {
 
                         note =
                                 etRepairNote
@@ -1350,6 +1335,7 @@ public class TechnicianRepairDetailFragment extends Fragment {
                                         .toString()
                                         .trim();
                     }
+
 
                     if (note.isEmpty()) {
 
@@ -1362,17 +1348,23 @@ public class TechnicianRepairDetailFragment extends Fragment {
                         return;
                     }
 
-                    saveRepairNote(
-                            currentStatus,
-                            note,
-                            dialog,
-                            btnSave
-                    );
+
+                    viewModel
+                            .saveRepairNote(
+                                    appointmentId,
+                                    currentStatus,
+                                    note
+                            );
+
+
+                    dialog.dismiss();
                 }
         );
 
+
         dialog.show();
     }
+
 
     private boolean canSaveRepairNote(
             String status
@@ -1385,255 +1377,6 @@ public class TechnicianRepairDetailFragment extends Fragment {
                 || "READY".equals(status);
     }
 
-    private void saveRepairNote(
-            String status,
-            String note,
-            AlertDialog dialog,
-            MaterialButton btnSave
-    ) {
-
-        String token =
-                getToken();
-
-        if (token == null) {
-            return;
-        }
-
-        /*
-         * The current backend stores notes in
-         * repair_status_history together with
-         * a status update.
-         *
-         * Sending the current active status again
-         * lets the technician persist a note.
-         */
-
-        Map<String, Object> body =
-                new HashMap<>();
-
-        body.put(
-                "status",
-                status
-        );
-
-        body.put(
-                "note",
-                note
-        );
-
-        btnSave.setEnabled(
-                false
-        );
-
-        btnSave.setText(
-                "Saving..."
-        );
-
-        apiService
-                .updateAppointmentStatus(
-                        token,
-                        appointmentId,
-                        body
-                )
-                .enqueue(
-                        new Callback<
-                                ApiResponse<Object>
-                                >() {
-
-                            @Override
-                            public void onResponse(
-                                    @NonNull
-                                    Call<
-                                            ApiResponse<Object>
-                                            > call,
-
-                                    @NonNull
-                                    Response<
-                                            ApiResponse<Object>
-                                            > response
-                            ) {
-
-                                if (!isAdded()) {
-                                    return;
-                                }
-
-                                if (response.isSuccessful()
-                                        && response.body() != null
-                                        && response.body()
-                                        .isSuccess()) {
-
-                                    dialog.dismiss();
-
-                                    tvRepairNotes.setText(
-                                            note
-                                    );
-
-                                    Toast.makeText(
-                                            requireContext(),
-                                            "Repair note saved",
-                                            Toast.LENGTH_SHORT
-                                    ).show();
-
-                                } else {
-
-                                    btnSave.setEnabled(
-                                            true
-                                    );
-
-                                    btnSave.setText(
-                                            "Save Note"
-                                    );
-
-                                    Toast.makeText(
-                                            requireContext(),
-                                            getResponseMessage(
-                                                    response,
-                                                    "Unable to save repair note"
-                                            ),
-                                            Toast.LENGTH_LONG
-                                    ).show();
-                                }
-                            }
-
-                            @Override
-                            public void onFailure(
-                                    @NonNull
-                                    Call<
-                                            ApiResponse<Object>
-                                            > call,
-
-                                    @NonNull
-                                    Throwable t
-                            ) {
-
-                                if (!isAdded()) {
-                                    return;
-                                }
-
-                                btnSave.setEnabled(
-                                        true
-                                );
-
-                                btnSave.setText(
-                                        "Save Note"
-                                );
-
-                                Toast.makeText(
-                                        requireContext(),
-                                        "Unable to save note: "
-                                                + safeError(t),
-                                        Toast.LENGTH_LONG
-                                ).show();
-                            }
-                        }
-                );
-    }
-
-    private void loadRepairImages() {
-
-        String token =
-                getToken();
-
-        if (token == null
-                || !isAppointmentIdValid()) {
-
-            return;
-        }
-
-        apiService
-                .getAppointmentImages(
-                        token,
-                        appointmentId
-                )
-                .enqueue(
-                        new Callback<
-                                ApiResponse<
-                                        List<Object>
-                                        >
-                                >() {
-
-                            @Override
-                            public void onResponse(
-                                    @NonNull
-                                    Call<
-                                            ApiResponse<
-                                                    List<Object>
-                                                    >
-                                            > call,
-
-                                    @NonNull
-                                    Response<
-                                            ApiResponse<
-                                                    List<Object>
-                                                    >
-                                            > response
-                            ) {
-
-                                if (!isAdded()) {
-                                    return;
-                                }
-
-                                repairImageUrls.clear();
-
-                                if (response.isSuccessful()
-                                        && response.body() != null
-                                        && response.body()
-                                        .isSuccess()
-                                        && response.body()
-                                        .getData() != null) {
-
-                                    for (Object item :
-                                            response.body()
-                                                    .getData()) {
-
-                                        if (!(item instanceof Map)) {
-                                            continue;
-                                        }
-
-                                        Map<?, ?> map =
-                                                (Map<?, ?>) item;
-
-                                        Object url =
-                                                map.get(
-                                                        "image_url"
-                                                );
-
-                                        if (url != null
-                                                && !String.valueOf(url)
-                                                .trim()
-                                                .isEmpty()) {
-
-                                            repairImageUrls.add(
-                                                    String.valueOf(
-                                                            url
-                                                    )
-                                            );
-                                        }
-                                    }
-                                }
-
-                                repairImageAdapter
-                                        .notifyDataSetChanged();
-                            }
-
-                            @Override
-                            public void onFailure(
-                                    @NonNull
-                                    Call<
-                                            ApiResponse<
-                                                    List<Object>
-                                                    >
-                                            > call,
-
-                                    @NonNull
-                                    Throwable t
-                            ) {
-
-                                // Images are optional.
-                            }
-                        }
-                );
-    }
 
     private void showAddImageDialog() {
 
@@ -1642,14 +1385,17 @@ public class TechnicianRepairDetailFragment extends Fragment {
                         requireContext()
                 );
 
+
         input.setHint(
                 "https://example.com/repair-image.jpg"
         );
+
 
         input.setInputType(
                 InputType.TYPE_CLASS_TEXT
                         | InputType.TYPE_TEXT_VARIATION_URI
         );
+
 
         int padding =
                 (int) (
@@ -1659,12 +1405,14 @@ public class TechnicianRepairDetailFragment extends Fragment {
                                 .density
                 );
 
+
         input.setPadding(
                 padding,
                 padding,
                 padding,
                 padding
         );
+
 
         new AlertDialog.Builder(
                 requireContext()
@@ -1687,9 +1435,11 @@ public class TechnicianRepairDetailFragment extends Fragment {
                         (dialog, which) -> {
 
                             String url =
-                                    input.getText()
+                                    input
+                                            .getText()
                                             .toString()
                                             .trim();
+
 
                             if (url.isEmpty()) {
 
@@ -1702,119 +1452,25 @@ public class TechnicianRepairDetailFragment extends Fragment {
                                 return;
                             }
 
-                            addRepairImage(
-                                    url
-                            );
+
+                            viewModel
+                                    .addRepairImage(
+                                            appointmentId,
+                                            url
+                                    );
                         }
                 )
                 .show();
     }
 
-    private void addRepairImage(
-            String imageUrl
-    ) {
 
-        String token =
-                getToken();
+    private void openRepairHistory() {
 
-        if (token == null) {
+        if (!isAppointmentIdValid()) {
+
             return;
         }
 
-        Map<String, Object> body =
-                new HashMap<>();
-
-        body.put(
-                "image_url",
-                imageUrl
-        );
-
-        body.put(
-                "image_type",
-                "REPAIR"
-        );
-
-        apiService
-                .addAppointmentImage(
-                        token,
-                        appointmentId,
-                        body
-                )
-                .enqueue(
-                        new Callback<
-                                ApiResponse<Object>
-                                >() {
-
-                            @Override
-                            public void onResponse(
-                                    @NonNull
-                                    Call<
-                                            ApiResponse<Object>
-                                            > call,
-
-                                    @NonNull
-                                    Response<
-                                            ApiResponse<Object>
-                                            > response
-                            ) {
-
-                                if (!isAdded()) {
-                                    return;
-                                }
-
-                                if (response.isSuccessful()
-                                        && response.body() != null
-                                        && response.body()
-                                        .isSuccess()) {
-
-                                    Toast.makeText(
-                                            requireContext(),
-                                            "Repair image added",
-                                            Toast.LENGTH_SHORT
-                                    ).show();
-
-                                    loadRepairImages();
-
-                                } else {
-
-                                    Toast.makeText(
-                                            requireContext(),
-                                            getResponseMessage(
-                                                    response,
-                                                    "Unable to add image"
-                                            ),
-                                            Toast.LENGTH_LONG
-                                    ).show();
-                                }
-                            }
-
-                            @Override
-                            public void onFailure(
-                                    @NonNull
-                                    Call<
-                                            ApiResponse<Object>
-                                            > call,
-
-                                    @NonNull
-                                    Throwable t
-                            ) {
-
-                                if (!isAdded()) {
-                                    return;
-                                }
-
-                                Toast.makeText(
-                                        requireContext(),
-                                        "Unable to add image: "
-                                                + safeError(t),
-                                        Toast.LENGTH_LONG
-                                ).show();
-                            }
-                        }
-                );
-    }
-
-    private void openRepairHistory() {
 
         RepairHistoryDetailFragment fragment =
                 RepairHistoryDetailFragment
@@ -1822,11 +1478,11 @@ public class TechnicianRepairDetailFragment extends Fragment {
                                 appointmentId
                         );
 
-        requireActivity()
-                .getSupportFragmentManager()
+
+        getParentFragmentManager()
                 .beginTransaction()
                 .replace(
-                        android.R.id.content,
+                        R.id.technician_fragment_container,
                         fragment
                 )
                 .addToBackStack(
@@ -1835,27 +1491,6 @@ public class TechnicianRepairDetailFragment extends Fragment {
                 .commit();
     }
 
-    private String getToken() {
-
-        String token =
-                sessionManager
-                        .getBearerToken();
-
-        if (token == null
-                || token.trim()
-                .isEmpty()) {
-
-            Toast.makeText(
-                    requireContext(),
-                    "Please sign in again",
-                    Toast.LENGTH_SHORT
-            ).show();
-
-            return null;
-        }
-
-        return token;
-    }
 
     private boolean isAppointmentIdValid() {
 
@@ -1865,13 +1500,16 @@ public class TechnicianRepairDetailFragment extends Fragment {
                 .isEmpty();
     }
 
+
     private String normalizeStatus(
             String status
     ) {
 
         if (status == null) {
+
             return "";
         }
+
 
         return status
                 .trim()
@@ -1879,6 +1517,7 @@ public class TechnicianRepairDetailFragment extends Fragment {
                         Locale.US
                 );
     }
+
 
     private String formatStatus(
             String status
@@ -1891,7 +1530,9 @@ public class TechnicianRepairDetailFragment extends Fragment {
             return "UNKNOWN";
         }
 
+
         return status
+                .trim()
                 .replace(
                         "_",
                         " "
@@ -1900,6 +1541,7 @@ public class TechnicianRepairDetailFragment extends Fragment {
                         Locale.US
                 );
     }
+
 
     private String safeText(
             String value,
@@ -1913,56 +1555,17 @@ public class TechnicianRepairDetailFragment extends Fragment {
             return fallback;
         }
 
+
         return value.trim();
     }
 
-    private String safeError(
-            Throwable throwable
-    ) {
-
-        if (throwable == null
-                || throwable.getMessage() == null
-                || throwable.getMessage()
-                .trim()
-                .isEmpty()) {
-
-            return "Unknown error";
-        }
-
-        return throwable
-                .getMessage();
-    }
-
-    private String getResponseMessage(
-            Response<ApiResponse<Object>> response,
-            String fallback
-    ) {
-
-        if (response.body() != null
-                && response.body()
-                .getMessage() != null
-                && !response.body()
-                .getMessage()
-                .trim()
-                .isEmpty()) {
-
-            return response.body()
-                    .getMessage();
-        }
-
-        return fallback;
-    }
-
-
-    // ==========================================
-    // SIMPLE REPAIR IMAGE URL ADAPTER
-    // ==========================================
 
     private class RepairImageUrlAdapter
             extends RecyclerView.Adapter<
             RepairImageUrlAdapter.ImageViewHolder> {
 
         private final List<String> urls;
+
 
         RepairImageUrlAdapter(
                 List<String> urls
@@ -1971,6 +1574,7 @@ public class TechnicianRepairDetailFragment extends Fragment {
             this.urls =
                     urls;
         }
+
 
         @NonNull
         @Override
@@ -1992,10 +1596,12 @@ public class TechnicianRepairDetailFragment extends Fragment {
                                             false
                                     );
 
+
             return new ImageViewHolder(
                     textView
             );
         }
+
 
         @Override
         public void onBindViewHolder(
@@ -2008,41 +1614,47 @@ public class TechnicianRepairDetailFragment extends Fragment {
                             position
                     );
 
-            holder.textView.setText(
-                    "Image "
-                            + (position + 1)
-                            + "\n"
-                            + url
-            );
 
-            holder.itemView.setOnClickListener(
-                    v -> {
+            holder.textView
+                    .setText(
+                            "Image "
+                                    + (position + 1)
+                                    + "\n"
+                                    + url
+                    );
 
-                        try {
 
-                            Intent intent =
-                                    new Intent(
-                                            Intent.ACTION_VIEW,
-                                            Uri.parse(
-                                                    url
-                                            )
+            holder.itemView
+                    .setOnClickListener(
+                            view -> {
+
+                                try {
+
+                                    Intent intent =
+                                            new Intent(
+                                                    Intent.ACTION_VIEW,
+                                                    Uri.parse(
+                                                            url
+                                                    )
+                                            );
+
+
+                                    startActivity(
+                                            intent
                                     );
 
-                            startActivity(
-                                    intent
-                            );
+                                } catch (Exception exception) {
 
-                        } catch (Exception e) {
-
-                            Toast.makeText(
-                                    requireContext(),
-                                    "Unable to open image",
-                                    Toast.LENGTH_SHORT
-                            ).show();
-                        }
-                    }
-            );
+                                    Toast.makeText(
+                                            requireContext(),
+                                            "Unable to open image",
+                                            Toast.LENGTH_SHORT
+                                    ).show();
+                                }
+                            }
+                    );
         }
+
 
         @Override
         public int getItemCount() {
@@ -2050,19 +1662,21 @@ public class TechnicianRepairDetailFragment extends Fragment {
             return urls.size();
         }
 
+
         class ImageViewHolder
                 extends RecyclerView.ViewHolder {
 
-            TextView textView;
+            final TextView textView;
+
 
             ImageViewHolder(
-                    @NonNull View itemView
+                    @NonNull TextView itemView
             ) {
 
                 super(itemView);
 
                 textView =
-                        (TextView) itemView;
+                        itemView;
             }
         }
     }

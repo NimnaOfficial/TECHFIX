@@ -225,8 +225,8 @@ export default {
       if (path === "/api/services" && request.method === "GET") {
         const result = await env.DB.prepare(
           `
-            SELECT s.*, dc.name AS category_name 
-            FROM services s JOIN device_categories dc ON dc.id = s.category_id 
+            SELECT s.*, dc.name AS category_name
+            FROM services s JOIN device_categories dc ON dc.id = s.category_id
             WHERE s.is_active = 1 ORDER BY s.name
         `,
         ).all();
@@ -714,7 +714,7 @@ export default {
           query = `SELECT * FROM appointments ORDER BY created_at DESC`;
           result = await env.DB.prepare(query).all();
         }
-        
+
         return json({ success: true, data: result.results });
       }
 
@@ -748,8 +748,8 @@ export default {
         // 1. Auto-Assignment Logic: Find an available technician at the nearest branch (using the passed branch_id)
         const availableTech = await env.DB.prepare(
           `
-            SELECT id FROM technicians 
-            WHERE branch_id = ? AND availability_status = 'AVAILABLE' 
+            SELECT id FROM technicians
+            WHERE branch_id = ? AND availability_status = 'AVAILABLE'
             LIMIT 1
         `,
         )
@@ -949,7 +949,7 @@ export default {
           // Find next waiting appointment for this branch
           const pendingApt = await env.DB.prepare(
             `
-                SELECT id FROM appointments 
+                SELECT id FROM appointments
                 WHERE status = 'REQUESTED' AND branch_id = ? AND technician_id IS NULL
                 ORDER BY created_at ASC LIMIT 1
             `,
@@ -1069,9 +1069,9 @@ export default {
         const user = await authenticate(request, env);
         if (!user || !["ADMIN", "MANAGER"].includes(user.role))
           return json({ success: false, message: "Access denied" }, 403);
-        
+
         let query = `
-            SELECT t.*, u.first_name, u.last_name, b.name AS branch_name 
+            SELECT t.*, u.first_name, u.last_name, b.name AS branch_name
             FROM technicians t JOIN users u ON u.id = t.user_id LEFT JOIN branches b ON b.id = t.branch_id
             WHERE t.is_active = 1
         `;
@@ -1226,7 +1226,7 @@ export default {
         const user = await authenticate(request, env);
         if (!user || !["ADMIN", "MANAGER"].includes(user.role))
           return json({ success: false, message: "Access denied" }, 403);
-        
+
         let payments;
         if (user.role === "MANAGER") {
           if (!user.managerBranchId) return json({ success: true, data: [] });
@@ -1341,8 +1341,8 @@ export default {
 
         const payment = await env.DB.prepare(
           `
-            SELECT p.*, a.customer_id 
-            FROM payments p JOIN appointments a ON p.appointment_id = a.id 
+            SELECT p.*, a.customer_id
+            FROM payments p JOIN appointments a ON p.appointment_id = a.id
             WHERE p.id = ? LIMIT 1
         `,
         )
@@ -2261,7 +2261,7 @@ export default {
 
         const newTech = await env.DB.prepare(
           `
-            SELECT t.*, u.first_name, u.last_name, b.name AS branch_name 
+            SELECT t.*, u.first_name, u.last_name, b.name AS branch_name
             FROM technicians t JOIN users u ON u.id = t.user_id LEFT JOIN branches b ON b.id = t.branch_id
             WHERE t.id = ?
         `,
@@ -2318,7 +2318,7 @@ export default {
 
           const updated = await env.DB.prepare(
             `
-                SELECT t.*, u.first_name, u.last_name, b.name AS branch_name 
+                SELECT t.*, u.first_name, u.last_name, b.name AS branch_name
                 FROM technicians t JOIN users u ON u.id = t.user_id LEFT JOIN branches b ON b.id = t.branch_id
                 WHERE t.id = ?
             `,
@@ -2546,6 +2546,41 @@ export default {
           );
         }
       }
+     // ==========================================
+// CLOUDINARY SIGNATURE
+// ==========================================
+if (path === "/api/cloudinary/signature" && request.method === "GET") {
+    const user = await authenticate(request, env);
+    if (!user) return json({ success: false, message: "Unauthorized" }, 401);
+
+    const timestamp = Math.floor(Date.now() / 1000);
+    const folder = "techfix_repairs";
+    const uploadPreset = "techfix_android";
+
+    const signatureString = `folder=${folder}&timestamp=${timestamp}&upload_preset=${uploadPreset}`;
+
+    const encoder = new TextEncoder();
+    const signatureBuffer = await crypto.subtle.digest(
+        "SHA-1",
+        encoder.encode(signatureString + env.CLOUDINARY_API_SECRET),
+    );
+
+    const signature = Array.from(new Uint8Array(signatureBuffer))
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('');
+
+    return json({
+        success: true,
+        data: {
+            cloudName: env.CLOUDINARY_CLOUD_NAME,
+            apiKey: env.CLOUDINARY_API_KEY,
+            timestamp: timestamp,
+            signature: signature,
+            folder: folder,
+            uploadPreset: uploadPreset
+        }
+    });
+}
 
       // 404 FALLBACK
       // ==========================================

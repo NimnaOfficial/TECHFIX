@@ -12,32 +12,22 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.chip.Chip;
 import com.mad.techfix.R;
-import com.mad.techfix.data.SessionManager;
-import com.mad.techfix.models.ApiResponse;
 import com.mad.techfix.models.Appointment;
-import com.mad.techfix.models.AppointmentDetail;
-import com.mad.techfix.network.ApiService;
-import com.mad.techfix.network.RetrofitClient;
+import com.mad.techfix.viewmodel.TechnicianAppointmentsViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+public class AssignedRepairsFragment
+        extends Fragment {
 
-public class AssignedRepairsFragment extends Fragment {
-
-    private RecyclerView recyclerAssignedRepairs;
-    private ProgressBar progressAssignedRepairs;
-    private View layoutEmptyAssignedRepairs;
-    private TextView tvAssignedRepairsTotal;
     private ImageButton btnRefreshAssignedRepairs;
 
     private Chip chipAll;
@@ -47,24 +37,35 @@ public class AssignedRepairsFragment extends Fragment {
     private Chip chipTesting;
     private Chip chipCompleted;
 
+    private TextView tvAssignedRepairsTotal;
+
+    private RecyclerView recyclerAssignedRepairs;
+
+    private ProgressBar progressAssignedRepairs;
+
+    private View layoutEmptyAssignedRepairs;
+
+
     private AssignedRepairAdapter repairAdapter;
 
-    private ApiService apiService;
-    private SessionManager sessionManager;
+    private TechnicianAppointmentsViewModel viewModel;
 
-    private final List<AppointmentDetail> allRepairs =
+
+    private final List<Appointment> allRepairs =
             new ArrayList<>();
 
-    private final List<AppointmentDetail> filteredRepairs =
+    private final List<Appointment> filteredRepairs =
             new ArrayList<>();
 
-    private String currentFilter = "ALL";
 
-    private int pendingDetailRequests = 0;
+    private String currentFilter =
+            "ALL";
+
 
     public AssignedRepairsFragment() {
         // Required empty constructor
     }
+
 
     @Nullable
     @Override
@@ -81,6 +82,7 @@ public class AssignedRepairsFragment extends Fragment {
         );
     }
 
+
     @Override
     public void onViewCreated(
             @NonNull View view,
@@ -92,80 +94,97 @@ public class AssignedRepairsFragment extends Fragment {
                 savedInstanceState
         );
 
-        apiService =
-                RetrofitClient.getApiService();
 
-        sessionManager =
-                new SessionManager(
-                        requireContext()
-                );
+        bindViews(
+                view
+        );
 
-        bindViews(view);
+
         setupRecyclerView();
+
         setupFilters();
+
+        setupViewModel();
+
+        observeViewModel();
+
         setupListeners();
-        loadAssignedRepairs();
+
+
+        viewModel.loadAppointments();
     }
+
 
     private void bindViews(
             View view
     ) {
-
-        recyclerAssignedRepairs =
-                view.findViewById(
-                        R.id.recycler_assigned_repairs
-                );
-
-        progressAssignedRepairs =
-                view.findViewById(
-                        R.id.progress_assigned_repairs
-                );
-
-        layoutEmptyAssignedRepairs =
-                view.findViewById(
-                        R.id.layout_empty_assigned_repairs
-                );
-
-        tvAssignedRepairsTotal =
-                view.findViewById(
-                        R.id.tv_assigned_repairs_total
-                );
 
         btnRefreshAssignedRepairs =
                 view.findViewById(
                         R.id.btn_refresh_assigned_repairs
                 );
 
+
         chipAll =
                 view.findViewById(
                         R.id.chip_repairs_all
                 );
+
 
         chipDeviceReceived =
                 view.findViewById(
                         R.id.chip_device_received
                 );
 
+
         chipDiagnosing =
                 view.findViewById(
                         R.id.chip_diagnosing
                 );
+
 
         chipRepairing =
                 view.findViewById(
                         R.id.chip_repairing
                 );
 
+
         chipTesting =
                 view.findViewById(
                         R.id.chip_testing
                 );
 
+
         chipCompleted =
                 view.findViewById(
                         R.id.chip_repairs_completed
                 );
+
+
+        tvAssignedRepairsTotal =
+                view.findViewById(
+                        R.id.tv_assigned_repairs_total
+                );
+
+
+        recyclerAssignedRepairs =
+                view.findViewById(
+                        R.id.recycler_assigned_repairs
+                );
+
+
+        progressAssignedRepairs =
+                view.findViewById(
+                        R.id.progress_assigned_repairs
+                );
+
+
+        layoutEmptyAssignedRepairs =
+                view.findViewById(
+                        R.id.layout_empty_assigned_repairs
+                );
     }
+
 
     private void setupRecyclerView() {
 
@@ -188,497 +207,200 @@ public class AssignedRepairsFragment extends Fragment {
                                 return;
                             }
 
+
                             openRepairDetail(
                                     repair.getId()
                             );
                         }
                 );
 
-        recyclerAssignedRepairs.setLayoutManager(
-                new LinearLayoutManager(
-                        requireContext()
-                )
-        );
 
-        recyclerAssignedRepairs.setAdapter(
-                repairAdapter
-        );
+        recyclerAssignedRepairs
+                .setLayoutManager(
+                        new LinearLayoutManager(
+                                requireContext()
+                        )
+                );
+
+
+        recyclerAssignedRepairs
+                .setAdapter(
+                        repairAdapter
+                );
     }
+
 
     private void setupFilters() {
 
         chipAll.setOnClickListener(
-                v -> applyFilter(
-                        "ALL"
-                )
+                view ->
+                        applyFilter(
+                                "ALL"
+                        )
         );
 
-        chipDeviceReceived.setOnClickListener(
-                v -> applyFilter(
-                        "DEVICE_RECEIVED"
-                )
-        );
 
-        chipDiagnosing.setOnClickListener(
-                v -> applyFilter(
-                        "DIAGNOSING"
-                )
-        );
+        chipDeviceReceived
+                .setOnClickListener(
+                        view ->
+                                applyFilter(
+                                        "DEVICE_RECEIVED"
+                                )
+                );
 
-        chipRepairing.setOnClickListener(
-                v -> applyFilter(
-                        "REPAIRING"
-                )
-        );
 
-        chipTesting.setOnClickListener(
-                v -> applyFilter(
-                        "TESTING"
-                )
-        );
+        chipDiagnosing
+                .setOnClickListener(
+                        view ->
+                                applyFilter(
+                                        "DIAGNOSING"
+                                )
+                );
 
-        chipCompleted.setOnClickListener(
-                v -> applyFilter(
-                        "COMPLETED"
-                )
-        );
+
+        chipRepairing
+                .setOnClickListener(
+                        view ->
+                                applyFilter(
+                                        "REPAIRING"
+                                )
+                );
+
+
+        chipTesting
+                .setOnClickListener(
+                        view ->
+                                applyFilter(
+                                        "TESTING"
+                                )
+                );
+
+
+        chipCompleted
+                .setOnClickListener(
+                        view ->
+                                applyFilter(
+                                        "COMPLETED"
+                                )
+                );
     }
+
+
+    private void setupViewModel() {
+
+        viewModel =
+                new ViewModelProvider(this)
+                        .get(
+                                TechnicianAppointmentsViewModel.class
+                        );
+    }
+
+
+    private void observeViewModel() {
+
+        viewModel
+                .getAppointments()
+                .observe(
+                        getViewLifecycleOwner(),
+                        appointments -> {
+
+                            allRepairs.clear();
+
+
+                            if (appointments != null) {
+
+                                allRepairs.addAll(
+                                        appointments
+                                );
+                            }
+
+
+                            applyFilter(
+                                    currentFilter
+                            );
+                        }
+                );
+
+
+        viewModel
+                .getIsLoading()
+                .observe(
+                        getViewLifecycleOwner(),
+                        loading -> {
+
+                            showLoading(
+                                    loading != null
+                                            && loading
+                            );
+                        }
+                );
+
+
+        viewModel
+                .getErrorMessage()
+                .observe(
+                        getViewLifecycleOwner(),
+                        message -> {
+
+                            if (message == null
+                                    || message.trim()
+                                    .isEmpty()) {
+
+                                return;
+                            }
+
+
+                            Toast.makeText(
+                                    requireContext(),
+                                    message,
+                                    Toast.LENGTH_LONG
+                            ).show();
+
+
+                            viewModel.clearError();
+                        }
+                );
+    }
+
 
     private void setupListeners() {
 
         btnRefreshAssignedRepairs
                 .setOnClickListener(
-                        v -> loadAssignedRepairs()
+                        view ->
+                                viewModel
+                                        .refreshAppointments()
                 );
     }
 
-    private void loadAssignedRepairs() {
-
-        String token =
-                sessionManager
-                        .getBearerToken();
-
-        if (token == null
-                || token.trim().isEmpty()) {
-
-            Toast.makeText(
-                    requireContext(),
-                    "Please sign in again",
-                    Toast.LENGTH_SHORT
-            ).show();
-
-            return;
-        }
-
-        showLoading(true);
-
-        btnRefreshAssignedRepairs
-                .setEnabled(false);
-
-        allRepairs.clear();
-        filteredRepairs.clear();
-
-        repairAdapter.setRepairs(
-                filteredRepairs
-        );
-
-        apiService
-                .getTechnicianAppointments(
-                        token
-                )
-                .enqueue(
-                        new Callback<
-                                ApiResponse<
-                                        List<Appointment>
-                                        >
-                                >() {
-
-                            @Override
-                            public void onResponse(
-                                    @NonNull
-                                    Call<
-                                            ApiResponse<
-                                                    List<Appointment>
-                                                    >
-                                            > call,
-
-                                    @NonNull
-                                    Response<
-                                            ApiResponse<
-                                                    List<Appointment>
-                                                    >
-                                            > response
-                            ) {
-
-                                if (!isAdded()) {
-                                    return;
-                                }
-
-                                if (response.isSuccessful()
-                                        && response.body() != null
-                                        && response.body()
-                                        .isSuccess()) {
-
-                                    List<Appointment> appointments =
-                                            response.body()
-                                                    .getData();
-
-                                    if (appointments == null
-                                            || appointments.isEmpty()) {
-
-                                        pendingDetailRequests = 0;
-
-                                        finishLoading();
-
-                                        return;
-                                    }
-
-                                    loadRepairDetails(
-                                            token,
-                                            appointments
-                                    );
-
-                                } else {
-
-                                    pendingDetailRequests = 0;
-
-                                    finishLoading();
-
-                                    Toast.makeText(
-                                            requireContext(),
-                                            "Unable to load assigned repairs",
-                                            Toast.LENGTH_SHORT
-                                    ).show();
-                                }
-                            }
-
-                            @Override
-                            public void onFailure(
-                                    @NonNull
-                                    Call<
-                                            ApiResponse<
-                                                    List<Appointment>
-                                                    >
-                                            > call,
-
-                                    @NonNull
-                                    Throwable t
-                            ) {
-
-                                if (!isAdded()) {
-                                    return;
-                                }
-
-                                pendingDetailRequests = 0;
-
-                                finishLoading();
-
-                                String message =
-                                        "Unable to load assigned repairs";
-
-                                if (t.getMessage() != null
-                                        && !t.getMessage()
-                                        .trim()
-                                        .isEmpty()) {
-
-                                    message +=
-                                            ": "
-                                                    + t.getMessage();
-                                }
-
-                                Toast.makeText(
-                                        requireContext(),
-                                        message,
-                                        Toast.LENGTH_LONG
-                                ).show();
-                            }
-                        }
-                );
-    }
-
-    private void loadRepairDetails(
-            String token,
-            List<Appointment> appointments
-    ) {
-
-        pendingDetailRequests =
-                appointments.size();
-
-        for (Appointment appointment :
-                appointments) {
-
-            if (appointment == null
-                    || appointment.getId() == null
-                    || appointment.getId()
-                    .trim()
-                    .isEmpty()) {
-
-                pendingDetailRequests--;
-
-                checkDetailLoadingComplete();
-
-                continue;
-            }
-
-            apiService
-                    .getAppointmentDetail(
-                            token,
-                            appointment.getId()
-                    )
-                    .enqueue(
-                            new Callback<
-                                    ApiResponse<
-                                            AppointmentDetail
-                                            >
-                                    >() {
-
-                                @Override
-                                public void onResponse(
-                                        @NonNull
-                                        Call<
-                                                ApiResponse<
-                                                        AppointmentDetail
-                                                        >
-                                                > call,
-
-                                        @NonNull
-                                        Response<
-                                                ApiResponse<
-                                                        AppointmentDetail
-                                                        >
-                                                > response
-                                ) {
-
-                                    if (!isAdded()) {
-                                        return;
-                                    }
-
-                                    if (response.isSuccessful()
-                                            && response.body() != null
-                                            && response.body()
-                                            .isSuccess()
-                                            && response.body()
-                                            .getData() != null) {
-
-                                        AppointmentDetail detail =
-                                                response.body()
-                                                        .getData();
-
-                                        fillMissingValues(
-                                                detail,
-                                                appointment
-                                        );
-
-                                        allRepairs.add(
-                                                detail
-                                        );
-
-                                    } else {
-
-                                        addBasicRepair(
-                                                appointment
-                                        );
-                                    }
-
-                                    pendingDetailRequests--;
-
-                                    checkDetailLoadingComplete();
-                                }
-
-                                @Override
-                                public void onFailure(
-                                        @NonNull
-                                        Call<
-                                                ApiResponse<
-                                                        AppointmentDetail
-                                                        >
-                                                > call,
-
-                                        @NonNull
-                                        Throwable t
-                                ) {
-
-                                    if (!isAdded()) {
-                                        return;
-                                    }
-
-                                    addBasicRepair(
-                                            appointment
-                                    );
-
-                                    pendingDetailRequests--;
-
-                                    checkDetailLoadingComplete();
-                                }
-                            }
-                    );
-        }
-    }
-
-    private void addBasicRepair(
-            Appointment appointment
-    ) {
-
-        AppointmentDetail detail =
-                new AppointmentDetail();
-
-        fillMissingValues(
-                detail,
-                appointment
-        );
-
-        allRepairs.add(
-                detail
-        );
-    }
-
-    private void fillMissingValues(
-            AppointmentDetail detail,
-            Appointment appointment
-    ) {
-
-        if (detail.getId() == null) {
-
-            detail.setId(
-                    appointment.getId()
-            );
-        }
-
-        if (detail.getAppointment_number() == null) {
-
-            detail.setAppointment_number(
-                    appointment
-                            .getAppointment_number()
-            );
-        }
-
-        if (detail.getStatus() == null) {
-
-            detail.setStatus(
-                    appointment.getStatus()
-            );
-        }
-
-        if (detail.getRequested_date() == null) {
-
-            detail.setRequested_date(
-                    appointment
-                            .getRequested_date()
-            );
-        }
-
-        if (detail.getRequested_time() == null) {
-
-            detail.setRequested_time(
-                    appointment
-                            .getRequested_time()
-            );
-        }
-
-        if (detail.getCustomer_id() == null) {
-
-            detail.setCustomer_id(
-                    appointment
-                            .getCustomer_id()
-            );
-        }
-
-        if (detail.getDevice_id() == null) {
-
-            detail.setDevice_id(
-                    appointment
-                            .getDevice_id()
-            );
-        }
-
-        if (detail.getService_id() == null) {
-
-            detail.setService_id(
-                    appointment
-                            .getService_id()
-            );
-        }
-
-        if (detail.getBranch_id() == null) {
-
-            detail.setBranch_id(
-                    appointment
-                            .getBranch_id()
-            );
-        }
-
-        if (detail.getTechnician_id() == null) {
-
-            detail.setTechnician_id(
-                    appointment
-                            .getTechnician_id()
-            );
-        }
-
-        if (detail.getEstimated_price() == 0) {
-
-            detail.setEstimated_price(
-                    appointment
-                            .getEstimated_price()
-            );
-        }
-
-        if (detail.getFinal_price() == null) {
-
-            detail.setFinal_price(
-                    appointment
-                            .getFinal_price()
-            );
-        }
-    }
-
-    private void checkDetailLoadingComplete() {
-
-        if (pendingDetailRequests <= 0) {
-
-            finishLoading();
-        }
-    }
-
-    private void finishLoading() {
-
-        showLoading(false);
-
-        btnRefreshAssignedRepairs
-                .setEnabled(true);
-
-        applyFilter(
-                currentFilter
-        );
-    }
 
     private void applyFilter(
             String filter
     ) {
 
-        if (filter == null
-                || filter.trim().isEmpty()) {
+        currentFilter =
+                filter == null
+                        || filter.trim()
+                        .isEmpty()
+                        ? "ALL"
+                        : filter
+                        .trim()
+                        .toUpperCase(
+                                Locale.US
+                        );
 
-            currentFilter =
-                    "ALL";
-
-        } else {
-
-            currentFilter =
-                    filter.trim()
-                            .toUpperCase(
-                                    Locale.US
-                            );
-        }
 
         filteredRepairs.clear();
 
-        for (AppointmentDetail repair :
+
+        for (Appointment repair :
                 allRepairs) {
 
             if (repair == null) {
+
                 continue;
             }
+
 
             if ("ALL".equals(
                     currentFilter
@@ -691,13 +413,15 @@ public class AssignedRepairsFragment extends Fragment {
                 continue;
             }
 
+
             String status =
                     normalizeStatus(
                             repair.getStatus()
                     );
 
-            if (status.equals(
-                    currentFilter
+
+            if (currentFilter.equals(
+                    status
             )) {
 
                 filteredRepairs.add(
@@ -706,75 +430,72 @@ public class AssignedRepairsFragment extends Fragment {
             }
         }
 
+
         repairAdapter.setRepairs(
                 filteredRepairs
         );
 
+
         updateScreenState();
     }
+
 
     private void updateScreenState() {
 
         int count =
                 filteredRepairs.size();
 
-        if (count == 1) {
 
-            tvAssignedRepairsTotal
-                    .setText(
-                            "1 repair"
-                    );
+        tvAssignedRepairsTotal
+                .setText(
+                        count == 1
+                                ? "1 repair"
+                                : count + " repairs"
+                );
 
-        } else {
 
-            tvAssignedRepairsTotal
-                    .setText(
-                            count
-                                    + " repairs"
-                    );
-        }
+        recyclerAssignedRepairs
+                .setVisibility(
+                        count == 0
+                                ? View.GONE
+                                : View.VISIBLE
+                );
 
-        if (count == 0) {
 
-            recyclerAssignedRepairs
-                    .setVisibility(
-                            View.GONE
-                    );
-
-            layoutEmptyAssignedRepairs
-                    .setVisibility(
-                            View.VISIBLE
-                    );
-
-        } else {
-
-            recyclerAssignedRepairs
-                    .setVisibility(
-                            View.VISIBLE
-                    );
-
-            layoutEmptyAssignedRepairs
-                    .setVisibility(
-                            View.GONE
-                    );
-        }
+        layoutEmptyAssignedRepairs
+                .setVisibility(
+                        count == 0
+                                ? View.VISIBLE
+                                : View.GONE
+                );
     }
+
 
     private void showLoading(
             boolean loading
     ) {
 
-        if (loading) {
+        progressAssignedRepairs
+                .setVisibility(
+                        loading
+                                ? View.VISIBLE
+                                : View.GONE
+                );
 
-            progressAssignedRepairs
-                    .setVisibility(
-                            View.VISIBLE
-                    );
+
+        btnRefreshAssignedRepairs
+                .setEnabled(
+                        !loading
+                );
+
+
+        if (loading) {
 
             recyclerAssignedRepairs
                     .setVisibility(
                             View.GONE
                     );
+
 
             layoutEmptyAssignedRepairs
                     .setVisibility(
@@ -783,12 +504,10 @@ public class AssignedRepairsFragment extends Fragment {
 
         } else {
 
-            progressAssignedRepairs
-                    .setVisibility(
-                            View.GONE
-                    );
+            updateScreenState();
         }
     }
+
 
     private void openRepairDetail(
             String appointmentId
@@ -799,6 +518,7 @@ public class AssignedRepairsFragment extends Fragment {
                         .newInstance(
                                 appointmentId
                         );
+
 
         getParentFragmentManager()
                 .beginTransaction()
@@ -812,6 +532,7 @@ public class AssignedRepairsFragment extends Fragment {
                 .commit();
     }
 
+
     private String normalizeStatus(
             String status
     ) {
@@ -821,7 +542,9 @@ public class AssignedRepairsFragment extends Fragment {
             return "";
         }
 
-        return status.trim()
+
+        return status
+                .trim()
                 .toUpperCase(
                         Locale.US
                 );

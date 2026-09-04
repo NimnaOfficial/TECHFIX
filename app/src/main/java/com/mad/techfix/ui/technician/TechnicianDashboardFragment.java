@@ -11,28 +11,22 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
 import com.mad.techfix.R;
-import com.mad.techfix.data.SessionManager;
-import com.mad.techfix.models.ApiResponse;
 import com.mad.techfix.models.Appointment;
-import com.mad.techfix.models.AppointmentDetail;
-import com.mad.techfix.network.ApiService;
-import com.mad.techfix.network.RetrofitClient;
 import com.mad.techfix.ui.history.RepairHistoryFragment;
+import com.mad.techfix.viewmodel.TechnicianAppointmentsViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
-public class TechnicianDashboardFragment extends Fragment {
+public class TechnicianDashboardFragment
+        extends Fragment {
 
     private TextView tvTechnicianWelcome;
     private TextView tvTechnicianName;
@@ -56,15 +50,13 @@ public class TechnicianDashboardFragment extends Fragment {
 
     private AssignedRepairAdapter repairAdapter;
 
-    private ApiService apiService;
-    private SessionManager sessionManager;
+    private TechnicianAppointmentsViewModel viewModel;
 
-    private final List<AppointmentDetail> previewRepairs =
-            new ArrayList<>();
 
     public TechnicianDashboardFragment() {
         // Required empty constructor
     }
+
 
     @Nullable
     @Override
@@ -81,6 +73,7 @@ public class TechnicianDashboardFragment extends Fragment {
         );
     }
 
+
     @Override
     public void onViewCreated(
             @NonNull View view,
@@ -92,24 +85,26 @@ public class TechnicianDashboardFragment extends Fragment {
                 savedInstanceState
         );
 
-        apiService =
-                RetrofitClient.getApiService();
 
-        sessionManager =
-                new SessionManager(
-                        requireContext()
-                );
+        bindViews(
+                view
+        );
 
-        bindViews(view);
-
-        setupTechnicianInformation();
 
         setupRecyclerView();
 
+        setupViewModel();
+
+        observeViewModel();
+
         setupListeners();
 
-        loadDashboard();
+        setupTechnicianInformation();
+
+
+        viewModel.loadAppointments();
     }
+
 
     private void bindViews(
             View view
@@ -120,60 +115,72 @@ public class TechnicianDashboardFragment extends Fragment {
                         R.id.tv_technician_welcome
                 );
 
+
         tvTechnicianName =
                 view.findViewById(
                         R.id.tv_technician_name
                 );
+
 
         tvTechnicianSpecialization =
                 view.findViewById(
                         R.id.tv_technician_specialization
                 );
 
+
         tvTechnicianStatus =
                 view.findViewById(
                         R.id.tv_technician_status
                 );
+
 
         tvAssignedRepairsCount =
                 view.findViewById(
                         R.id.tv_assigned_repairs_count
                 );
 
+
         tvInProgressCount =
                 view.findViewById(
                         R.id.tv_in_progress_count
                 );
+
 
         tvCompletedRepairsCount =
                 view.findViewById(
                         R.id.tv_completed_repairs_count
                 );
 
+
         btnViewAllAssigned =
                 view.findViewById(
                         R.id.btn_view_all_assigned
                 );
+
 
         btnRefreshDashboard =
                 view.findViewById(
                         R.id.btn_refresh_technician_dashboard
                 );
 
+
         btnAssignedRepairs =
                 view.findViewById(
                         R.id.btn_dashboard_assigned_repairs
                 );
+
 
         btnRepairHistory =
                 view.findViewById(
                         R.id.btn_dashboard_repair_history
                 );
 
+
         recyclerDashboardRepairs =
                 view.findViewById(
                         R.id.recycler_dashboard_repairs
                 );
+
 
         cardNoCurrentRepairs =
                 view.findViewById(
@@ -181,35 +188,6 @@ public class TechnicianDashboardFragment extends Fragment {
                 );
     }
 
-    private void setupTechnicianInformation() {
-
-        String technicianName =
-                sessionManager.getUserName();
-
-        if (technicianName == null
-                || technicianName.trim().isEmpty()
-                || technicianName.equalsIgnoreCase("User")) {
-
-            technicianName =
-                    "TECHFIX Technician";
-        }
-
-        tvTechnicianName.setText(
-                technicianName
-        );
-
-        tvTechnicianWelcome.setText(
-                "Welcome back, " + technicianName
-        );
-
-        tvTechnicianSpecialization.setText(
-                "Device Repair Technician"
-        );
-
-        tvTechnicianStatus.setText(
-                "AVAILABLE"
-        );
-    }
 
     private void setupRecyclerView() {
 
@@ -232,568 +210,335 @@ public class TechnicianDashboardFragment extends Fragment {
                                 return;
                             }
 
+
                             openRepairDetail(
                                     repair.getId()
                             );
                         }
                 );
 
-        recyclerDashboardRepairs.setLayoutManager(
-                new LinearLayoutManager(
-                        requireContext()
-                )
-        );
 
-        recyclerDashboardRepairs.setAdapter(
-                repairAdapter
-        );
+        recyclerDashboardRepairs
+                .setLayoutManager(
+                        new LinearLayoutManager(
+                                requireContext()
+                        )
+                );
 
-        recyclerDashboardRepairs.setNestedScrollingEnabled(
-                false
-        );
+
+        recyclerDashboardRepairs
+                .setAdapter(
+                        repairAdapter
+                );
+
+
+        recyclerDashboardRepairs
+                .setNestedScrollingEnabled(
+                        false
+                );
     }
 
-    private void setupListeners() {
 
-        btnRefreshDashboard.setOnClickListener(
-                v -> loadDashboard()
-        );
+    private void setupViewModel() {
 
-        btnViewAllAssigned.setOnClickListener(
-                v -> openAssignedRepairs()
-        );
-
-        btnAssignedRepairs.setOnClickListener(
-                v -> openAssignedRepairs()
-        );
-
-        btnRepairHistory.setOnClickListener(
-                v -> openRepairHistory()
-        );
+        viewModel =
+                new ViewModelProvider(this)
+                        .get(
+                                TechnicianAppointmentsViewModel.class
+                        );
     }
 
-    private void loadDashboard() {
 
-        String token =
-                sessionManager.getBearerToken();
+    private void observeViewModel() {
 
-        if (token == null
-                || token.trim().isEmpty()) {
+        viewModel
+                .getAppointments()
+                .observe(
+                        getViewLifecycleOwner(),
+                        appointments -> {
 
-            Toast.makeText(
-                    requireContext(),
-                    "Please sign in again",
-                    Toast.LENGTH_SHORT
-            ).show();
+                            renderDashboard(
+                                    appointments
+                            );
+                        }
+                );
 
-            return;
-        }
 
-        btnRefreshDashboard.setEnabled(
-                false
-        );
+        viewModel
+                .getIsLoading()
+                .observe(
+                        getViewLifecycleOwner(),
+                        loading -> {
 
-        apiService
-                .getTechnicianAppointments(token)
-                .enqueue(
-                        new Callback<
-                                ApiResponse<
-                                        List<Appointment>
-                                        >
-                                >() {
+                            boolean active =
+                                    loading != null
+                                            && loading;
 
-                            @Override
-                            public void onResponse(
-                                    @NonNull
-                                    Call<
-                                            ApiResponse<
-                                                    List<Appointment>
-                                                    >
-                                            > call,
 
-                                    @NonNull
-                                    Response<
-                                            ApiResponse<
-                                                    List<Appointment>
-                                                    >
-                                            > response
-                            ) {
-
-                                if (!isAdded()) {
-                                    return;
-                                }
-
-                                btnRefreshDashboard.setEnabled(
-                                        true
-                                );
-
-                                if (response.isSuccessful()
-                                        && response.body() != null
-                                        && response.body()
-                                        .isSuccess()) {
-
-                                    List<Appointment> appointments =
-                                            response.body()
-                                                    .getData();
-
-                                    if (appointments == null) {
-
-                                        appointments =
-                                                new ArrayList<>();
-                                    }
-
-                                    updateDashboardCounts(
-                                            appointments
+                            btnRefreshDashboard
+                                    .setEnabled(
+                                            !active
                                     );
+                        }
+                );
 
-                                    loadRepairPreviews(
-                                            appointments
-                                    );
 
-                                } else {
+        viewModel
+                .getErrorMessage()
+                .observe(
+                        getViewLifecycleOwner(),
+                        message -> {
 
-                                    clearDashboard();
+                            if (message == null
+                                    || message.trim()
+                                    .isEmpty()) {
 
-                                    Toast.makeText(
-                                            requireContext(),
-                                            "Unable to load technician dashboard",
-                                            Toast.LENGTH_SHORT
-                                    ).show();
-                                }
+                                return;
                             }
 
-                            @Override
-                            public void onFailure(
-                                    @NonNull
-                                    Call<
-                                            ApiResponse<
-                                                    List<Appointment>
-                                                    >
-                                            > call,
 
-                                    @NonNull
-                                    Throwable t
-                            ) {
+                            Toast.makeText(
+                                    requireContext(),
+                                    message,
+                                    Toast.LENGTH_LONG
+                            ).show();
 
-                                if (!isAdded()) {
-                                    return;
-                                }
 
-                                btnRefreshDashboard.setEnabled(
-                                        true
-                                );
-
-                                clearDashboard();
-
-                                String message =
-                                        "Unable to load dashboard";
-
-                                if (t.getMessage() != null
-                                        && !t.getMessage()
-                                        .trim()
-                                        .isEmpty()) {
-
-                                    message +=
-                                            ": "
-                                                    + t.getMessage();
-                                }
-
-                                Toast.makeText(
-                                        requireContext(),
-                                        message,
-                                        Toast.LENGTH_LONG
-                                ).show();
-                            }
+                            viewModel.clearError();
                         }
                 );
     }
 
-    private void updateDashboardCounts(
+
+    private void setupTechnicianInformation() {
+
+        String technicianName =
+                viewModel
+                        .getTechnicianName();
+
+
+        tvTechnicianName.setText(
+                technicianName
+        );
+
+
+        tvTechnicianWelcome.setText(
+                "Welcome back, "
+                        + technicianName
+        );
+
+
+        tvTechnicianSpecialization.setText(
+                "Device Repair Technician"
+        );
+
+
+        tvTechnicianStatus.setText(
+                "AVAILABLE"
+        );
+    }
+
+
+    private void setupListeners() {
+
+        btnRefreshDashboard
+                .setOnClickListener(
+                        view ->
+                                viewModel
+                                        .refreshAppointments()
+                );
+
+
+        btnViewAllAssigned
+                .setOnClickListener(
+                        view ->
+                                openAssignedRepairs()
+                );
+
+
+        btnAssignedRepairs
+                .setOnClickListener(
+                        view ->
+                                openAssignedRepairs()
+                );
+
+
+        btnRepairHistory
+                .setOnClickListener(
+                        view ->
+                                openRepairHistory()
+                );
+    }
+
+
+    private void renderDashboard(
             List<Appointment> appointments
     ) {
 
-        int assignedCount = 0;
-        int inProgressCount = 0;
-        int completedCount = 0;
-        int activeCount = 0;
+        if (appointments == null) {
+
+            appointments =
+                    new ArrayList<>();
+        }
+
+
+        int assignedCount =
+                0;
+
+        int inProgressCount =
+                0;
+
+        int completedCount =
+                0;
+
+        int activeCount =
+                0;
+
+
+        List<Appointment> activeRepairs =
+                new ArrayList<>();
+
 
         for (Appointment appointment :
                 appointments) {
 
             if (appointment == null) {
+
                 continue;
             }
+
 
             String status =
                     normalizeStatus(
                             appointment.getStatus()
                     );
 
-            if (status.equals("ASSIGNED")) {
+
+            if ("ASSIGNED".equals(status)) {
 
                 assignedCount++;
                 activeCount++;
 
-            } else if (isInProgressStatus(status)) {
+            } else if (isInProgressStatus(
+                    status
+            )) {
 
                 inProgressCount++;
                 activeCount++;
 
-            } else if (status.equals("READY")) {
+            } else if ("READY".equals(
+                    status
+            )) {
 
                 inProgressCount++;
                 activeCount++;
 
-            } else if (status.equals("COMPLETED")) {
+            } else if ("COMPLETED".equals(
+                    status
+            )) {
 
                 completedCount++;
             }
-        }
 
-        tvAssignedRepairsCount.setText(
-                String.valueOf(
-                        assignedCount
-                )
-        );
 
-        tvInProgressCount.setText(
-                String.valueOf(
-                        inProgressCount
-                )
-        );
+            if (isActiveRepairStatus(
+                    status
+            )) {
 
-        tvCompletedRepairsCount.setText(
-                String.valueOf(
-                        completedCount
-                )
-        );
-
-        if (activeCount > 0) {
-
-            tvTechnicianStatus.setText(
-                    "BUSY"
-            );
-
-        } else {
-
-            tvTechnicianStatus.setText(
-                    "AVAILABLE"
-            );
-        }
-    }
-
-    private void loadRepairPreviews(
-            List<Appointment> appointments
-    ) {
-
-        previewRepairs.clear();
-
-        repairAdapter.setRepairs(
-                previewRepairs
-        );
-
-        List<Appointment> activeAppointments =
-                new ArrayList<>();
-
-        for (Appointment appointment :
-                appointments) {
-
-            if (appointment == null) {
-                continue;
-            }
-
-            String status =
-                    normalizeStatus(
-                            appointment.getStatus()
-                    );
-
-            if (isActiveRepairStatus(status)) {
-
-                activeAppointments.add(
+                activeRepairs.add(
                         appointment
                 );
             }
         }
 
-        if (activeAppointments.isEmpty()) {
 
-            showEmptyState(true);
+        tvAssignedRepairsCount
+                .setText(
+                        String.valueOf(
+                                assignedCount
+                        )
+                );
 
-            return;
-        }
 
-        showEmptyState(false);
+        tvInProgressCount
+                .setText(
+                        String.valueOf(
+                                inProgressCount
+                        )
+                );
+
+
+        tvCompletedRepairsCount
+                .setText(
+                        String.valueOf(
+                                completedCount
+                        )
+                );
+
+
+        tvTechnicianStatus
+                .setText(
+                        activeCount > 0
+                                ? "BUSY"
+                                : "AVAILABLE"
+                );
+
+
+        List<Appointment> preview =
+                new ArrayList<>();
+
 
         int limit =
                 Math.min(
-                        activeAppointments.size(),
+                        activeRepairs.size(),
                         3
                 );
 
-        String token =
-                sessionManager.getBearerToken();
 
-        for (int i = 0; i < limit; i++) {
+        for (int i = 0;
+             i < limit;
+             i++) {
 
-            Appointment appointment =
-                    activeAppointments.get(i);
-
-            if (appointment.getId() == null
-                    || appointment.getId()
-                    .trim()
-                    .isEmpty()) {
-
-                continue;
-            }
-
-            loadSingleRepairDetail(
-                    token,
-                    appointment
+            preview.add(
+                    activeRepairs.get(i)
             );
         }
-    }
 
-    private void loadSingleRepairDetail(
-            String token,
-            Appointment appointment
-    ) {
-
-        apiService
-                .getAppointmentDetail(
-                        token,
-                        appointment.getId()
-                )
-                .enqueue(
-                        new Callback<
-                                ApiResponse<
-                                        AppointmentDetail
-                                        >
-                                >() {
-
-                            @Override
-                            public void onResponse(
-                                    @NonNull
-                                    Call<
-                                            ApiResponse<
-                                                    AppointmentDetail
-                                                    >
-                                            > call,
-
-                                    @NonNull
-                                    Response<
-                                            ApiResponse<
-                                                    AppointmentDetail
-                                                    >
-                                            > response
-                            ) {
-
-                                if (!isAdded()) {
-                                    return;
-                                }
-
-                                if (response.isSuccessful()
-                                        && response.body() != null
-                                        && response.body()
-                                        .isSuccess()
-                                        && response.body()
-                                        .getData() != null) {
-
-                                    AppointmentDetail detail =
-                                            response.body()
-                                                    .getData();
-
-                                    fillMissingAppointmentValues(
-                                            detail,
-                                            appointment
-                                    );
-
-                                    previewRepairs.add(
-                                            detail
-                                    );
-
-                                    repairAdapter.setRepairs(
-                                            previewRepairs
-                                    );
-
-                                    showEmptyState(
-                                            previewRepairs.isEmpty()
-                                    );
-
-                                } else {
-
-                                    addBasicPreview(
-                                            appointment
-                                    );
-                                }
-                            }
-
-                            @Override
-                            public void onFailure(
-                                    @NonNull
-                                    Call<
-                                            ApiResponse<
-                                                    AppointmentDetail
-                                                    >
-                                            > call,
-
-                                    @NonNull
-                                    Throwable t
-                            ) {
-
-                                if (!isAdded()) {
-                                    return;
-                                }
-
-                                addBasicPreview(
-                                        appointment
-                                );
-                            }
-                        }
-                );
-    }
-
-    private void addBasicPreview(
-            Appointment appointment
-    ) {
-
-        AppointmentDetail detail =
-                new AppointmentDetail();
-
-        fillMissingAppointmentValues(
-                detail,
-                appointment
-        );
-
-        previewRepairs.add(
-                detail
-        );
 
         repairAdapter.setRepairs(
-                previewRepairs
+                preview
         );
+
 
         showEmptyState(
-                false
+                preview.isEmpty()
         );
     }
 
-    private void fillMissingAppointmentValues(
-            AppointmentDetail detail,
-            Appointment appointment
-    ) {
-
-        if (detail.getId() == null) {
-
-            detail.setId(
-                    appointment.getId()
-            );
-        }
-
-        if (detail.getAppointment_number() == null) {
-
-            detail.setAppointment_number(
-                    appointment.getAppointment_number()
-            );
-        }
-
-        if (detail.getStatus() == null) {
-
-            detail.setStatus(
-                    appointment.getStatus()
-            );
-        }
-
-        if (detail.getRequested_date() == null) {
-
-            detail.setRequested_date(
-                    appointment.getRequested_date()
-            );
-        }
-
-        if (detail.getRequested_time() == null) {
-
-            detail.setRequested_time(
-                    appointment.getRequested_time()
-            );
-        }
-
-        if (detail.getCustomer_id() == null) {
-
-            detail.setCustomer_id(
-                    appointment.getCustomer_id()
-            );
-        }
-
-        if (detail.getDevice_id() == null) {
-
-            detail.setDevice_id(
-                    appointment.getDevice_id()
-            );
-        }
-
-        if (detail.getService_id() == null) {
-
-            detail.setService_id(
-                    appointment.getService_id()
-            );
-        }
-
-        if (detail.getBranch_id() == null) {
-
-            detail.setBranch_id(
-                    appointment.getBranch_id()
-            );
-        }
-
-        if (detail.getTechnician_id() == null) {
-
-            detail.setTechnician_id(
-                    appointment.getTechnician_id()
-            );
-        }
-    }
 
     private boolean isInProgressStatus(
             String status
     ) {
 
-        return status.equals(
-                "DEVICE_RECEIVED"
-        )
-                || status.equals(
-                "DIAGNOSING"
-        )
-                || status.equals(
-                "REPAIRING"
-        )
-                || status.equals(
-                "TESTING"
-        );
+        return "DEVICE_RECEIVED".equals(status)
+                || "DIAGNOSING".equals(status)
+                || "REPAIRING".equals(status)
+                || "TESTING".equals(status);
     }
+
 
     private boolean isActiveRepairStatus(
             String status
     ) {
 
-        return status.equals(
-                "ASSIGNED"
-        )
-                || status.equals(
-                "DEVICE_RECEIVED"
-        )
-                || status.equals(
-                "DIAGNOSING"
-        )
-                || status.equals(
-                "REPAIRING"
-        )
-                || status.equals(
-                "TESTING"
-        )
-                || status.equals(
-                "READY"
-        );
+        return "ASSIGNED".equals(status)
+                || "DEVICE_RECEIVED".equals(status)
+                || "DIAGNOSING".equals(status)
+                || "REPAIRING".equals(status)
+                || "TESTING".equals(status)
+                || "READY".equals(status);
     }
+
 
     private String normalizeStatus(
             String status
@@ -804,6 +549,7 @@ public class TechnicianDashboardFragment extends Fragment {
             return "";
         }
 
+
         return status
                 .trim()
                 .toUpperCase(
@@ -811,60 +557,27 @@ public class TechnicianDashboardFragment extends Fragment {
                 );
     }
 
+
     private void showEmptyState(
             boolean empty
     ) {
 
-        if (empty) {
+        recyclerDashboardRepairs
+                .setVisibility(
+                        empty
+                                ? View.GONE
+                                : View.VISIBLE
+                );
 
-            recyclerDashboardRepairs.setVisibility(
-                    View.GONE
-            );
 
-            cardNoCurrentRepairs.setVisibility(
-                    View.VISIBLE
-            );
-
-        } else {
-
-            recyclerDashboardRepairs.setVisibility(
-                    View.VISIBLE
-            );
-
-            cardNoCurrentRepairs.setVisibility(
-                    View.GONE
-            );
-        }
+        cardNoCurrentRepairs
+                .setVisibility(
+                        empty
+                                ? View.VISIBLE
+                                : View.GONE
+                );
     }
 
-    private void clearDashboard() {
-
-        tvAssignedRepairsCount.setText(
-                "0"
-        );
-
-        tvInProgressCount.setText(
-                "0"
-        );
-
-        tvCompletedRepairsCount.setText(
-                "0"
-        );
-
-        tvTechnicianStatus.setText(
-                "AVAILABLE"
-        );
-
-        previewRepairs.clear();
-
-        repairAdapter.setRepairs(
-                previewRepairs
-        );
-
-        showEmptyState(
-                true
-        );
-    }
 
     private void openRepairDetail(
             String appointmentId
@@ -876,6 +589,7 @@ public class TechnicianDashboardFragment extends Fragment {
                                 appointmentId
                         );
 
+
         getParentFragmentManager()
                 .beginTransaction()
                 .replace(
@@ -887,17 +601,15 @@ public class TechnicianDashboardFragment extends Fragment {
                 )
                 .commit();
     }
+
 
     private void openAssignedRepairs() {
 
-        AssignedRepairsFragment fragment =
-                new AssignedRepairsFragment();
-
         getParentFragmentManager()
                 .beginTransaction()
                 .replace(
                         R.id.technician_fragment_container,
-                        fragment
+                        new AssignedRepairsFragment()
                 )
                 .addToBackStack(
                         null
@@ -905,16 +617,14 @@ public class TechnicianDashboardFragment extends Fragment {
                 .commit();
     }
 
-    private void openRepairHistory() {
 
-        RepairHistoryFragment fragment =
-                new RepairHistoryFragment();
+    private void openRepairHistory() {
 
         getParentFragmentManager()
                 .beginTransaction()
                 .replace(
                         R.id.technician_fragment_container,
-                        fragment
+                        new RepairHistoryFragment()
                 )
                 .addToBackStack(
                         null
