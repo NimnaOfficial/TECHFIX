@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.mad.techfix.R;
+import com.mad.techfix.ui.admin.branches.BranchListFragment;
 
 public class SystemAdminActivity extends AppCompatActivity {
 
@@ -22,8 +23,8 @@ public class SystemAdminActivity extends AppCompatActivity {
             } else if (id == R.id.nav_sys_users) {
                 loadFragment(new SysAdminUsersFragment());
                 return true;
-            } else if (id == R.id.nav_sys_logs) {
-                loadFragment(new SysAdminLogsFragment());
+            } else if (id == R.id.nav_sys_branches) {
+                loadFragment(new BranchListFragment());
                 return true;
             } else if (id == R.id.nav_sys_settings) {
                 loadFragment(new SysAdminSettingsFragment());

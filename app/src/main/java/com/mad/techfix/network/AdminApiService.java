@@ -5,6 +5,7 @@ import com.mad.techfix.models.Appointment;
 import com.mad.techfix.models.admin.AssignTechnicianRequest;
 import com.mad.techfix.models.admin.Branch;
 import com.mad.techfix.models.admin.DashboardResponse;
+import com.mad.techfix.models.admin.EligibleTechniciansResponse;
 import com.mad.techfix.models.admin.Service;
 import com.mad.techfix.models.admin.Technician;
 import com.mad.techfix.models.admin.UpdateTechServicesRequest;
@@ -34,6 +35,8 @@ public interface AdminApiService {
 
     @POST("api/admin/settings")
     Call<ApiResponse<Void>> updateSystemSetting(@Header("Authorization") String auth, @Body java.util.Map<String, String> payload);
+    @GET("api/admin/system/backup")
+    Call<okhttp3.ResponseBody> getSystemBackup(@Header("Authorization") String auth);
     @GET("api/admin/users")
     Call<ApiResponse<java.util.List<com.mad.techfix.models.admin.Manager>>> getManagers(@Header("Authorization") String auth);
 
@@ -68,6 +71,9 @@ public interface AdminApiService {
     @PUT("api/appointments/{id}/assign")
     Call<ApiResponse<Object>> assignTechnician(@Header("Authorization") String auth, @Path("id") String appointmentId, @Body AssignTechnicianRequest request);
 
+    @GET("api/appointments/{id}/eligible-technicians")
+    Call<ApiResponse<EligibleTechniciansResponse>> getEligibleTechnicians(@Header("Authorization") String auth, @Path("id") String appointmentId);
+
     @GET("api/appointments")
     Call<ApiResponse<List<Appointment>>> getAllAppointments(@Header("Authorization") String auth);
 
@@ -94,6 +100,7 @@ public interface AdminApiService {
     @retrofit2.http.DELETE("api/technicians/{id}")
     Call<ApiResponse<Object>> deleteTechnician(@Header("Authorization") String auth, @Path("id") String technicianId);
 }
+
 
 
 

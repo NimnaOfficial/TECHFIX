@@ -1,50 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- ========================================== -->
-    <!-- DARK THEME COLORS (Member 4 - Your Layouts) -->
-    <!-- ========================================== -->
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
-    <color name="gray_dark">#1A1A1A</color>
-    <color name="gray_mid">#333333</color>
-    <color name="gray_light">#888888</color>
-    <color name="accent">#00D4FF</color>
-
-    <!-- Status Colors -->
-    <color name="status_completed">#00D4FF</color>
-    <color name="status_cancelled">#FF4444</color>
-    <color name="status_pending">#FFC107</color>
-    <color name="status_success">#00C853</color>
-    <color name="status_error">#D50000</color>
-    <color name="status_warning">#FF6D00</color>
-
-    <!-- App Theme Colors (Dark) -->
-    <color name="app_surface">#1A1A1A</color>
-    <color name="app_surface_variant">#2A2A2A</color>
-    <color name="app_background">#000000</color>
-    <color name="app_divider">#333333</color>
-    <color name="app_text_primary">#FFFFFF</color>
-    <color name="app_text_secondary">#888888</color>
-    <color name="app_text_tertiary">#555555</color>
-
-    <!-- Card & Icon Colors -->
-    <color name="card_border">#333333</color>
-    <color name="icon_bg_primary">#00D4FF</color>
-    <color name="icon_tint_primary">#00D4FF</color>
-    <color name="app_primary">#00D4FF</color>
-    <color name="app_primary_variant">#0099CC</color>
-    <color name="app_secondary">#00D4FF</color>
-    <color name="app_accent">#00D4FF</color>
-    <color name="app_error">#FF4444</color>
-    <color name="app_success">#00D4FF</color>
+    
+    <!-- LIGHT THEME COLORS -->
+    <color name="app_background">#F8F9FA</color>
+    <color name="app_surface">#FFFFFF</color>
+    <color name="app_surface_variant">#E9ECEF</color>
+    
+    <!-- Text Colors -->
+    <color name="app_text_primary">#212529</color>
+    <color name="app_text_secondary">#6C757D</color>
+    <color name="app_text_tertiary">#ADB5BD</color>
+    
+    <!-- Borders & Dividers -->
+    <color name="app_divider">#E9ECEF</color>
+    <color name="card_border">#DEE2E6</color>
+    
+    <!-- Brand Primary Colors (Modern Blue) -->
+    <color name="app_primary">#0D6EFD</color>
+    <color name="app_primary_variant">#0A58CA</color>
+    <color name="app_secondary">#6C757D</color>
+    <color name="app_accent">#0D6EFD</color>
+    
+    <!-- UI Component Tints -->
+    <color name="icon_bg_primary">#E7F1FF</color>
+    <color name="icon_tint_primary">#0D6EFD</color>
+    
+    <!-- Status & Alerts (Optimized for Light Mode) -->
+    <color name="app_error">#DC3545</color>
+    <color name="app_success">#198754</color>
     <color name="app_warning">#FFC107</color>
+    
+    <color name="status_completed">#0D6EFD</color>
+    <color name="status_cancelled">#DC3545</color>
+    <color name="status_pending">#FD7E14</color>
+    <color name="status_success">#198754</color>
+    <color name="status_error">#DC3545</color>
+    <color name="status_warning">#FFC107</color>
 
-    <!-- ========================================== -->
-    <!-- MATERIAL THEME COLORS (Compatibility) -->
-    <!-- ========================================== -->
+    <!-- Legacy / Material Fallbacks -->
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>
     <color name="purple_700">#FF3700B3</color>
     <color name="teal_200">#FF03DAC5</color>
     <color name="teal_700">#FF018786</color>
+    
+    <!-- Misc Legacy -->
+    <color name="gray_dark">#343A40</color>
+    <color name="gray_mid">#6C757D</color>
+    <color name="gray_light">#CED4DA</color>
+    <color name="accent">#0D6EFD</color>
 </resources>

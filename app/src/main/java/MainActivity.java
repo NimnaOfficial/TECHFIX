@@ -7,7 +7,7 @@ import com.mad.techfix.models.LoginRequest;
 import com.mad.techfix.models.AuthResponse;
 import com.mad.techfix.network.ApiService;
 import com.mad.techfix.network.RetrofitClient;
-import com.mad.techfix.ui.history.RepairHistoryFragment;
+import com.mad.techfix.ui.camera.CameraFragment;
 import com.mad.techfix.utils.TokenManager;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
         apiService = RetrofitClient.getClient().create(ApiService.class);
 
         if (tokenManager.getToken() != null) {
-            loadHistoryFragment();
+            loadCameraFragment();
             return;
         }
 
@@ -47,8 +47,8 @@ public class MainActivity extends AppCompatActivity {
                         tokenManager.saveUserId(response.body().getUser().getId());
                     }
 
-                    Toast.makeText(MainActivity.this, "✅ Login successful! Loading Repair History...", Toast.LENGTH_SHORT).show();
-                    loadHistoryFragment();
+                    Toast.makeText(MainActivity.this, "✅ Login successful! Loading Camera...", Toast.LENGTH_SHORT).show();
+                    loadCameraFragment();
 
                 } else {
                     String errorMsg = "Login failed! Check credentials.";
@@ -60,21 +60,21 @@ public class MainActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                     Toast.makeText(MainActivity.this, "❌ " + errorMsg, Toast.LENGTH_LONG).show();
-                    loadHistoryFragment();
+                    loadCameraFragment();
                 }
             }
 
             @Override
             public void onFailure(Call<AuthResponse> call, Throwable t) {
                 Toast.makeText(MainActivity.this, "⚠️ Network error: " + t.getMessage(), Toast.LENGTH_LONG).show();
-                loadHistoryFragment();
+                loadCameraFragment();
             }
         });
     }
 
-    private void loadHistoryFragment() {
+    private void loadCameraFragment() {
         getSupportFragmentManager().beginTransaction()
-                .replace(android.R.id.content, new RepairHistoryFragment())
+                .replace(android.R.id.content, new CameraFragment())
                 .commit();
     }
 }

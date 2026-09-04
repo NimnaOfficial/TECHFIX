@@ -3,6 +3,7 @@ package com.mad.techfix.ui.admin;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,12 +13,21 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.mad.techfix.R;
 import com.mad.techfix.data.SessionManager;
+import com.mad.techfix.network.RetrofitClient;
+import com.mad.techfix.repository.AdminRepository;
+import com.mad.techfix.ui.admin.adapters.LogAdapter;
 import com.mad.techfix.ui.auth.LoginActivity;
 import com.mad.techfix.viewmodel.AdminViewModel;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import okhttp3.ResponseBody;
 
 public class SysAdminSettingsFragment extends Fragment {
 
@@ -25,6 +35,7 @@ public class SysAdminSettingsFragment extends Fragment {
     private SwitchMaterial switchMaintenance;
     private ProgressBar progressBar;
     private boolean isProgrammaticChange = false;
+    private LogAdapter logAdapter;
 
     @Nullable
     @Override
@@ -44,21 +55,49 @@ public class SysAdminSettingsFragment extends Fragment {
         MaterialButton btnClearCache = view.findViewById(R.id.btn_clear_cache);
         MaterialButton btnLogout = view.findViewById(R.id.btn_admin_logout);
 
+        // Logs
+        RecyclerView rvLogs = view.findViewById(R.id.rv_logs);
+        MaterialButton btnRefreshLogs = view.findViewById(R.id.btn_refresh_logs);
+        MaterialButton btnClearLogs = view.findViewById(R.id.btn_clear_logs);
+
+        rvLogs.setLayoutManager(new LinearLayoutManager(getContext()));
+        logAdapter = new LogAdapter();
+        rvLogs.setAdapter(logAdapter);
+
+        if (viewModel.isPendingScrollToLogs()) {
+            View logsCard = (View) rvLogs.getParent();
+            ViewGroup.LayoutParams params = logsCard.getLayoutParams();
+            params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            logsCard.setLayoutParams(params);
+            rvLogs.setNestedScrollingEnabled(false);
+            
+            view.post(() -> {
+                android.widget.ScrollView sv = view.findViewById(R.id.scroll_view);
+                if (sv != null) sv.smoothScrollTo(0, logsCard.getBottom() + 2000); // ensure it scrolls all the way
+            });
+            viewModel.setPendingScrollToLogs(false);
+        }
+
+        btnRefreshLogs.setOnClickListener(v -> viewModel.loadSystemLogs());
+        btnClearLogs.setOnClickListener(v -> {
+            new AlertDialog.Builder(requireContext())
+                .setTitle("Purge Logs")
+                .setMessage("Are you sure you want to permanently delete all system API logs?")
+                .setPositiveButton("Purge", (d, w) -> viewModel.clearSystemLogs())
+                .setNegativeButton("Cancel", null)
+                .show();
+        });
+
         switchMaintenance.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (!isProgrammaticChange) {
                 viewModel.updateSystemSetting("maintenance_mode", String.valueOf(isChecked));
             }
         });
 
-        btnExportDb.setOnClickListener(v -> {
-            new AlertDialog.Builder(requireContext())
-                .setTitle("Export Database")
-                .setMessage("Database backup dispatched successfully to Admin Email.")
-                .setPositiveButton("OK", null)
-                .show();
-        });
+        btnExportDb.setOnClickListener(v -> exportDatabase());
 
         btnClearCache.setOnClickListener(v -> {
+            requireContext().getCacheDir().delete();
             new AlertDialog.Builder(requireContext())
                 .setTitle("Purge Cache")
                 .setMessage("Local application cache cleared successfully.")
@@ -84,6 +123,69 @@ public class SysAdminSettingsFragment extends Fragment {
 
         setupObservers();
         viewModel.loadSystemSettings();
+        viewModel.loadSystemLogs();
+    }
+
+    private static final int CREATE_FILE = 1;
+
+    private void exportDatabase() {
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("application/json");
+        intent.putExtra(Intent.EXTRA_TITLE, "TechFix_DB_Backup_" + System.currentTimeMillis() + ".json");
+        startActivityForResult(intent, CREATE_FILE);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == CREATE_FILE && resultCode == android.app.Activity.RESULT_OK) {
+            if (data != null && data.getData() != null) {
+                performDownload(data.getData());
+            }
+        }
+    }
+
+    private void performDownload(android.net.Uri uri) {
+        progressBar.setVisibility(View.VISIBLE);
+        viewModel.getSystemBackup(new AdminRepository.AdminCallback<ResponseBody>() {
+            @Override
+            public void onSuccess(ResponseBody data) {
+                new Thread(() -> {
+                    try {
+                        java.io.OutputStream os = requireContext().getContentResolver().openOutputStream(uri);
+                        InputStream is = data.byteStream();
+                        byte[] buffer = new byte[8192];
+                        int bytesRead;
+                        while ((bytesRead = is.read(buffer)) != -1) {
+                            os.write(buffer, 0, bytesRead);
+                        }
+                        os.close();
+                        is.close();
+                        requireActivity().runOnUiThread(() -> {
+                            progressBar.setVisibility(View.GONE);
+                            new AlertDialog.Builder(requireContext())
+                                .setTitle("Database Exported")
+                                .setMessage("Full database successfully saved!")
+                                .setPositiveButton("OK", null)
+                                .show();
+                        });
+                    } catch (Exception e) {
+                        requireActivity().runOnUiThread(() -> {
+                            progressBar.setVisibility(View.GONE);
+                            Toast.makeText(getContext(), "Error saving file: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                        });
+                    }
+                }).start();
+            }
+            @Override
+            public void onError(String error) {
+                requireActivity().runOnUiThread(() -> {
+                    progressBar.setVisibility(View.GONE);
+                    Toast.makeText(getContext(), error, Toast.LENGTH_LONG).show();
+                });
+            }
+        });
     }
 
     private void setupObservers() {
@@ -93,6 +195,10 @@ public class SysAdminSettingsFragment extends Fragment {
                 switchMaintenance.setChecked("true".equalsIgnoreCase(settings.get("maintenance_mode")));
                 isProgrammaticChange = false;
             }
+        });
+
+        viewModel.getSystemLogs().observe(getViewLifecycleOwner(), logs -> {
+            logAdapter.setLogs(logs);
         });
 
         viewModel.getIsLoading().observe(getViewLifecycleOwner(), isLoading -> {
@@ -106,3 +212,6 @@ public class SysAdminSettingsFragment extends Fragment {
         });
     }
 }
+
+
+

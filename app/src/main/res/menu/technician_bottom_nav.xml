@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/nav_technician_dashboard"
+        android:icon="@drawable/ic_dashboard"
+        android:title="Dashboard" />
+
+    <item
+        android:id="@+id/nav_assigned_repairs"
+        android:icon="@drawable/ic_repair"
+        android:title="Repairs" />
+
+    <item
+        android:id="@+id/nav_repair_history"
+        android:icon="@drawable/ic_calendar"
+        android:title="History" />
+
+</menu>

@@ -235,6 +235,25 @@ public class AdminRepository {
         });
     }
 
+    // --- Smart Assignment: Eligible Technicians ---
+    public void getEligibleTechnicians(String token, String appointmentId, AdminCallback<com.mad.techfix.models.admin.EligibleTechniciansResponse> callback) {
+        apiService.getEligibleTechnicians(token, appointmentId).enqueue(new Callback<ApiResponse<com.mad.techfix.models.admin.EligibleTechniciansResponse>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<com.mad.techfix.models.admin.EligibleTechniciansResponse>> call, Response<ApiResponse<com.mad.techfix.models.admin.EligibleTechniciansResponse>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                    callback.onSuccess(response.body().getData());
+                } else {
+                    callback.onError("Failed to fetch eligible technicians");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<com.mad.techfix.models.admin.EligibleTechniciansResponse>> call, Throwable t) {
+                callback.onError(t.getMessage() != null ? t.getMessage() : "Network error");
+            }
+        });
+    }
+
     // --- All Appointments ---
         public void getAllAppointments(String token, AdminCallback<List<Appointment>> callback) {
         apiService.getAllAppointments(token).enqueue(new Callback<ApiResponse<List<Appointment>>>() {
@@ -388,6 +407,17 @@ public class AdminRepository {
         });
     }
 
+        public void getSystemBackup(String token, AdminCallback<okhttp3.ResponseBody> callback) {
+        apiService.getSystemBackup(token).enqueue(new retrofit2.Callback<okhttp3.ResponseBody>() {
+            @Override
+            public void onResponse(retrofit2.Call<okhttp3.ResponseBody> call, retrofit2.Response<okhttp3.ResponseBody> response) {
+                if (response.isSuccessful() && response.body() != null) callback.onSuccess(response.body());
+                else { try { callback.onError("Failed: " + response.errorBody().string()); } catch (Exception e) { callback.onError("Failed to fetch backup: " + response.code()); } }
+            }
+            @Override public void onFailure(retrofit2.Call<okhttp3.ResponseBody> call, Throwable t) { callback.onError(t.getMessage()); }
+        });
+    }
+
     public void updateSystemSetting(String token, String key, String value, AdminCallback<Void> callback) {
         java.util.Map<String, String> payload = new java.util.HashMap<>();
         payload.put("setting_key", key);
@@ -497,6 +527,8 @@ public class AdminRepository {
         return adminDao.getAvailableTechniciansByBranch(branchId);
     }
 }
+
+
 
 
 

@@ -1,58 +1,81 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/black"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:background="@color/app_background"
+    android:orientation="vertical">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <!-- Header -->
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="🔧 Repair History"
-        android:textColor="@color/white"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="4dp"/>
+        android:orientation="vertical"
+        android:paddingStart="20dp"
+        android:paddingTop="20dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="12dp">
 
-    <View
-        android:layout_width="60dp"
-        android:layout_height="4dp"
-        android:layout_marginBottom="16dp"
-        android:background="@color/accent" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Repair History"
+            android:textColor="@color/app_primary"
+            android:textSize="28sp"
+            android:textStyle="bold" />
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="View previously completed and updated repairs"
+            android:textColor="@color/app_text_secondary"
+            android:textSize="14sp" />
+
+    </LinearLayout>
+
+    <!-- Loading -->
     <ProgressBar
         android:id="@+id/progress_bar"
+        style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
         android:layout_height="4dp"
-        android:visibility="gone"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:progressTint="@color/accent" />
+        android:visibility="gone" />
 
+    <!-- Pull to refresh -->
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipe_refresh_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
+            <!-- Repair list -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvHistory"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingStart="20dp"
+                android:paddingTop="8dp"
+                android:paddingEnd="20dp"
+                android:paddingBottom="24dp" />
+
+            <!-- Existing Java expects this to be a TextView -->
             <TextView
                 android:id="@+id/tv_empty"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center"
+                android:padding="32dp"
                 android:text="No repair history found.\nPull down to refresh."
-                android:textColor="@color/gray_light"
-                android:textSize="18sp"
+                android:textColor="@color/app_text_secondary"
+                android:textSize="16sp"
+                android:textStyle="bold"
                 android:visibility="gone" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvHistory"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
 
         </FrameLayout>
 

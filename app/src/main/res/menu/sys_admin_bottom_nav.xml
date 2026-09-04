@@ -9,11 +9,11 @@
         android:icon="@android:drawable/ic_menu_myplaces"
         android:title="Users" />
     <item
-        android:id="@+id/nav_sys_logs"
-        android:icon="@android:drawable/ic_menu_info_details"
-        android:title="Logs" />
+        android:id="@+id/nav_sys_branches"
+        android:icon="@drawable/ic_branch"
+        android:title="Branches" />
     <item
         android:id="@+id/nav_sys_settings"
         android:icon="@android:drawable/ic_menu_preferences"
-        android:title="Settings" />
+        android:title="Settings &amp; Logs" />
 </menu>

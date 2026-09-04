@@ -390,6 +390,7 @@ public class PartsManagerFragment extends Fragment {
     }
 
 
+    
     // ==========================================
     // HELPER: TextWatcher to clear errors
     // ==========================================
@@ -413,3 +414,6 @@ public class PartsManagerFragment extends Fragment {
         public void afterTextChanged(Editable s) {}
     }
 }
+
+
+

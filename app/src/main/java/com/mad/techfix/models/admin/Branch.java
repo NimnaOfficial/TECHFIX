@@ -24,7 +24,13 @@ public class Branch {
     @SerializedName("created_at")
     private String createdAt;
 
+    @SerializedName("manager_id")
+    private String managerId;
+
     // Getters and setters
+    public String getManagerId() { return managerId; }
+    public void setManagerId(String managerId) { this.managerId = managerId; }
+
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 

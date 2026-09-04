@@ -3,9 +3,21 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
+
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera.any" android:required="true" />
+
+    <!-- MEMBER 2: Booking GPS location -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
+        android:name=".TechFixApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -19,10 +31,12 @@
             android:name=".ui.auth.SplashActivity"
             android:exported="true"
             android:theme="@style/Theme.TECHFIX">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
         </activity>
 
         <activity
@@ -50,8 +64,17 @@
             android:exported="false"
             android:theme="@style/Theme.TECHFIX" />
 
-        <activity android:name=".ui.technician.TechnicianActivity" android:exported="false" android:theme="@style/Theme.TECHFIX" />
-        <activity android:name=".ui.admin.SystemAdminActivity" android:exported="false" android:theme="@style/Theme.TECHFIX" />
+        <activity
+            android:name=".ui.technician.TechnicianActivity"
+            android:exported="false"
+            android:theme="@style/Theme.TECHFIX" />
+
+</manifest>
+        <activity
+            android:name=".ui.admin.SystemAdminActivity"
+            android:exported="false"
+            android:theme="@style/Theme.TECHFIX" />
+
     </application>
 
 </manifest>
