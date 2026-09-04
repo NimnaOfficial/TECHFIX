@@ -242,6 +242,20 @@ public class TechnicianListFragment extends Fragment {
             progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
         });
 
+        viewModel.getSkillUpdateSuccess().observe(getViewLifecycleOwner(), success -> {
+            if (Boolean.TRUE.equals(success)) {
+                viewModel.loadTechnicians(); // Refresh the list
+                viewModel.getSkillUpdateSuccess().setValue(false);
+            }
+        });
+
+        viewModel.getAssignmentSuccess().observe(getViewLifecycleOwner(), success -> {
+            if (Boolean.TRUE.equals(success)) {
+                viewModel.loadTechnicians(); // Refresh the list so new BUSY statuses reflect
+                viewModel.getAssignmentSuccess().setValue(false);
+            }
+        });
+
         viewModel.getTechnicians().observe(getViewLifecycleOwner(), technicians -> {
             if (technicians != null) {
                 allTechnicians = technicians;
