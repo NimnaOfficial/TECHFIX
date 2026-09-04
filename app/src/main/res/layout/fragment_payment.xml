@@ -85,6 +85,33 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Pay with Stripe Button -->
+            <!-- Payment Method Spinner -->
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:boxStrokeColor="@color/accent"
+                app:hintTextColor="@color/gray_light">
+
+                <androidx.appcompat.widget.AppCompatSpinner
+                    android:id="@+id/spinner_payment_method"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:entries="@array/payment_methods"
+                    android:textColor="@color/white" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Create Payment Button (CASH) -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_create_payment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Record Cash Payment"
+                android:textColor="@color/white"
+                app:backgroundTint="@color/accent" />
+
+            <!-- NEW: Pay with Stripe Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_stripe_pay"
                 android:layout_width="match_parent"

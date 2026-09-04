@@ -1,12 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="12dp"
-    app:cardBackgroundColor="@color/gray_dark"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="4dp">
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground"
+    app:cardBackgroundColor="?attr/colorSurface"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="2dp"
+    app:strokeColor="#E4E8EE"
+    app:strokeWidth="1dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -14,10 +21,11 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Row 1: Appointment Number + Status -->
+        <!-- Appointment + Status -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center_vertical"
             android:orientation="horizontal">
 
             <TextView
@@ -26,8 +34,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="TF-1234"
-                android:textColor="@color/white"
-                android:textSize="16sp"
+                android:textColor="@color/app_primary"
+                android:textSize="15sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -35,31 +43,34 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_status"
-                android:paddingStart="12dp"
-                android:paddingEnd="12dp"
-                android:paddingTop="4dp"
-                android:paddingBottom="4dp"
-                android:text="REQUESTED"
-                android:textColor="@color/black"
-                android:textSize="12sp"
+                android:paddingStart="11dp"
+                android:paddingTop="6dp"
+                android:paddingEnd="11dp"
+                android:paddingBottom="6dp"
+                android:text="COMPLETED"
+                android:textColor="@color/app_primary"
+                android:textSize="11sp"
                 android:textStyle="bold" />
+
         </LinearLayout>
 
-        <!-- Row 2: Device -->
+        <!-- Device -->
         <TextView
             android:id="@+id/tv_device"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="iPhone 14 Pro"
-            android:textColor="@color/gray_light"
-            android:textSize="14sp" />
+            android:layout_marginTop="9dp"
+            android:text="Samsung Galaxy S24"
+            android:textColor="@color/app_text_primary"
+            android:textSize="17sp"
+            android:textStyle="bold" />
 
-        <!-- Row 3: Service + Price -->
+        <!-- Service + Price -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="5dp"
+            android:gravity="center_vertical"
             android:orientation="horizontal">
 
             <TextView
@@ -68,84 +79,119 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Screen Replacement"
-                android:textColor="@color/gray_light"
-                android:textSize="14sp" />
+                android:textColor="@color/app_text_secondary"
+                android:textSize="13sp" />
 
             <TextView
                 android:id="@+id/tv_price"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="$85.00"
-                android:textColor="@color/accent"
-                android:textSize="16sp"
+                android:text="LKR 5,000"
+                android:textColor="@color/app_primary"
+                android:textSize="15sp"
                 android:textStyle="bold" />
+
         </LinearLayout>
 
-        <!-- Row 4: Date -->
+        <!-- Date -->
         <TextView
             android:id="@+id/tv_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="2024-08-29 14:30"
-            android:textColor="?android:attr/textColorSecondary"
+            android:layout_marginTop="9dp"
+            android:text="05 Sep 2026 • 10:30 AM"
+            android:textColor="@color/app_text_secondary"
             android:textSize="12sp" />
 
-        <!-- Progress Steps (8 steps) -->
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="14dp"
+            android:layout_marginBottom="12dp"
+            android:background="#E8EBEF" />
+
+        <!-- Progress Steps -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
             android:orientation="horizontal">
 
             <View
                 android:id="@+id/step1"
                 android:layout_width="0dp"
-                android:layout_height="4dp"
+                android:layout_height="5dp"
                 android:layout_weight="1"
-                android:background="@color/accent" />
+                android:background="@color/app_primary" />
+
             <View
                 android:id="@+id/step2"
                 android:layout_width="0dp"
-                android:layout_height="4dp"
+                android:layout_height="5dp"
+                android:layout_marginStart="3dp"
                 android:layout_weight="1"
-                android:background="@color/gray_mid" />
+                android:background="#D7DCE3" />
+
             <View
                 android:id="@+id/step3"
                 android:layout_width="0dp"
-                android:layout_height="4dp"
+                android:layout_height="5dp"
+                android:layout_marginStart="3dp"
                 android:layout_weight="1"
-                android:background="@color/gray_mid" />
+                android:background="#D7DCE3" />
+
             <View
                 android:id="@+id/step4"
                 android:layout_width="0dp"
-                android:layout_height="4dp"
+                android:layout_height="5dp"
+                android:layout_marginStart="3dp"
                 android:layout_weight="1"
-                android:background="@color/gray_mid" />
+                android:background="#D7DCE3" />
+
             <View
                 android:id="@+id/step5"
                 android:layout_width="0dp"
-                android:layout_height="4dp"
+                android:layout_height="5dp"
+                android:layout_marginStart="3dp"
                 android:layout_weight="1"
-                android:background="@color/gray_mid" />
+                android:background="#D7DCE3" />
+
             <View
                 android:id="@+id/step6"
                 android:layout_width="0dp"
-                android:layout_height="4dp"
+                android:layout_height="5dp"
+                android:layout_marginStart="3dp"
                 android:layout_weight="1"
-                android:background="@color/gray_mid" />
+                android:background="#D7DCE3" />
+
             <View
                 android:id="@+id/step7"
                 android:layout_width="0dp"
-                android:layout_height="4dp"
+                android:layout_height="5dp"
+                android:layout_marginStart="3dp"
                 android:layout_weight="1"
-                android:background="@color/gray_mid" />
+                android:background="#D7DCE3" />
+
             <View
                 android:id="@+id/step8"
                 android:layout_width="0dp"
-                android:layout_height="4dp"
+                android:layout_height="5dp"
+                android:layout_marginStart="3dp"
                 android:layout_weight="1"
-                android:background="@color/gray_mid" />
+                android:background="#D7DCE3" />
+
         </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:gravity="end"
+            android:text="View Details  ›"
+            android:textColor="@color/app_primary"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
     </LinearLayout>
-</androidx.cardview.widget.CardView>
+
+</com.google.android.material.card.MaterialCardView>

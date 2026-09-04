@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/colorSurface"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <!-- Title -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Update Repair Status"
+        android:textColor="@color/app_primary"
+        android:textSize="22sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="Select the current stage of the repair"
+        android:textColor="@color/app_text_secondary"
+        android:textSize="14sp" />
+
+
+    <!-- Current Status -->
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="22dp"
+        app:cardBackgroundColor="#F3F7FF"
+        app:cardCornerRadius="14dp"
+        app:cardElevation="0dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Current Status"
+                android:textColor="@color/app_text_secondary"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/tv_current_repair_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="DIAGNOSING"
+                android:textColor="@color/app_primary"
+                android:textSize="17sp"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+
+    <!-- Select Status -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="22dp"
+        android:text="New Status"
+        android:textColor="@color/app_text_primary"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <RadioGroup
+        android:id="@+id/radio_group_repair_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="vertical">
+
+        <com.google.android.material.radiobutton.MaterialRadioButton
+            android:id="@+id/radio_device_received"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="DEVICE_RECEIVED"
+            android:textColor="@color/app_text_primary"
+            android:textSize="14sp"
+            app:buttonTint="@color/app_primary" />
+
+        <com.google.android.material.radiobutton.MaterialRadioButton
+            android:id="@+id/radio_diagnosing"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="DIAGNOSING"
+            android:textColor="@color/app_text_primary"
+            android:textSize="14sp"
+            app:buttonTint="@color/app_primary" />
+
+        <com.google.android.material.radiobutton.MaterialRadioButton
+            android:id="@+id/radio_repairing"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="REPAIRING"
+            android:textColor="@color/app_text_primary"
+            android:textSize="14sp"
+            app:buttonTint="@color/app_primary" />
+
+        <com.google.android.material.radiobutton.MaterialRadioButton
+            android:id="@+id/radio_testing"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="TESTING"
+            android:textColor="@color/app_text_primary"
+            android:textSize="14sp"
+            app:buttonTint="@color/app_primary" />
+
+        <com.google.android.material.radiobutton.MaterialRadioButton
+            android:id="@+id/radio_completed"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="COMPLETED"
+            android:textColor="@color/app_text_primary"
+            android:textSize="14sp"
+            app:buttonTint="@color/app_primary" />
+
+    </RadioGroup>
+
+
+    <!-- Optional Note -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:hint="Status note (optional)"
+        app:boxBackgroundMode="outline"
+        app:boxCornerRadiusBottomEnd="14dp"
+        app:boxCornerRadiusBottomStart="14dp"
+        app:boxCornerRadiusTopEnd="14dp"
+        app:boxCornerRadiusTopStart="14dp"
+        app:boxStrokeColor="@color/app_primary">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/et_status_note"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:gravity="top|start"
+            android:hint="Example: Device inspection completed..."
+            android:inputType="textMultiLine"
+            android:maxLength="300"
+            android:textColor="@color/app_text_primary"
+            android:textColorHint="@color/app_text_secondary"
+            android:textSize="14sp" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+
+    <!-- Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:gravity="end"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_cancel_status_update"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:text="Cancel"
+            android:textAllCaps="false"
+            android:textColor="@color/app_text_secondary" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_confirm_status_update"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_marginStart="8dp"
+            android:text="Update Status"
+            android:textAllCaps="false"
+            android:textStyle="bold"
+            app:backgroundTint="@color/app_primary"
+            app:cornerRadius="14dp" />
+
+    </LinearLayout>
+
+</LinearLayout>
