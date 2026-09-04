@@ -44,7 +44,6 @@ dependencies {
 
     // Room Database
     implementation("androidx.room:room-runtime:2.6.1")
-    implementation(libs.activity.ktx)
     annotationProcessor("androidx.room:room-compiler:2.6.1")
 
     // Retrofit
@@ -69,4 +68,13 @@ dependencies {
 
     // Stripe SDK
     implementation("com.stripe:stripe-android:20.40.1")
+
+    // Cloudinary SDK
+    implementation("com.cloudinary:cloudinary-android:3.1.2")
+
+    // OkHttp (for Cloudinary uploads)
+    implementation("com.squareup.okhttp3:okhttp:4.11.0")
+
+    // ✅ Guava for ListenableFuture (CameraX)
+    implementation("com.google.guava:guava:31.1-android")
 }
