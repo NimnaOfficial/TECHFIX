@@ -172,6 +172,16 @@ public class AdminDashboardFragment extends Fragment {
                 recyclerRecentAppointments.setVisibility(View.GONE);
             }
         });
+
+        viewModel.getAssignmentSuccess().observe(getViewLifecycleOwner(), success -> {
+            if (Boolean.TRUE.equals(success)) {
+                // Refresh dashboard when assignment succeeds
+                viewModel.loadDashboard();
+                viewModel.loadAllAppointments();
+                // Reset the trigger
+                viewModel.getAssignmentSuccess().setValue(false);
+            }
+        });
     }
 
     // --- REALTIME ACTIVE DASHBOARD LOGIC ---

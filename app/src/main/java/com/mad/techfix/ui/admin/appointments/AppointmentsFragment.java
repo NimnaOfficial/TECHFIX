@@ -136,6 +136,15 @@ public class AppointmentsFragment extends Fragment {
                 applyFilters();
             }
         });
+
+        viewModel.getAssignmentSuccess().observe(getViewLifecycleOwner(), success -> {
+            if (Boolean.TRUE.equals(success)) {
+                // Refresh list when assignment succeeds
+                viewModel.loadAllAppointments();
+                // Reset the trigger so it doesn't fire repeatedly
+                viewModel.getAssignmentSuccess().setValue(false);
+            }
+        });
     }
 
     private void applyFilters() {
