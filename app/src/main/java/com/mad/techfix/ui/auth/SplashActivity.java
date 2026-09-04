@@ -34,7 +34,7 @@ public class SplashActivity extends AppCompatActivity {
                 } else if ("TECHNICIAN".equalsIgnoreCase(role)) {
                     nextIntent = new Intent(SplashActivity.this, com.mad.techfix.ui.technician.TechnicianActivity.class);
                 } else {
-                    nextIntent = new Intent(SplashActivity.this, MainActivity.class);
+                    nextIntent = new Intent(SplashActivity.this, com.mad.techfix.ui.customer.CustomerDashboardActivity.class);
                 }
             } else {
                 nextIntent = new Intent(SplashActivity.this, LoginActivity.class);

@@ -230,4 +230,44 @@ public interface ApiService {
             @Path("id") String appointmentId,
             @Body Map<String, Object> body
     );
+
+    // ==========================================
+    // MEMBER 1: CUSTOMER PROFILE & DEVICES
+    // ==========================================
+    @PUT("api/profile")
+    Call<ApiResponse<Object>> updateProfile(
+            @Header("Authorization") String auth,
+            @Body Map<String, String> profileData
+    );
+
+    @PUT("api/profile/password")
+    Call<ApiResponse<Object>> updatePassword(
+            @Header("Authorization") String auth,
+            @Body Map<String, String> passwordData
+    );
+
+    @GET("api/devices")
+    Call<ApiResponse<List<com.mad.techfix.models.Device>>> getCustomerDevices(
+            @Header("Authorization") String auth
+    );
+
+    @POST("api/devices")
+    Call<ApiResponse<com.mad.techfix.models.Device>> addCustomerDevice(
+            @Header("Authorization") String auth,
+            @Body com.mad.techfix.models.Device device
+    );
+
+    @PUT("api/devices/{id}")
+    Call<ApiResponse<com.mad.techfix.models.Device>> updateCustomerDevice(
+            @Header("Authorization") String auth,
+            @Path("id") String deviceId,
+            @Body com.mad.techfix.models.Device device
+    );
+
+    @DELETE("api/devices/{id}")
+    Call<ApiResponse<Object>> deleteCustomerDevice(
+            @Header("Authorization") String auth,
+            @Path("id") String deviceId
+    );
+
 }

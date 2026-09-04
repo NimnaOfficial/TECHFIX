@@ -11,6 +11,10 @@ import androidx.room.RoomDatabase;
                 SparePartEntity.class,
                 TechnicianEntity.class,
                 BranchEntity.class,
+                RepairHistoryEntity.class,
+                PaymentEntity.class,
+                AppointmentEntity.class,
+                DashboardMetricsEntity.class
                 AppointmentEntity.class,
                 DashboardMetricsEntity.class,
                 RepairHistoryEntity.class,
@@ -19,6 +23,7 @@ import androidx.room.RoomDatabase;
         version = 4,
         exportSchema = false
 )
+public abstract class AppDatabase extends RoomDatabase {
 public abstract class AppDatabase
         extends RoomDatabase {
 
