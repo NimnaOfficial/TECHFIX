@@ -27,7 +27,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TECHFIX">
 
-        <!-- Set SplashActivity as the Main Starting Activity (Member 1 Entrypoint) -->
         <activity
             android:name=".ui.auth.SplashActivity"
             android:exported="true"
@@ -54,6 +53,11 @@
             android:name=".MainActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
+            
+        <activity
+            android:name=".ui.customer.CustomerDashboardActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
 
         <activity
             android:name=".ui.admin.AdminActivity"
@@ -65,6 +69,7 @@
             android:exported="false"
             android:theme="@style/Theme.TECHFIX" />
 
+</manifest>
         <activity
             android:name=".ui.admin.SystemAdminActivity"
             android:exported="false"
