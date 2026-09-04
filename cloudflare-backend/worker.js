@@ -2560,20 +2560,11 @@ if (path === "/api/cloudinary/signature" && request.method === "GET") {
     const signatureString = `folder=${folder}&timestamp=${timestamp}&upload_preset=${uploadPreset}`;
 
     const encoder = new TextEncoder();
-    const keyData = encoder.encode(env.CLOUDINARY_API_SECRET);
-    const messageData = encoder.encode(signatureString);
-
-    const cryptoKey = await crypto.subtle.importKey(
-        "raw",
-        keyData,
-        { name: "HMAC", hash: "SHA-1" },
-        false,
-        ["sign"]
+    const signatureBuffer = await crypto.subtle.digest(
+        "SHA-1",
+        encoder.encode(signatureString + env.CLOUDINARY_API_SECRET),
     );
 
-    const signatureBuffer = await crypto.subtle.sign("HMAC", cryptoKey, messageData);
-
-    // ✅ FIX: Convert to HEX string (Cloudinary expects hex)
     const signature = Array.from(new Uint8Array(signatureBuffer))
         .map(b => b.toString(16).padStart(2, '0'))
         .join('');
