@@ -40,6 +40,16 @@
                         android:textColor="?attr/colorPrimary" />
 
                     <ImageButton
+                        android:id="@+id/btn_theme"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:src="@drawable/ic_dashboard"
+                        app:tint="?android:attr/textColorSecondary"
+                        android:layout_marginEnd="8dp"
+                        android:contentDescription="Toggle Theme" />
+
+                    <ImageButton
                         android:id="@+id/btn_logout"
                         android:layout_width="48dp"
                         android:layout_height="48dp"

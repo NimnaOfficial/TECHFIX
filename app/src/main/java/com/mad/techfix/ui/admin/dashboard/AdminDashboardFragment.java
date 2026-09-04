@@ -60,9 +60,21 @@ public class AdminDashboardFragment extends Fragment {
 
                 ImageButton btnRefresh = view.findViewById(R.id.btn_refresh);
         ImageButton btnLogout = view.findViewById(R.id.btn_logout);
+        ImageButton btnTheme = view.findViewById(R.id.btn_theme);
+
+        SessionManager sessionManager = new SessionManager(requireContext());
+        
+        btnTheme.setOnClickListener(v -> {
+            boolean isDark = sessionManager.isDarkMode();
+            sessionManager.setDarkMode(!isDark);
+            if (!isDark) {
+                androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES);
+            } else {
+                androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO);
+            }
+        });
 
         btnLogout.setOnClickListener(v -> {
-            SessionManager sessionManager = new SessionManager(requireContext());
             sessionManager.clearSession();
             Toast.makeText(requireContext(), "Signed out successfully", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(requireActivity(), LoginActivity.class);

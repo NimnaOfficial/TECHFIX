@@ -54,6 +54,16 @@ public class AppointmentsFragment extends Fragment {
         recyclerView = view.findViewById(R.id.recycler_appointments);
         progressBar = view.findViewById(R.id.progress_bar);
         layoutEmptyState = view.findViewById(R.id.layout_empty_state);
+        View btnRetry = view.findViewById(R.id.btn_retry);
+        if (btnRetry != null) {
+            btnRetry.setOnClickListener(v -> {
+                progressBar.setVisibility(View.VISIBLE);
+                layoutEmptyState.setVisibility(View.GONE);
+                etSearch.setText("");
+                chipGroupFilter.check(R.id.chip_all);
+                viewModel.loadAllAppointments();
+            });
+        }
         swipeRefresh = view.findViewById(R.id.swipe_refresh);
         chipGroupFilter = view.findViewById(R.id.chip_group_filter);
         etSearch = view.findViewById(R.id.et_search);

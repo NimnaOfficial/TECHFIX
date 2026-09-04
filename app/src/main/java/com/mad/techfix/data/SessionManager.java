@@ -13,11 +13,20 @@ public class SessionManager {
     private static final String KEY_USER_ROLE = "USER_ROLE";
     private static final String KEY_AUTH_TOKEN = "AUTH_TOKEN";
     private static final String KEY_IS_LOGGED_IN = "IS_LOGGED_IN";
+    private static final String KEY_THEME_DARK = "THEME_DARK";
 
     private final SharedPreferences prefs;
 
     public SessionManager(Context context) {
         prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+    }
+
+    public void setDarkMode(boolean isDark) {
+        prefs.edit().putBoolean(KEY_THEME_DARK, isDark).apply();
+    }
+
+    public boolean isDarkMode() {
+        return prefs.getBoolean(KEY_THEME_DARK, false);
     }
 
     public void saveAuthSession(String token, User user) {
