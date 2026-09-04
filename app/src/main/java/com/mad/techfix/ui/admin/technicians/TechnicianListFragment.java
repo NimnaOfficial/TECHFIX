@@ -57,6 +57,16 @@ public class TechnicianListFragment extends Fragment {
         recyclerTechnicians = view.findViewById(R.id.recycler_technicians);
         progressBar = view.findViewById(R.id.progress_bar);
         layoutEmptyState = view.findViewById(R.id.layout_empty_state);
+        View btnRetry = view.findViewById(R.id.btn_retry);
+        if (btnRetry != null) {
+            btnRetry.setOnClickListener(v -> {
+                progressBar.setVisibility(View.VISIBLE);
+                layoutEmptyState.setVisibility(View.GONE);
+                etSearch.setText("");
+                chipGroupFilter.check(R.id.chip_all);
+                viewModel.loadTechnicians();
+            });
+        }
         etSearch = view.findViewById(R.id.et_search);
         chipGroupFilter = view.findViewById(R.id.chip_group_filter);
         fabAdd = view.findViewById(R.id.fab_add_technician);

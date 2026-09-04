@@ -15,8 +15,13 @@ import com.mad.techfix.ui.admin.assignment.AssignTechnicianBottomSheet;
 public class AppointmentDetailBottomSheet extends BottomSheetDialogFragment {
 
     private String id, number, status, date, time, customer, branch;
+    private String serviceId, serviceName, branchName;
 
     public static AppointmentDetailBottomSheet newInstance(String id, String number, String status, String date, String time, String customer, String branch) {
+        return newInstance(id, number, status, date, time, customer, branch, null, null, null);
+    }
+
+    public static AppointmentDetailBottomSheet newInstance(String id, String number, String status, String date, String time, String customer, String branch, String serviceId, String serviceName, String branchName) {
         AppointmentDetailBottomSheet fragment = new AppointmentDetailBottomSheet();
         Bundle args = new Bundle();
         args.putString("id", id);
@@ -26,6 +31,9 @@ public class AppointmentDetailBottomSheet extends BottomSheetDialogFragment {
         args.putString("time", time);
         args.putString("customer", customer);
         args.putString("branch", branch);
+        args.putString("serviceId", serviceId);
+        args.putString("serviceName", serviceName);
+        args.putString("branchName", branchName);
         fragment.setArguments(args);
         return fragment;
     }
@@ -46,6 +54,9 @@ public class AppointmentDetailBottomSheet extends BottomSheetDialogFragment {
             time = getArguments().getString("time");
             customer = getArguments().getString("customer");
             branch = getArguments().getString("branch");
+            serviceId = getArguments().getString("serviceId");
+            serviceName = getArguments().getString("serviceName");
+            branchName = getArguments().getString("branchName");
         }
 
         TextView tvNumber = view.findViewById(R.id.tv_detail_number);
@@ -59,7 +70,7 @@ public class AppointmentDetailBottomSheet extends BottomSheetDialogFragment {
         tvStatus.setText(status != null ? status : "N/A");
         tvDateTime.setText((date != null ? date : "") + " " + (time != null ? time : ""));
         tvCustomer.setText(customer != null ? customer : "N/A");
-        tvBranch.setText(branch != null ? branch : "N/A");
+        tvBranch.setText(branchName != null && !branchName.isEmpty() ? branchName : (branch != null ? branch : "N/A"));
 
         if ("REQUESTED".equalsIgnoreCase(status) || "CONFIRMED".equalsIgnoreCase(status)) {
             btnAction.setText("Assign Technician");
@@ -71,7 +82,11 @@ public class AppointmentDetailBottomSheet extends BottomSheetDialogFragment {
         btnAction.setOnClickListener(v -> {
             dismiss();
             AssignTechnicianBottomSheet assignSheet = AssignTechnicianBottomSheet.newInstance(
-                    id, branch, number, "Service", "Branch"
+                    id,
+                    branch,
+                    number,
+                    serviceName != null ? serviceName : "Service",
+                    branchName != null ? branchName : "Branch"
             );
             assignSheet.show(getParentFragmentManager(), "AssignBottomSheet");
         });

@@ -134,27 +134,49 @@
 
             <LinearLayout
                 android:id="@+id/layout_empty_state"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:visibility="gone">
+                android:visibility="gone"
+                android:padding="32dp">
 
                 <ImageView
-                    android:layout_width="64dp"
-                    android:layout_height="64dp"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
                     android:src="@drawable/ic_calendar"
                     app:tint="?android:attr/textColorSecondary"
-                    android:layout_marginBottom="12dp"/>
+                    android:layout_marginBottom="16dp"
+                    android:alpha="0.7"/>
 
                 <TextView
                     android:id="@+id/tv_empty_state"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="No appointments found."
+                    android:text="No Appointments Found"
+                    android:textStyle="bold"
                     android:textColor="?android:attr/textColorPrimary"
-                    android:textSize="16sp" />
+                    android:textSize="20sp"
+                    android:layout_marginBottom="8dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Try adjusting your filters or search query."
+                    android:textColor="?android:attr/textColorSecondary"
+                    android:textSize="14sp"
+                    android:gravity="center"
+                    android:layout_marginBottom="24dp"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_retry"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Refresh Data"
+                    app:cornerRadius="8dp"
+                    app:strokeColor="?attr/colorPrimary"
+                    android:textColor="?attr/colorPrimary" />
             </LinearLayout>
 
         </FrameLayout>
