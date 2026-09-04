@@ -127,6 +127,15 @@ async function authenticate(request, env) {
 
   if (!user || user.is_active !== 1) return null;
 
+  if (user.role === "MANAGER") {
+    try {
+      const branch = await env.DB.prepare(`SELECT id FROM branches WHERE manager_id = ?`).bind(user.id).first();
+      user.managerBranchId = branch ? branch.id : null;
+    } catch (e) {
+      user.managerBranchId = null;
+    }
+  }
+
   return user;
 }
 
@@ -216,8 +225,8 @@ export default {
       if (path === "/api/services" && request.method === "GET") {
         const result = await env.DB.prepare(
           `
-            SELECT s.*, dc.name AS category_name 
-            FROM services s JOIN device_categories dc ON dc.id = s.category_id 
+            SELECT s.*, dc.name AS category_name
+            FROM services s JOIN device_categories dc ON dc.id = s.category_id
             WHERE s.is_active = 1 ORDER BY s.name
         `,
         ).all();
@@ -686,18 +695,26 @@ export default {
       // ==========================================
       if (path === "/api/appointments" && request.method === "GET") {
         const user = await authenticate(request, env);
-        if (!user)
-          return json({ success: false, message: "Unauthorized" }, 401);
+        if (!user) return json({ success: false, message: "Unauthorized" }, 401);
 
-        const query =
-          user.role === "CUSTOMER"
-            ? `SELECT * FROM appointments WHERE customer_id = ? ORDER BY created_at DESC`
-            : `SELECT * FROM appointments ORDER BY created_at DESC`;
+        let query;
+        let result;
 
-        const result =
-          user.role === "CUSTOMER"
-            ? await env.DB.prepare(query).bind(user.id).all()
-            : await env.DB.prepare(query).all();
+        if (user.role === "CUSTOMER") {
+          query = `SELECT * FROM appointments WHERE customer_id = ? ORDER BY created_at DESC`;
+          result = await env.DB.prepare(query).bind(user.id).all();
+        } else if (user.role === "MANAGER") {
+          if (!user.managerBranchId) {
+             return json({ success: true, data: [] }); // Manager has no branch assigned
+          }
+          query = `SELECT * FROM appointments WHERE branch_id = ? ORDER BY created_at DESC`;
+          result = await env.DB.prepare(query).bind(user.managerBranchId).all();
+        } else {
+          // ADMIN gets everything
+          query = `SELECT * FROM appointments ORDER BY created_at DESC`;
+          result = await env.DB.prepare(query).all();
+        }
+
         return json({ success: true, data: result.results });
       }
 
@@ -731,8 +748,8 @@ export default {
         // 1. Auto-Assignment Logic: Find an available technician at the nearest branch (using the passed branch_id)
         const availableTech = await env.DB.prepare(
           `
-            SELECT id FROM technicians 
-            WHERE branch_id = ? AND availability_status = 'AVAILABLE' 
+            SELECT id FROM technicians
+            WHERE branch_id = ? AND availability_status = 'AVAILABLE'
             LIMIT 1
         `,
         )
@@ -932,7 +949,7 @@ export default {
           // Find next waiting appointment for this branch
           const pendingApt = await env.DB.prepare(
             `
-                SELECT id FROM appointments 
+                SELECT id FROM appointments
                 WHERE status = 'REQUESTED' AND branch_id = ? AND technician_id IS NULL
                 ORDER BY created_at ASC LIMIT 1
             `,
@@ -1019,8 +1036,7 @@ export default {
         request.method === "GET"
       ) {
         const user = await authenticate(request, env);
-        if (!user)
-          return json({ success: false, message: "Unauthorized" }, 401);
+        if (!user) return json({ success: false, message: "Unauthorized" }, 401);
         const appointmentId = path.split("/").pop();
 
         const appointment = await env.DB.prepare(
@@ -1035,10 +1051,15 @@ export default {
           .first();
 
         if (!appointment)
-          return json(
-            { success: false, message: "Appointment not found" },
-            404,
-          );
+          return json({ success: false, message: "Appointment not found" }, 404);
+
+        if (user.role === "CUSTOMER" && appointment.customer_id !== user.id) {
+          return json({ success: false, message: "Access denied" }, 403);
+        }
+        if (user.role === "MANAGER" && appointment.branch_id !== user.managerBranchId) {
+          return json({ success: false, message: "Access denied: Branch mismatch" }, 403);
+        }
+
         return json({ success: true, data: appointment });
       }
       // ==========================================
@@ -1048,13 +1069,22 @@ export default {
         const user = await authenticate(request, env);
         if (!user || !["ADMIN", "MANAGER"].includes(user.role))
           return json({ success: false, message: "Access denied" }, 403);
-        const techs = await env.DB.prepare(
-          `
-            SELECT t.*, u.first_name, u.last_name, b.name AS branch_name 
-            FROM technicians t JOIN users u ON u.id = t.user_id JOIN branches b ON b.id = t.branch_id
+
+        let query = `
+            SELECT t.*, u.first_name, u.last_name, b.name AS branch_name
+            FROM technicians t JOIN users u ON u.id = t.user_id LEFT JOIN branches b ON b.id = t.branch_id
             WHERE t.is_active = 1
-        `,
-        ).all();
+        `;
+        let techs;
+
+        if (user.role === "MANAGER") {
+            if (!user.managerBranchId) return json({ success: true, data: [] });
+            query += " AND t.branch_id = ?";
+            techs = await env.DB.prepare(query).bind(user.managerBranchId).all();
+        } else {
+            techs = await env.DB.prepare(query).all();
+        }
+
         return json({ success: true, data: techs.results });
       }
 
@@ -1196,9 +1226,18 @@ export default {
         const user = await authenticate(request, env);
         if (!user || !["ADMIN", "MANAGER"].includes(user.role))
           return json({ success: false, message: "Access denied" }, 403);
-        const payments = await env.DB.prepare(
-          `SELECT * FROM payments ORDER BY created_at DESC`,
-        ).all();
+
+        let payments;
+        if (user.role === "MANAGER") {
+          if (!user.managerBranchId) return json({ success: true, data: [] });
+          payments = await env.DB.prepare(
+            `SELECT p.* FROM payments p JOIN appointments a ON p.appointment_id = a.id WHERE a.branch_id = ? ORDER BY p.created_at DESC`
+          ).bind(user.managerBranchId).all();
+        } else {
+          payments = await env.DB.prepare(
+            `SELECT * FROM payments ORDER BY created_at DESC`
+          ).all();
+        }
         return json({ success: true, data: payments.results });
       }
 
@@ -1302,8 +1341,8 @@ export default {
 
         const payment = await env.DB.prepare(
           `
-            SELECT p.*, a.customer_id 
-            FROM payments p JOIN appointments a ON p.appointment_id = a.id 
+            SELECT p.*, a.customer_id
+            FROM payments p JOIN appointments a ON p.appointment_id = a.id
             WHERE p.id = ? LIMIT 1
         `,
         )
@@ -1317,6 +1356,89 @@ export default {
 
         return json({ success: true, data: payment });
       }
+
+      // ==========================================
+      // STRIPE PAYMENT INTENT
+      // ==========================================
+      if (path === "/api/create-payment-intent" && request.method === "POST") {
+        const user = await authenticate(request, env);
+        if (!user)
+          return json({ success: false, message: "Unauthorized" }, 401);
+
+        const body = await request.json();
+        const { repairId, amount } = body;
+
+        if (!repairId) {
+          return json({ success: false, message: "repairId is required" }, 400);
+        }
+        if (!amount || typeof amount !== "number" || amount <= 0) {
+          return json(
+            { success: false, message: "Valid amount (in cents) is required" },
+            400,
+          );
+        }
+
+        const stripeSecretKey = env.STRIPE_SECRET_KEY;
+        if (!stripeSecretKey) {
+          console.error(
+            "STRIPE_SECRET_KEY is not set in environment variables",
+          );
+          return json(
+            { success: false, message: "Payment service configuration error" },
+            500,
+          );
+        }
+
+        try {
+          const formData = new URLSearchParams();
+          formData.append("amount", amount.toString());
+          formData.append("currency", "usd");
+          formData.append("metadata[repair_id]", repairId);
+          formData.append("metadata[user_id]", user.id);
+
+          const stripeResponse = await fetch(
+            "https://api.stripe.com/v1/payment_intents",
+            {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${stripeSecretKey}`,
+                "Content-Type": "application/x-www-form-urlencoded",
+              },
+              body: formData.toString(),
+            },
+          );
+
+          const stripeData = await stripeResponse.json();
+
+          if (!stripeResponse.ok) {
+            console.error("Stripe API Error:", stripeData);
+            return json(
+              {
+                success: false,
+                message: stripeData.error?.message || "Payment service error",
+              },
+              400,
+            );
+          }
+
+          return json({
+            success: true,
+            clientSecret: stripeData.client_secret,
+            paymentId: stripeData.id,
+            status: stripeData.status,
+          });
+        } catch (error) {
+          console.error("Stripe request failed:", error);
+          return json(
+            {
+              success: false,
+              message: "Payment service unavailable",
+            },
+            500,
+          );
+        }
+      }
+
       // ==========================================
       // 8. NOTIFICATIONS
       // ==========================================
@@ -1368,38 +1490,42 @@ export default {
         if (!user || !["ADMIN", "MANAGER"].includes(user.role))
           return json({ success: false, message: "Access denied" }, 403);
 
-        const totalAppointments = await env.DB.prepare(
-          `SELECT COUNT(*) as count FROM appointments`,
-        ).first();
-        const pendingAppointments = await env.DB.prepare(
-          `SELECT COUNT(*) as count FROM appointments WHERE status = 'REQUESTED'`,
-        ).first();
-        const activeRepairs = await env.DB.prepare(
-          `SELECT COUNT(*) as count FROM appointments WHERE status IN ('DEVICE_RECEIVED', 'DIAGNOSING', 'REPAIRING', 'TESTING')`,
-        ).first();
-        const completedRepairs = await env.DB.prepare(
-          `SELECT COUNT(*) as count FROM appointments WHERE status = 'COMPLETED'`,
-        ).first();
-        const revenue = await env.DB.prepare(
-          `SELECT SUM(amount) as total FROM payments WHERE payment_status = 'PAID'`,
-        ).first();
-        const availableTechs = await env.DB.prepare(
-          `SELECT COUNT(*) as count FROM technicians WHERE availability_status = 'AVAILABLE'`,
-        ).first();
-        const busyTechs = await env.DB.prepare(
-          `SELECT COUNT(*) as count FROM technicians WHERE availability_status = 'BUSY'`,
-        ).first();
+        let aptBase = "FROM appointments";
+        let techBase = "FROM technicians";
+        let payBase = "FROM payments";
+        let binds = [];
+
+        if (user.role === "MANAGER") {
+          if (!user.managerBranchId) return json({ success: true, data: { total_revenue: 0, total_appointments: 0, active_repairs: 0, pending_requests: 0, completed_repairs: 0, available_technicians: 0, busy_technicians: 0 } });
+          aptBase = "FROM appointments WHERE branch_id = ?";
+          techBase = "FROM technicians WHERE branch_id = ?";
+          payBase = "FROM payments p JOIN appointments a ON p.appointment_id = a.id WHERE a.branch_id = ?";
+          binds = [user.managerBranchId];
+        }
+
+        const runQ = async (query) => {
+           if (binds.length > 0) return await env.DB.prepare(query).bind(binds[0]).first();
+           return await env.DB.prepare(query).first();
+        };
+
+        const totalAppointments = await runQ(`SELECT COUNT(*) as count ${aptBase}`);
+        const pendingAppointments = await runQ(`SELECT COUNT(*) as count ${aptBase} ${binds.length > 0 ? "AND" : "WHERE"} status = 'REQUESTED'`);
+        const activeRepairs = await runQ(`SELECT COUNT(*) as count ${aptBase} ${binds.length > 0 ? "AND" : "WHERE"} status IN ('DEVICE_RECEIVED', 'DIAGNOSING', 'REPAIRING', 'TESTING')`);
+        const completedRepairs = await runQ(`SELECT COUNT(*) as count ${aptBase} ${binds.length > 0 ? "AND" : "WHERE"} status = 'COMPLETED'`);
+        const revenue = await runQ(`SELECT SUM(amount) as total ${payBase} ${binds.length > 0 ? "AND" : "WHERE"} payment_status = 'PAID'`);
+        const availableTechs = await runQ(`SELECT COUNT(*) as count ${techBase} ${binds.length > 0 ? "AND" : "WHERE"} availability_status = 'AVAILABLE'`);
+        const busyTechs = await runQ(`SELECT COUNT(*) as count ${techBase} ${binds.length > 0 ? "AND" : "WHERE"} availability_status = 'BUSY'`);
 
         return json({
           success: true,
           data: {
             total_revenue: revenue.total || 0,
-            pending_requests: pendingAppointments.count || 0,
-            active_repairs: activeRepairs.count || 0,
-            available_technicians: availableTechs.count || 0,
             total_appointments: totalAppointments.count || 0,
-            total_technicians:
-              (availableTechs.count || 0) + (busyTechs.count || 0),
+            active_repairs: activeRepairs.count || 0,
+            pending_requests: pendingAppointments.count || 0,
+            completed_repairs: completedRepairs.count || 0,
+            available_technicians: availableTechs.count || 0,
+            busy_technicians: busyTechs.count || 0,
           },
         });
       }
@@ -1929,7 +2055,7 @@ export default {
       // Branches CRUD
       if (path === "/api/branches" && request.method === "POST") {
         const user = await authenticate(request, env);
-        if (!user || !["ADMIN", "MANAGER"].includes(user.role))
+        if (!user || user.role.toUpperCase() !== "ADMIN")
           return json({ success: false, message: "Access denied" }, 403);
         const {
           name,
@@ -1940,15 +2066,16 @@ export default {
           latitude,
           longitude,
           opening_time,
-          closing_time,
-        } = await request.json();
+            closing_time,
+            manager_id,
+          } = await request.json();
 
         const branchId =
           "BR-" + crypto.randomUUID().split("-")[0].toUpperCase();
         await env.DB.prepare(
           `
-            INSERT INTO branches (id, name, address, city, phone, email, latitude, longitude, opening_time, closing_time)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO branches (id, name, address, city, phone, email, latitude, longitude, opening_time, closing_time, manager_id)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `,
         )
           .bind(
@@ -1961,8 +2088,9 @@ export default {
             latitude || null,
             longitude || null,
             opening_time || null,
-            closing_time || null,
-          )
+              closing_time || null,
+              manager_id || null,
+            )
           .run();
 
         const newBranch = await env.DB.prepare(
@@ -1982,7 +2110,7 @@ export default {
         !path.endsWith("/spare-parts")
       ) {
         const user = await authenticate(request, env);
-        if (!user || !["ADMIN", "MANAGER"].includes(user.role))
+        if (!user || user.role.toUpperCase() !== "ADMIN")
           return json({ success: false, message: "Access denied" }, 403);
         const branchId = path.split("/")[3];
 
@@ -1997,10 +2125,11 @@ export default {
             longitude,
             opening_time,
             closing_time,
+            manager_id,
           } = await request.json();
           await env.DB.prepare(
             `
-                UPDATE branches SET name=?, address=?, city=?, phone=?, email=?, latitude=?, longitude=?, opening_time=?, closing_time=? WHERE id=?
+                UPDATE branches SET name=?, address=?, city=?, phone=?, email=?, latitude=?, longitude=?, opening_time=?, closing_time=?, manager_id=? WHERE id=?
             `,
           )
             .bind(
@@ -2012,9 +2141,10 @@ export default {
               latitude || null,
               longitude || null,
               opening_time || null,
-              closing_time || null,
-              branchId,
-            )
+                closing_time || null,
+                manager_id || null,
+                branchId,
+              )
             .run();
           const updated = await env.DB.prepare(
             `SELECT * FROM branches WHERE id = ?`,
@@ -2131,7 +2261,7 @@ export default {
 
         const newTech = await env.DB.prepare(
           `
-            SELECT t.*, u.first_name, u.last_name, b.name AS branch_name 
+            SELECT t.*, u.first_name, u.last_name, b.name AS branch_name
             FROM technicians t JOIN users u ON u.id = t.user_id LEFT JOIN branches b ON b.id = t.branch_id
             WHERE t.id = ?
         `,
@@ -2188,7 +2318,7 @@ export default {
 
           const updated = await env.DB.prepare(
             `
-                SELECT t.*, u.first_name, u.last_name, b.name AS branch_name 
+                SELECT t.*, u.first_name, u.last_name, b.name AS branch_name
                 FROM technicians t JOIN users u ON u.id = t.user_id LEFT JOIN branches b ON b.id = t.branch_id
                 WHERE t.id = ?
             `,
@@ -2416,6 +2546,50 @@ export default {
           );
         }
       }
+     // ==========================================
+// CLOUDINARY SIGNATURE
+// ==========================================
+if (path === "/api/cloudinary/signature" && request.method === "GET") {
+    const user = await authenticate(request, env);
+    if (!user) return json({ success: false, message: "Unauthorized" }, 401);
+
+    const timestamp = Math.floor(Date.now() / 1000);
+    const folder = "techfix_repairs";
+    const uploadPreset = "techfix_android";
+
+    const signatureString = `folder=${folder}&timestamp=${timestamp}&upload_preset=${uploadPreset}`;
+
+    const encoder = new TextEncoder();
+    const keyData = encoder.encode(env.CLOUDINARY_API_SECRET);
+    const messageData = encoder.encode(signatureString);
+
+    const cryptoKey = await crypto.subtle.importKey(
+        "raw",
+        keyData,
+        { name: "HMAC", hash: "SHA-1" },
+        false,
+        ["sign"]
+    );
+
+    const signatureBuffer = await crypto.subtle.sign("HMAC", cryptoKey, messageData);
+
+    // ✅ FIX: Convert to HEX string (Cloudinary expects hex)
+    const signature = Array.from(new Uint8Array(signatureBuffer))
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('');
+
+    return json({
+        success: true,
+        data: {
+            cloudName: env.CLOUDINARY_CLOUD_NAME,
+            apiKey: env.CLOUDINARY_API_KEY,
+            timestamp: timestamp,
+            signature: signature,
+            folder: folder,
+            uploadPreset: uploadPreset
+        }
+    });
+}
 
       // 404 FALLBACK
       // ==========================================
