@@ -700,18 +700,37 @@ export default {
         let query;
         let result;
 
+        const baseQuery = `
+          SELECT 
+            a.*,
+            d.brand AS device_brand,
+            d.model AS device_model,
+            s.name AS service_name,
+            b.name AS branch_name,
+            c.first_name AS customer_first_name,
+            c.last_name AS customer_last_name,
+            tu.first_name AS technician_first_name,
+            tu.last_name AS technician_last_name
+          FROM appointments a
+          LEFT JOIN devices d ON a.device_id = d.id
+          LEFT JOIN services s ON a.service_id = s.id
+          LEFT JOIN branches b ON a.branch_id = b.id
+          LEFT JOIN users c ON a.customer_id = c.id
+          LEFT JOIN technicians t ON a.technician_id = t.id
+          LEFT JOIN users tu ON t.user_id = tu.id
+        `;
+
         if (user.role === "CUSTOMER") {
-          query = `SELECT * FROM appointments WHERE customer_id = ? ORDER BY created_at DESC`;
+          query = baseQuery + ` WHERE a.customer_id = ? ORDER BY a.created_at DESC`;
           result = await env.DB.prepare(query).bind(user.id).all();
         } else if (user.role === "MANAGER") {
           if (!user.managerBranchId) {
-             return json({ success: true, data: [] }); // Manager has no branch assigned
+             return json({ success: true, data: [] });
           }
-          query = `SELECT * FROM appointments WHERE branch_id = ? ORDER BY created_at DESC`;
+          query = baseQuery + ` WHERE a.branch_id = ? ORDER BY a.created_at DESC`;
           result = await env.DB.prepare(query).bind(user.managerBranchId).all();
         } else {
-          // ADMIN gets everything
-          query = `SELECT * FROM appointments ORDER BY created_at DESC`;
+          query = baseQuery + ` ORDER BY a.created_at DESC`;
           result = await env.DB.prepare(query).all();
         }
 
@@ -1133,9 +1152,23 @@ export default {
 
         const appointment = await env.DB.prepare(
           `
-            SELECT a.*, d.brand, d.model, s.name AS service_name, b.name AS branch_name
-            FROM appointments a LEFT JOIN devices d ON d.id = a.device_id
-            LEFT JOIN services s ON s.id = a.service_id LEFT JOIN branches b ON b.id = a.branch_id
+            SELECT 
+              a.*,
+              d.brand AS device_brand,
+              d.model AS device_model,
+              s.name AS service_name,
+              b.name AS branch_name,
+              c.first_name AS customer_first_name,
+              c.last_name AS customer_last_name,
+              tu.first_name AS technician_first_name,
+              tu.last_name AS technician_last_name
+            FROM appointments a 
+            LEFT JOIN devices d ON d.id = a.device_id
+            LEFT JOIN services s ON s.id = a.service_id 
+            LEFT JOIN branches b ON b.id = a.branch_id
+            LEFT JOIN users c ON c.id = a.customer_id
+            LEFT JOIN technicians t ON t.id = a.technician_id
+            LEFT JOIN users tu ON tu.id = t.user_id
             WHERE a.id = ? LIMIT 1
         `,
         )
@@ -1193,7 +1226,26 @@ export default {
           return json({ success: false, message: "Profile not found" }, 404);
 
         const tasks = await env.DB.prepare(
-          `SELECT * FROM appointments WHERE technician_id = ? ORDER BY created_at DESC`,
+          `
+            SELECT 
+              a.*,
+              d.brand AS device_brand,
+              d.model AS device_model,
+              s.name AS service_name,
+              b.name AS branch_name,
+              c.first_name AS customer_first_name,
+              c.last_name AS customer_last_name,
+              tu.first_name AS technician_first_name,
+              tu.last_name AS technician_last_name
+            FROM appointments a 
+            LEFT JOIN devices d ON d.id = a.device_id
+            LEFT JOIN services s ON s.id = a.service_id 
+            LEFT JOIN branches b ON b.id = a.branch_id
+            LEFT JOIN users c ON c.id = a.customer_id
+            LEFT JOIN technicians t ON t.id = a.technician_id
+            LEFT JOIN users tu ON tu.id = t.user_id
+            WHERE a.technician_id = ? ORDER BY a.created_at DESC
+          `,
         )
           .bind(tech.id)
           .all();
