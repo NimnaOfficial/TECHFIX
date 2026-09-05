@@ -114,10 +114,11 @@ public class CustomerDevicesFragment extends Fragment {
             
             // Map the category ID back to the dropdown text
             String mappedCategory = "Smartphone";
-            if ("cat_2".equals(existingDevice.getCategoryId())) mappedCategory = "Laptop";
-            else if ("cat_3".equals(existingDevice.getCategoryId())) mappedCategory = "Tablet";
-            else if ("cat_4".equals(existingDevice.getCategoryId())) mappedCategory = "Desktop";
-            else if ("cat_5".equals(existingDevice.getCategoryId())) mappedCategory = "Smartwatch";
+            if ("CAT-001".equals(existingDevice.getCategoryId())) mappedCategory = "Laptop";
+            else if ("CAT-002".equals(existingDevice.getCategoryId())) mappedCategory = "Desktop";
+            else if ("CAT-003".equals(existingDevice.getCategoryId())) mappedCategory = "Smartphone";
+            else if ("CAT-004".equals(existingDevice.getCategoryId())) mappedCategory = "Tablet";
+            else if ("CAT-005".equals(existingDevice.getCategoryId())) mappedCategory = "Smartwatch";
             else if (existingDevice.getCategoryName() != null) mappedCategory = existingDevice.getCategoryName();
             
             actCategory.setText(mappedCategory, false);
@@ -142,11 +143,11 @@ public class CustomerDevicesFragment extends Fragment {
             }
 
             String selectedCategory = actCategory.getText().toString();
-            String catId = "cat_1"; // Default Smartphone
-            if ("Laptop".equalsIgnoreCase(selectedCategory)) catId = "cat_2";
-            else if ("Tablet".equalsIgnoreCase(selectedCategory)) catId = "cat_3";
-            else if ("Desktop".equalsIgnoreCase(selectedCategory)) catId = "cat_4";
-            else if ("Smartwatch".equalsIgnoreCase(selectedCategory)) catId = "cat_5";
+            String catId = "CAT-003"; // Default Smartphone
+            if ("Laptop".equalsIgnoreCase(selectedCategory)) catId = "CAT-001";
+            else if ("Desktop".equalsIgnoreCase(selectedCategory)) catId = "CAT-002";
+            else if ("Tablet".equalsIgnoreCase(selectedCategory)) catId = "CAT-004";
+            else if ("Smartwatch".equalsIgnoreCase(selectedCategory)) catId = "CAT-005";
             
             Device device = new Device();
             device.setBrand(brand);
