@@ -243,7 +243,6 @@ public class SysAdminUsersFragment extends Fragment implements ManagerAdapter.On
             etFirstName.setText(existingUser.getFirstName());
             etLastName.setText(existingUser.getLastName());
             etEmail.setText(existingUser.getEmail());
-            etEmail.setEnabled(false); // Disable email edits to prevent unique constraint crashes
             etPhone.setText(existingUser.getPhone());
             switchActive.setChecked(existingUser.getIsActive() == 1);
             
@@ -261,6 +260,7 @@ public class SysAdminUsersFragment extends Fragment implements ManagerAdapter.On
             Manager user = new Manager();
             user.setFirstName(etFirstName.getText().toString().trim());
             user.setLastName(etLastName.getText().toString().trim());
+            user.setEmail(etEmail.getText().toString().trim());
             user.setPhone(etPhone.getText().toString().trim());
             user.setRole(spinnerRole.getSelectedItem().toString());
             user.setIsActive(switchActive.isChecked() ? 1 : 0);
@@ -271,7 +271,6 @@ public class SysAdminUsersFragment extends Fragment implements ManagerAdapter.On
             }
             
             if (existingUser == null) {
-                user.setEmail(etEmail.getText().toString().trim());
                 viewModel.createManager(user);
             } else {
                 viewModel.updateManager(existingUser.getId(), user);
@@ -280,7 +279,5 @@ public class SysAdminUsersFragment extends Fragment implements ManagerAdapter.On
         builder.setNegativeButton("Abort", null);
         builder.show();
     }
+
 }
-
-
-

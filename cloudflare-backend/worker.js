@@ -2073,28 +2073,57 @@ if (
       if (path.startsWith("/api/admin/managers/") && request.method === "PUT") {
         const user = await authenticate(request, env);
         if (!user || !user.role || user.role.toUpperCase() !== "ADMIN")
-          return json(
-            { success: false, message: "Access denied. System Admin only." },
-            403,
-          );
+          return json({ success: false, message: "Access denied. System Admin only." }, 403);
 
         const managerId = path.split("/")[4];
-        const { first_name, last_name, phone, is_active } =
-          await request.json();
+        const { first_name, last_name, phone, is_active, email, password } = await request.json();
+
+        let passwordHashQuery = "";
+        let params = [first_name || "", last_name || "", phone || "", is_active !== undefined ? is_active : 1];
+
+        if (email) {
+            const normalizedEmail = email.trim().toLowerCase();
+            const existing = await env.DB.prepare(`SELECT id FROM users WHERE email = ? AND id != ?`).bind(normalizedEmail, managerId).first();
+            if (existing) return json({ success: false, message: "Email already exists" }, 400);
+            
+            passwordHashQuery += ", email = ?";
+            params.push(normalizedEmail);
+        }
+
+        if (password && password.length >= 6) {
+            const encoder = new TextEncoder();
+            const salt = crypto.randomUUID();
+            const passwordKey = await crypto.subtle.importKey(
+              "raw",
+              encoder.encode(password),
+              { name: "PBKDF2" },
+              false,
+              ["deriveBits"],
+            );
+            const hashBuffer = await crypto.subtle.deriveBits(
+              {
+                name: "PBKDF2",
+                salt: encoder.encode(salt),
+                iterations: 100000,
+                hash: "SHA-256",
+              },
+              passwordKey,
+              256,
+            );
+            const passwordHash = Array.from(new Uint8Array(hashBuffer))
+              .map((b) => b.toString(16).padStart(2, "0"))
+              .join("");
+            const storedPasswordHash = `${salt}:${passwordHash}`;
+            
+            passwordHashQuery += ", password_hash = ?";
+            params.push(storedPasswordHash);
+        }
+
+        params.push(managerId);
 
         await env.DB.prepare(
-          `
-                UPDATE users SET first_name = ?, last_name = ?, phone = ?, is_active = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND role = 'MANAGER'
-            `,
-        )
-          .bind(
-            first_name || "",
-            last_name || "",
-            phone || "",
-            is_active !== undefined ? is_active : 1,
-            managerId,
-          )
-          .run();
+          `UPDATE users SET first_name = ?, last_name = ?, phone = ?, is_active = ?, updated_at = CURRENT_TIMESTAMP ${passwordHashQuery} WHERE id = ? AND role = 'MANAGER'`
+        ).bind(...params).run();
 
         return json({ success: true, message: "Manager updated successfully" });
       }
@@ -2523,15 +2552,21 @@ if (
         const user = await authenticate(request, env);
         if (!user || !["ADMIN", "MANAGER"].includes(user.role))
           return json({ success: false, message: "Access denied" }, 403);
+        const body = await request.json();
         const {
           user_id,
           first_name,
           last_name,
           employee_code,
           specialization,
-          branch_id,
           availability_status,
-        } = await request.json();
+        } = body;
+        
+        let branch_id = body.branch_id;
+        if (user.role === "MANAGER") {
+          if (!user.managerBranchId) return json({ success: false, message: "Manager is not assigned to a branch" }, 403);
+          branch_id = user.managerBranchId;
+        }
 
         let finalUserId = user_id;
 
@@ -2637,16 +2672,31 @@ if (
           return json({ success: false, message: "Access denied" }, 403);
         const techId = path.split("/")[3];
 
+        const existingTech = await env.DB.prepare(`SELECT branch_id, user_id FROM technicians WHERE id = ?`).bind(techId).first();
+        if (!existingTech) return json({ success: false, message: "Technician not found" }, 404);
+
+        if (user.role === "MANAGER") {
+            if (!user.managerBranchId) return json({ success: false, message: "Manager branch missing" }, 403);
+            if (existingTech.branch_id !== user.managerBranchId) {
+                return json({ success: false, message: "Access denied: Technician belongs to another branch" }, 403);
+            }
+        }
+
         if (request.method === "PUT") {
+          const body = await request.json();
           const {
             user_id,
             first_name,
             last_name,
             employee_code,
             specialization,
-            branch_id,
             availability_status,
-          } = await request.json();
+          } = body;
+          
+          let branch_id = body.branch_id;
+          if (user.role === "MANAGER") {
+            branch_id = user.managerBranchId; // Force manager's branch
+          }
 
           await env.DB.prepare(
             `
