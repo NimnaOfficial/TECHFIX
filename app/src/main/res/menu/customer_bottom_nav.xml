@@ -9,9 +9,9 @@
         android:icon="@drawable/ic_devices"
         android:title="Devices" />
     <item
-        android:id="@+id/nav_notifications"
-        android:icon="@drawable/ic_email"
-        android:title="Alerts" />
+        android:id="@+id/nav_appointments"
+        android:icon="@drawable/ic_time"
+        android:title="Repairs" />
     <item
         android:id="@+id/nav_profile"
         android:icon="@drawable/ic_person"

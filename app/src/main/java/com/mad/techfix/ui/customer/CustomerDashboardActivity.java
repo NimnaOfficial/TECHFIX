@@ -24,8 +24,8 @@ public class CustomerDashboardActivity extends AppCompatActivity {
                 selectedFragment = new CustomerHomeFragment();
             } else if (itemId == R.id.nav_devices) {
                 selectedFragment = new CustomerDevicesFragment();
-            } else if (itemId == R.id.nav_notifications) {
-                selectedFragment = new CustomerNotificationsFragment();
+            } else if (itemId == R.id.nav_appointments) {
+                selectedFragment = new com.mad.techfix.ui.customer.booking.MyAppointmentsFragment();
             } else if (itemId == R.id.nav_profile) {
                 selectedFragment = new CustomerProfileFragment();
             }
