@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+import android.widget.ArrayAdapter;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -19,20 +20,23 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
-import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.mad.techfix.R;
 import com.mad.techfix.models.ApiResponse;
+import com.mad.techfix.models.Appointment;
 import com.mad.techfix.models.CloudinarySignatureResponse;
 import com.mad.techfix.models.ImageUploadRequest;
 import com.mad.techfix.models.RepairImage;
 import com.mad.techfix.network.ApiService;
 import com.mad.techfix.network.RetrofitClient;
+import com.mad.techfix.ui.customer.booking.RepairBookingFragment;
 import com.mad.techfix.utils.TokenManager;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
@@ -67,8 +71,8 @@ public class CameraFragment extends Fragment {
     private static final String TAG = "CameraFragment";
 
     private PreviewView previewView;
-    private TextInputEditText etAppointmentId;
-    private MaterialButton btnCapture, btnUpload;
+    private MaterialAutoCompleteTextView etAppointmentId;
+    private MaterialButton btnCapture, btnUpload, btnBookAppointment;
     private ProgressBar progressBar;
     private RecyclerView rvImages;
 
@@ -79,6 +83,8 @@ public class CameraFragment extends Fragment {
     private TokenManager tokenManager;
     private boolean isCameraReady = false;
     private OkHttpClient okHttpClient;
+    private String selectedAppointmentId;
+    private final List<Appointment> availableAppointments = new ArrayList<>();
 
     @Nullable
     @Override
@@ -95,8 +101,16 @@ public class CameraFragment extends Fragment {
         etAppointmentId = view.findViewById(R.id.et_appointment_id);
         btnCapture = view.findViewById(R.id.btn_capture);
         btnUpload = view.findViewById(R.id.btn_upload);
+        btnBookAppointment = view.findViewById(R.id.btn_book_appointment);
         progressBar = view.findViewById(R.id.progress_bar);
         rvImages = view.findViewById(R.id.rv_images);
+        etAppointmentId.setOnItemClickListener((parent, itemView, position, id) -> {
+            if (position < availableAppointments.size()) {
+                selectedAppointmentId = availableAppointments.get(position).getId();
+                fetchImages();
+            }
+        });
+        etAppointmentId.setOnClickListener(v -> etAppointmentId.showDropDown());
 
         btnCapture.setEnabled(false);
 
@@ -119,6 +133,7 @@ public class CameraFragment extends Fragment {
         apiService = RetrofitClient.getClient().create(ApiService.class);
         tokenManager = new TokenManager(requireContext());
         okHttpClient = new OkHttpClient();
+        loadCustomerAppointments();
 
         // Check permissions
         if (hasCameraPermission()) {
@@ -132,13 +147,93 @@ public class CameraFragment extends Fragment {
 
         // Upload button
         btnUpload.setOnClickListener(v -> uploadImage());
+        btnBookAppointment.setOnClickListener(v -> openBooking());
 
-        // Fetch images when appointment ID changes
-        etAppointmentId.setOnFocusChangeListener((v, hasFocus) -> {
-            if (!hasFocus) {
-                fetchImages();
-            }
-        });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (apiService != null && tokenManager != null) {
+            loadCustomerAppointments();
+        }
+    }
+
+    private void loadCustomerAppointments() {
+        String token = tokenManager.getToken();
+        if (token == null || token.trim().isEmpty()) {
+            Log.e(TAG, "❌ Cannot load appointments: authentication token is missing");
+            return;
+        }
+
+        apiService.getAppointments("Bearer " + token).enqueue(
+                new retrofit2.Callback<ApiResponse<List<Appointment>>>() {
+                    @Override
+                    public void onResponse(
+                            @NonNull retrofit2.Call<ApiResponse<List<Appointment>>> call,
+                            @NonNull retrofit2.Response<ApiResponse<List<Appointment>>> response
+                    ) {
+                        if (!isUiAvailable()) {
+                            return;
+                        }
+
+                        if (!response.isSuccessful()
+                                || response.body() == null
+                                || !response.body().isSuccess()
+                                || response.body().getData() == null) {
+                            Toast.makeText(getContext(), "Unable to load appointments", Toast.LENGTH_LONG).show();
+                            return;
+                        }
+
+                        availableAppointments.clear();
+                        availableAppointments.addAll(response.body().getData());
+                        Log.d(TAG, "✅ Loaded " + availableAppointments.size() + " customer appointments");
+
+                        List<String> labels = new ArrayList<>();
+                        for (Appointment appointment : availableAppointments) {
+                            String number = appointment.getAppointment_number();
+                            String status = appointment.getStatus();
+                            labels.add((number == null || number.trim().isEmpty()
+                                    ? appointment.getId()
+                                    : number) + " - " + (status == null ? "UNKNOWN" : status));
+                        }
+
+                        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                                requireContext(),
+                                android.R.layout.simple_dropdown_item_1line,
+                                labels
+                        );
+                        etAppointmentId.setAdapter(adapter);
+                        if (availableAppointments.size() == 1) {
+                            etAppointmentId.setText(labels.get(0), false);
+                            selectedAppointmentId = availableAppointments.get(0).getId();
+                            fetchImages();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(
+                            @NonNull retrofit2.Call<ApiResponse<List<Appointment>>> call,
+                            @NonNull Throwable throwable
+                    ) {
+                        if (isUiAvailable()) {
+                            Toast.makeText(getContext(), "Unable to load appointments: " + throwable.getMessage(), Toast.LENGTH_LONG).show();
+                        }
+                    }
+                }
+        );
+    }
+
+    private void openBooking() {
+        if (!isUiAvailable()) {
+            return;
+        }
+
+        getParentFragmentManager()
+                .beginTransaction()
+                .replace(getId(), new RepairBookingFragment())
+                .addToBackStack(null)
+                .commit();
     }
 
     private boolean hasCameraPermission() {
@@ -219,9 +314,9 @@ public class CameraFragment extends Fragment {
     // UPLOAD IMAGE VIA CLOUDINARY
     // ==========================================
     private void uploadImage() {
-        String appointmentId = etAppointmentId.getText() != null ? etAppointmentId.getText().toString().trim() : "";
-        if (appointmentId.isEmpty()) {
-            Toast.makeText(getContext(), "Please enter an Appointment ID", Toast.LENGTH_SHORT).show();
+        String appointmentId = selectedAppointmentId;
+        if (appointmentId == null || appointmentId.trim().isEmpty()) {
+            Toast.makeText(getContext(), "Please select an appointment", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -279,20 +374,39 @@ public class CameraFragment extends Fragment {
     }
 
     private void uploadToCloudinary(CloudinarySignatureResponse.CloudinaryData data, String appointmentId) {
+        if (!isUiAvailable() || data == null || capturedFile == null || !capturedFile.exists()) {
+            resetUploadState();
+            return;
+        }
+
+        File fileToUpload = capturedFile;
+        String cloudName = data.getCloudName();
+        String apiKey = data.getApiKey();
+        String signature = data.getSignature();
+        String folder = data.getFolder();
+        String uploadPreset = data.getUploadPreset();
+
+        if (isBlank(cloudName) || isBlank(apiKey) || isBlank(signature)
+                || isBlank(folder) || isBlank(uploadPreset)) {
+            Log.e(TAG, "❌ Cloudinary signature response is incomplete");
+            showUploadError("Invalid upload configuration");
+            return;
+        }
+
         MediaType MEDIA_TYPE_JPG = MediaType.parse("image/jpeg");
-        RequestBody requestBody = RequestBody.create(MEDIA_TYPE_JPG, capturedFile);
+        RequestBody requestBody = RequestBody.create(MEDIA_TYPE_JPG, fileToUpload);
 
         MultipartBody.Builder builder = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
-                .addFormDataPart("file", capturedFile.getName(), requestBody)
-                .addFormDataPart("api_key", data.getApiKey())
+                .addFormDataPart("file", fileToUpload.getName(), requestBody)
+                .addFormDataPart("api_key", apiKey)
                 .addFormDataPart("timestamp", String.valueOf(data.getTimestamp()))
-                .addFormDataPart("signature", data.getSignature())
-                .addFormDataPart("folder", data.getFolder())
-                .addFormDataPart("upload_preset", data.getUploadPreset());
+                .addFormDataPart("signature", signature)
+                .addFormDataPart("folder", folder)
+                .addFormDataPart("upload_preset", uploadPreset);
 
         RequestBody cloudinaryBody = builder.build();
-        String cloudinaryUrl = "https://api.cloudinary.com/v1_1/" + data.getCloudName() + "/image/upload";
+        String cloudinaryUrl = "https://api.cloudinary.com/v1_1/" + cloudName + "/image/upload";
 
         Log.d(TAG, "📡 Uploading to Cloudinary: " + cloudinaryUrl);
 
@@ -304,21 +418,22 @@ public class CameraFragment extends Fragment {
         okHttpClient.newCall(cloudinaryRequest).enqueue(new okhttp3.Callback() {
             @Override
             public void onResponse(@NonNull okhttp3.Call call, @NonNull okhttp3.Response response) throws IOException {
-                if (response.isSuccessful() && response.body() != null) {
-                    String jsonResponse = response.body().string();
+                okhttp3.ResponseBody responseBody = response.body();
+                if (response.isSuccessful() && responseBody != null) {
+                    String jsonResponse = responseBody.string();
                     Log.d(TAG, "📡 Cloudinary response: " + jsonResponse);
                     try {
                         JSONObject jsonObject = new JSONObject(jsonResponse);
                         String secureUrl = jsonObject.getString("secure_url");
                         Log.d(TAG, "✅ Uploaded to Cloudinary, secure_url: " + secureUrl);
 
-                        requireActivity().runOnUiThread(() -> {
+                        runOnUiThreadSafely(() -> {
                             saveImageUrlToBackend(appointmentId, secureUrl);
                         });
 
                     } catch (JSONException e) {
                         Log.e(TAG, "❌ Failed to parse Cloudinary response: " + e.getMessage(), e);
-                        requireActivity().runOnUiThread(() -> {
+                        runOnUiThreadSafely(() -> {
                             Toast.makeText(getContext(), "Failed to parse Cloudinary response", Toast.LENGTH_SHORT).show();
                             progressBar.setVisibility(View.GONE);
                             btnUpload.setEnabled(true);
@@ -327,7 +442,7 @@ public class CameraFragment extends Fragment {
                 } else {
                     String errorBody = response.body() != null ? response.body().string() : "null";
                     Log.e(TAG, "❌ Cloudinary upload failed: " + response.code() + " - " + errorBody);
-                    requireActivity().runOnUiThread(() -> {
+                    runOnUiThreadSafely(() -> {
                         Toast.makeText(getContext(), "Cloudinary upload failed: " + response.code(), Toast.LENGTH_SHORT).show();
                         progressBar.setVisibility(View.GONE);
                         btnUpload.setEnabled(true);
@@ -338,7 +453,7 @@ public class CameraFragment extends Fragment {
             @Override
             public void onFailure(@NonNull okhttp3.Call call, @NonNull IOException e) {
                 Log.e(TAG, "❌ Cloudinary error: " + e.getMessage(), e);
-                requireActivity().runOnUiThread(() -> {
+                runOnUiThreadSafely(() -> {
                     Toast.makeText(getContext(), "Cloudinary error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     progressBar.setVisibility(View.GONE);
                     btnUpload.setEnabled(true);
@@ -348,6 +463,10 @@ public class CameraFragment extends Fragment {
     }
 
     private void saveImageUrlToBackend(String appointmentId, String imageUrl) {
+        if (!isUiAvailable()) {
+            return;
+        }
+
         String token = tokenManager.getToken();
         if (token == null) {
             progressBar.setVisibility(View.GONE);
@@ -357,11 +476,15 @@ public class CameraFragment extends Fragment {
 
         Log.d(TAG, "📡 Saving image URL to backend: " + imageUrl);
 
-        ImageUploadRequest request = new ImageUploadRequest(imageUrl, "REPAIR_IMAGE");
+        ImageUploadRequest request = new ImageUploadRequest(imageUrl, "BEFORE_REPAIR");
 
         apiService.uploadImage("Bearer " + token, appointmentId, request).enqueue(new retrofit2.Callback<ApiResponse<Object>>() {
             @Override
             public void onResponse(@NonNull retrofit2.Call<ApiResponse<Object>> call, @NonNull retrofit2.Response<ApiResponse<Object>> response) {
+                if (!isUiAvailable()) {
+                    return;
+                }
+
                 progressBar.setVisibility(View.GONE);
                 btnUpload.setEnabled(true);
 
@@ -387,6 +510,10 @@ public class CameraFragment extends Fragment {
 
             @Override
             public void onFailure(@NonNull retrofit2.Call<ApiResponse<Object>> call, @NonNull Throwable t) {
+                if (!isUiAvailable()) {
+                    return;
+                }
+
                 progressBar.setVisibility(View.GONE);
                 btnUpload.setEnabled(true);
                 Log.e(TAG, "❌ Network error saving image: " + t.getMessage(), t);
@@ -399,8 +526,12 @@ public class CameraFragment extends Fragment {
     // FETCH IMAGES
     // ==========================================
     private void fetchImages() {
-        String appointmentId = etAppointmentId.getText() != null ? etAppointmentId.getText().toString().trim() : "";
-        if (appointmentId.isEmpty()) {
+        if (!isUiAvailable()) {
+            return;
+        }
+
+        String appointmentId = selectedAppointmentId;
+        if (appointmentId == null || appointmentId.trim().isEmpty()) {
             imageAdapter.updateList(null);
             return;
         }
@@ -414,6 +545,10 @@ public class CameraFragment extends Fragment {
         apiService.getAppointmentImages("Bearer " + token, appointmentId).enqueue(new retrofit2.Callback<ApiResponse<List<RepairImage>>>() {
             @Override
             public void onResponse(@NonNull retrofit2.Call<ApiResponse<List<RepairImage>>> call, @NonNull retrofit2.Response<ApiResponse<List<RepairImage>>> response) {
+                if (!isUiAvailable()) {
+                    return;
+                }
+
                 if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
                     List<RepairImage> images = response.body().getData();
                     if (images != null && !images.isEmpty()) {
@@ -430,6 +565,10 @@ public class CameraFragment extends Fragment {
 
             @Override
             public void onFailure(@NonNull retrofit2.Call<ApiResponse<List<RepairImage>>> call, @NonNull Throwable t) {
+                if (!isUiAvailable()) {
+                    return;
+                }
+
                 Toast.makeText(getContext(), "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
@@ -439,6 +578,10 @@ public class CameraFragment extends Fragment {
     // DELETE IMAGE
     // ==========================================
     private void deleteImage(RepairImage image) {
+        if (!isUiAvailable()) {
+            return;
+        }
+
         String token = tokenManager.getToken();
         if (token == null) {
             Toast.makeText(getContext(), "Please login first", Toast.LENGTH_SHORT).show();
@@ -448,6 +591,10 @@ public class CameraFragment extends Fragment {
         apiService.deleteImage("Bearer " + token, image.getAppointment_id(), image.getId()).enqueue(new retrofit2.Callback<ApiResponse<Object>>() {
             @Override
             public void onResponse(@NonNull retrofit2.Call<ApiResponse<Object>> call, @NonNull retrofit2.Response<ApiResponse<Object>> response) {
+                if (!isUiAvailable()) {
+                    return;
+                }
+
                 if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
                     Toast.makeText(getContext(), "Image deleted", Toast.LENGTH_SHORT).show();
                     fetchImages();
@@ -458,8 +605,47 @@ public class CameraFragment extends Fragment {
 
             @Override
             public void onFailure(@NonNull retrofit2.Call<ApiResponse<Object>> call, @NonNull Throwable t) {
+                if (!isUiAvailable()) {
+                    return;
+                }
+
                 Toast.makeText(getContext(), "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
+        });
+    }
+
+    private void runOnUiThreadSafely(Runnable action) {
+        if (!isUiAvailable()) {
+            return;
+        }
+
+        requireView().post(() -> {
+            if (isUiAvailable()) {
+                action.run();
+            }
+        });
+    }
+
+    private boolean isUiAvailable() {
+        return isAdded() && getView() != null && getActivity() != null;
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
+    }
+
+    private void resetUploadState() {
+        runOnUiThreadSafely(() -> {
+            progressBar.setVisibility(View.GONE);
+            btnUpload.setEnabled(true);
+        });
+    }
+
+    private void showUploadError(String message) {
+        runOnUiThreadSafely(() -> {
+            progressBar.setVisibility(View.GONE);
+            btnUpload.setEnabled(true);
+            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
         });
     }
 }

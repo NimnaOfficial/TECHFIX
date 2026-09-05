@@ -20,6 +20,7 @@ import com.mad.techfix.models.AuthResponse;
 import com.mad.techfix.models.LoginRequest;
 import com.mad.techfix.models.User;
 import com.mad.techfix.network.RetrofitClient;
+import com.mad.techfix.utils.TokenManager;
 
 import org.json.JSONObject;
 
@@ -35,6 +36,7 @@ public class LoginActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private TextView tvRegister;
     private SessionManager sessionManager;
+    private TokenManager tokenManager;
 
     private static final String DEFAULT_CUSTOMER_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmZDFjMGVmZC1lNDBkLTRmY2EtODI4Yy1hMDMyOGI5MDA2OTQiLCJyb2xlIjoiQ1VTVE9NRVIiLCJlbWFpbCI6ImpvaG5AZXhhbXBsZS5jb20iLCJpYXQiOjE3ODc5MzE1MzAsImV4cCI6MTc4ODUzNjMzMH0.U6px93U44LowTWPwuWVMbhKY71yzm2SSuGlF0rajsv4";
 
@@ -44,6 +46,7 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         sessionManager = new SessionManager(this);
+        tokenManager = new TokenManager(this);
 
         initViews();
         setupListeners();
@@ -88,6 +91,8 @@ public class LoginActivity extends AppCompatActivity {
                     if (response.isSuccessful() && response.body() != null && response.body().getUser() != null) {
                         User user = response.body().getUser();
                         sessionManager.saveAuthSession(DEFAULT_CUSTOMER_TOKEN, user);
+                        tokenManager.saveToken(DEFAULT_CUSTOMER_TOKEN);
+                        tokenManager.saveUserId(user.getId());
 
                         Toast.makeText(LoginActivity.this,
                                 "Welcome, " + user.getFullName() + " (Active Customer Session)",
@@ -180,6 +185,8 @@ public class LoginActivity extends AppCompatActivity {
                     if (user != null && token != null) {
                         // Save session details including JWT Token
                         sessionManager.saveAuthSession(token, user);
+                        tokenManager.saveToken(token);
+                        tokenManager.saveUserId(user.getId());
 
                         Toast.makeText(LoginActivity.this,
                                 "Welcome back, " + user.getFullName() + " (" + user.getRole() + ")",
@@ -244,6 +251,5 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 }
-
 
 
