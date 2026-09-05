@@ -874,15 +874,16 @@ export default {
           "-" +
           crypto.randomUUID().split("-")[0].toUpperCase();
 
-        // 1. Auto-Assignment Logic: Find an available technician at the nearest branch (using the passed branch_id)
+        // 1. Auto-Assignment Logic: Find an available technician at the requested branch who has the required skill
         const availableTech = await env.DB.prepare(
           `
-            SELECT id FROM technicians
-            WHERE branch_id = ? AND availability_status = 'AVAILABLE'
+            SELECT t.id FROM technicians t
+            INNER JOIN technician_services ts ON ts.technician_id = t.id
+            WHERE t.branch_id = ? AND t.availability_status = 'AVAILABLE' AND ts.service_id = ?
             LIMIT 1
         `,
         )
-          .bind(branch_id)
+          .bind(branch_id, service_id)
           .first();
 
         let initialStatus = "REQUESTED";
@@ -974,6 +975,82 @@ export default {
           .bind(appointmentId)
           .all();
         return json({ success: true, data: history.results });
+      }
+
+      if (
+        path.startsWith("/api/appointments/") &&
+        path.endsWith("/eligible-technicians") &&
+        request.method === "GET"
+      ) {
+        const user = await authenticate(request, env);
+        if (!user || !["ADMIN", "MANAGER"].includes(user.role))
+          return json({ success: false, message: "Access denied" }, 403);
+        const appointmentId = path.split("/")[3];
+
+        const appointment = await env.DB.prepare(
+          `SELECT branch_id, service_id FROM appointments WHERE id = ?`,
+        )
+          .bind(appointmentId)
+          .first();
+
+        if (!appointment)
+          return json({ success: false, message: "Appointment not found" }, 404);
+
+        if (
+          user.role === "MANAGER" &&
+          user.managerBranchId &&
+          appointment.branch_id !== user.managerBranchId
+        ) {
+          return json({ success: false, message: "Access denied: Branch mismatch" }, 403);
+        }
+
+        const eligible = await env.DB.prepare(
+          `
+            SELECT t.id, t.employee_code, t.specialization, t.availability_status,
+                   u.first_name, u.last_name, u.profile_image_url,
+                   b.name AS branch_name
+            FROM technicians t
+            JOIN users u ON u.id = t.user_id
+            LEFT JOIN branches b ON b.id = t.branch_id
+            INNER JOIN technician_services ts ON ts.technician_id = t.id AND ts.service_id = ?
+            WHERE t.branch_id = ?
+              AND t.availability_status = 'AVAILABLE'
+              AND t.is_active = 1
+            ORDER BY u.first_name, u.last_name
+          `,
+        )
+          .bind(appointment.service_id, appointment.branch_id)
+          .all();
+
+        const allAvailable = await env.DB.prepare(
+          `
+            SELECT t.id, t.employee_code, t.specialization, t.availability_status,
+                   u.first_name, u.last_name, u.profile_image_url,
+                   b.name AS branch_name
+            FROM technicians t
+            JOIN users u ON u.id = t.user_id
+            LEFT JOIN branches b ON b.id = t.branch_id
+            WHERE t.branch_id = ?
+              AND t.availability_status = 'AVAILABLE'
+              AND t.is_active = 1
+            ORDER BY u.first_name, u.last_name
+          `,
+        )
+          .bind(appointment.branch_id)
+          .all();
+
+        const eligibleIds = new Set(eligible.results.map((t) => t.id));
+        const otherAvailable = allAvailable.results.filter((t) => !eligibleIds.has(t.id));
+
+        return json({
+          success: true,
+          data: {
+            recommended: eligible.results,
+            other_available: otherAvailable,
+            appointment_branch_id: appointment.branch_id,
+            appointment_service_id: appointment.service_id,
+          },
+        });
       }
 
       if (
@@ -1075,15 +1152,16 @@ export default {
           apt.technician_id &&
           (status === "COMPLETED" || status === "CANCELLED")
         ) {
-          // Find next waiting appointment for this branch
+          // Find next waiting appointment for this branch that this specific technician has the skills to repair
           const pendingApt = await env.DB.prepare(
             `
-                SELECT id FROM appointments
-                WHERE status = 'REQUESTED' AND branch_id = ? AND technician_id IS NULL
-                ORDER BY created_at ASC LIMIT 1
+                SELECT a.id FROM appointments a
+                INNER JOIN technician_services ts ON ts.service_id = a.service_id
+                WHERE a.status = 'REQUESTED' AND a.branch_id = ? AND a.technician_id IS NULL AND ts.technician_id = ?
+                ORDER BY a.created_at ASC LIMIT 1
             `,
           )
-            .bind(apt.branch_id)
+            .bind(apt.branch_id, apt.technician_id)
             .first();
 
           if (pendingApt) {
@@ -1170,9 +1248,31 @@ export default {
 
         const appointment = await env.DB.prepare(
           `
-            SELECT a.*, d.brand, d.model, s.name AS service_name, b.name AS branch_name
-            FROM appointments a LEFT JOIN devices d ON d.id = a.device_id
-            LEFT JOIN services s ON s.id = a.service_id LEFT JOIN branches b ON b.id = a.branch_id
+            SELECT 
+              a.*, 
+              d.brand AS device_brand, 
+              d.model AS device_model, 
+              d.serial_number AS device_serial_number,
+              CASE WHEN d.brand IS NOT NULL OR d.model IS NOT NULL THEN TRIM(COALESCE(d.brand, '') || ' ' || COALESCE(d.model, '')) ELSE NULL END AS device_name,
+              s.name AS service_name, 
+              s.description AS service_description,
+              s.base_price AS service_base_price,
+              b.name AS branch_name,
+              b.city AS branch_city,
+              b.address AS branch_address,
+              cu.first_name AS customer_first_name,
+              cu.last_name AS customer_last_name,
+              CASE WHEN cu.first_name IS NOT NULL OR cu.last_name IS NOT NULL THEN TRIM(COALESCE(cu.first_name, '') || ' ' || COALESCE(cu.last_name, '')) ELSE NULL END AS customer_name,
+              tu.first_name AS technician_first_name,
+              tu.last_name AS technician_last_name,
+              CASE WHEN tu.first_name IS NOT NULL OR tu.last_name IS NOT NULL THEN TRIM(COALESCE(tu.first_name, '') || ' ' || COALESCE(tu.last_name, '')) ELSE NULL END AS technician_name
+            FROM appointments a 
+            LEFT JOIN devices d ON d.id = a.device_id
+            LEFT JOIN services s ON s.id = a.service_id 
+            LEFT JOIN branches b ON b.id = a.branch_id
+            LEFT JOIN users cu ON cu.id = a.customer_id
+            LEFT JOIN technicians t ON t.id = a.technician_id
+            LEFT JOIN users tu ON tu.id = t.user_id
             WHERE a.id = ? LIMIT 1
         `,
         )
