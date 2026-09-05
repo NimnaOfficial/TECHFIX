@@ -212,4 +212,17 @@ public interface TechFixDao {
 
     @Query("DELETE FROM local_appointments")
     void clearAllAppointments();
+
+    // ==========================================
+    // PENDING STATUS UPDATES (OFFLINE SYNC)
+    // ==========================================
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insertPendingStatusUpdate(PendingStatusUpdateEntity entity);
+
+    @Query("SELECT * FROM pending_status_updates ORDER BY timestamp ASC")
+    List<PendingStatusUpdateEntity> getAllPendingStatusUpdates();
+
+    @Query("DELETE FROM pending_status_updates WHERE id = :id")
+    void deletePendingStatusUpdate(int id);
 }

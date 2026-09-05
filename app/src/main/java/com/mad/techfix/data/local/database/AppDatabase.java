@@ -14,9 +14,10 @@ import androidx.room.RoomDatabase;
                 RepairHistoryEntity.class,
                 PaymentEntity.class,
                 AppointmentEntity.class,
-                DashboardMetricsEntity.class
+                DashboardMetricsEntity.class,
+                PendingStatusUpdateEntity.class
         },
-        version = 4,
+        version = 5,
         exportSchema = false
 )
 public abstract class AppDatabase extends RoomDatabase {

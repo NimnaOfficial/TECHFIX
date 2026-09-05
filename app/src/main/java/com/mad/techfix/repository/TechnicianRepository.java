@@ -34,6 +34,7 @@ public class TechnicianRepository {
     private final ApiService apiService;
     private final TechFixDao techFixDao;
     private final SharedPreferences preferences;
+    private final Context context;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
@@ -43,9 +44,10 @@ public class TechnicianRepository {
     }
 
     public TechnicianRepository(Context context, AppDatabase database) {
+        this.context = context.getApplicationContext();
         apiService = RetrofitClient.getApiService();
         techFixDao = database.techFixDao();
-        preferences = context.getApplicationContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        preferences = this.context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
     }
 
     // ==========================================
@@ -323,7 +325,28 @@ public class TechnicianRepository {
 
             @Override
             public void onFailure(Call<ApiResponse<Object>> call, Throwable throwable) {
-                callback.onError(getThrowableMessage(throwable, "Unable to update repair status"));
+                // Network failed - Fallback to Room and schedule offline sync via WorkManager
+                executorService.execute(() -> {
+                    com.mad.techfix.data.local.database.PendingStatusUpdateEntity entity = 
+                        new com.mad.techfix.data.local.database.PendingStatusUpdateEntity(
+                            appointmentId, 
+                            status, 
+                            note == null ? "" : note, 
+                            System.currentTimeMillis()
+                        );
+                    techFixDao.insertPendingStatusUpdate(entity);
+                    
+                    androidx.work.OneTimeWorkRequest syncWorkRequest = new androidx.work.OneTimeWorkRequest.Builder(com.mad.techfix.worker.SyncStatusWorker.class)
+                            .setConstraints(new androidx.work.Constraints.Builder()
+                                    .setRequiredNetworkType(androidx.work.NetworkType.CONNECTED)
+                                    .build())
+                            .build();
+                    androidx.work.WorkManager.getInstance(context).enqueue(syncWorkRequest);
+                    
+                    updateCachedStatus(appointmentId, status);
+                    
+                    mainHandler.post(() -> callback.onSuccess("Saved offline. Will sync when online."));
+                });
             }
         });
     }
