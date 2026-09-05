@@ -99,11 +99,13 @@ CREATE TABLE IF NOT EXISTS appointments (
     service_id TEXT NOT NULL,
     branch_id TEXT NOT NULL,
     technician_id TEXT,
-    appointment_date DATE NOT NULL,
-    appointment_time TEXT,
+    requested_date DATE NOT NULL,
+    requested_time TEXT,
+    customer_latitude REAL,
+    customer_longitude REAL,
     problem_description TEXT,
     status TEXT DEFAULT 'REQUESTED' CHECK(status IN ('REQUESTED', 'ASSIGNED', 'DIAGNOSING', 'REPAIRING', 'TESTING', 'COMPLETED', 'CANCELLED')),
-    total_cost REAL,
+    estimated_price REAL,
     is_paid INTEGER DEFAULT 0 CHECK(is_paid IN (0, 1)),
     final_price REAL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -198,7 +200,19 @@ CREATE TABLE IF NOT EXISTS service_parts (
     FOREIGN KEY(part_id) REFERENCES spare_parts(id) ON DELETE CASCADE
 );
 
--- 16. SYSTEM SETTINGS
+-- 16. APPOINTMENT PARTS
+CREATE TABLE IF NOT EXISTS appointment_parts (
+    id TEXT PRIMARY KEY,
+    appointment_id TEXT NOT NULL,
+    part_id TEXT NOT NULL,
+    quantity INTEGER DEFAULT 1,
+    unit_price REAL NOT NULL,
+    total_price REAL NOT NULL,
+    FOREIGN KEY(appointment_id) REFERENCES appointments(id) ON DELETE CASCADE,
+    FOREIGN KEY(part_id) REFERENCES spare_parts(id) ON DELETE RESTRICT
+);
+
+-- 17. SYSTEM SETTINGS
 CREATE TABLE IF NOT EXISTS system_settings (
     setting_key TEXT PRIMARY KEY,
     setting_value TEXT NOT NULL
