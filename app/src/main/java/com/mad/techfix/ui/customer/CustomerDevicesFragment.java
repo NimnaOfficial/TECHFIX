@@ -111,7 +111,16 @@ public class CustomerDevicesFragment extends Fragment {
 
         if (existingDevice != null) {
             tvTitle.setText("Edit Device");
-            actCategory.setText("Laptop", false); // Default for demo, normally match existing
+            
+            // Map the category ID back to the dropdown text
+            String mappedCategory = "Smartphone";
+            if ("cat_2".equals(existingDevice.getCategoryId())) mappedCategory = "Laptop";
+            else if ("cat_3".equals(existingDevice.getCategoryId())) mappedCategory = "Tablet";
+            else if ("cat_4".equals(existingDevice.getCategoryId())) mappedCategory = "Desktop";
+            else if ("cat_5".equals(existingDevice.getCategoryId())) mappedCategory = "Smartwatch";
+            else if (existingDevice.getCategoryName() != null) mappedCategory = existingDevice.getCategoryName();
+            
+            actCategory.setText(mappedCategory, false);
             etBrand.setText(existingDevice.getBrand());
             etModel.setText(existingDevice.getModel());
             etSerialNumber.setText(existingDevice.getSerialNumber());
@@ -132,11 +141,18 @@ public class CustomerDevicesFragment extends Fragment {
                 return;
             }
 
+            String selectedCategory = actCategory.getText().toString();
+            String catId = "cat_1"; // Default Smartphone
+            if ("Laptop".equalsIgnoreCase(selectedCategory)) catId = "cat_2";
+            else if ("Tablet".equalsIgnoreCase(selectedCategory)) catId = "cat_3";
+            else if ("Desktop".equalsIgnoreCase(selectedCategory)) catId = "cat_4";
+            else if ("Smartwatch".equalsIgnoreCase(selectedCategory)) catId = "cat_5";
+            
             Device device = new Device();
             device.setBrand(brand);
             device.setModel(model);
             device.setSerialNumber(serial);
-            device.setCategoryId("1"); // Hardcoded for demo
+            device.setCategoryId(catId);
 
             if (existingDevice == null) {
                 saveNewDevice(device, dialog);
@@ -158,7 +174,25 @@ public class CustomerDevicesFragment extends Fragment {
                     dialog.dismiss();
                     loadDevices();
                 } else {
-                    Toast.makeText(getContext(), "Failed to add device", Toast.LENGTH_SHORT).show();
+                    String errMsg = "Failed to add device";
+                    try {
+                        if (response.errorBody() != null) {
+                            String errBody = response.errorBody().string();
+                            android.util.Log.e("TechFixAPI", "Device Add Error: " + errBody);
+                            if (errBody.contains("FOREIGN KEY") || errBody.contains("SQLITE_CONSTRAINT")) {
+                                errMsg = "Database error: Categories are missing. Run seed.sql script!";
+                            } else {
+                                errMsg = "Server rejected the device data.";
+                            }
+                        } else if (response.body() != null && response.body().getMessage() != null) {
+                            errMsg = response.body().getMessage();
+                        }
+                    } catch (Exception e) {
+                        android.util.Log.e("TechFixAPI", "Exception reading error body", e);
+                    }
+                    if (getContext() != null) {
+                        Toast.makeText(getContext(), errMsg, Toast.LENGTH_LONG).show();
+                    }
                 }
             }
 
@@ -179,7 +213,25 @@ public class CustomerDevicesFragment extends Fragment {
                     dialog.dismiss();
                     loadDevices();
                 } else {
-                    Toast.makeText(getContext(), "Failed to update device", Toast.LENGTH_SHORT).show();
+                    String errMsg = "Failed to update device";
+                    try {
+                        if (response.errorBody() != null) {
+                            String errBody = response.errorBody().string();
+                            android.util.Log.e("TechFixAPI", "Device Update Error: " + errBody);
+                            if (errBody.contains("FOREIGN KEY") || errBody.contains("SQLITE_CONSTRAINT")) {
+                                errMsg = "Database error: Categories are missing. Run seed.sql script!";
+                            } else {
+                                errMsg = "Server rejected the update.";
+                            }
+                        } else if (response.body() != null && response.body().getMessage() != null) {
+                            errMsg = response.body().getMessage();
+                        }
+                    } catch (Exception e) {
+                        android.util.Log.e("TechFixAPI", "Exception reading error body", e);
+                    }
+                    if (getContext() != null) {
+                        Toast.makeText(getContext(), errMsg, Toast.LENGTH_LONG).show();
+                    }
                 }
             }
 

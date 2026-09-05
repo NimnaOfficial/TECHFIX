@@ -3059,7 +3059,7 @@ if (path === "/api/cloudinary/signature" && request.method === "GET") {
       return json(
         {
           success: false,
-          message: "Internal server error",
+          message: "Internal server error: " + error.message,
           error: error.message,
         },
         500,
