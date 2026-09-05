@@ -819,34 +819,8 @@ export default {
        success: true,
        data: result.results,
      });
-   }
+    }
 
-
-
-         result = await env.DB.prepare(
-           baseQuery +
-             `
-             WHERE a.branch_id = ?
-             ORDER BY a.created_at DESC
-             `,
-         )
-           .bind(user.managerBranchId)
-           .all();
-
-       } else {
-         result = await env.DB.prepare(
-           baseQuery +
-             `
-             ORDER BY a.created_at DESC
-             `,
-         ).all();
-       }
-
-       return json({
-         success: true,
-         data: result.results,
-       });
-     }
       if (path === "/api/appointments" && request.method === "POST") {
         const user = await authenticate(request, env);
         if (!user || user.role !== "CUSTOMER")
@@ -1248,13 +1222,13 @@ export default {
 
         const appointment = await env.DB.prepare(
           `
-            SELECT 
-              a.*, 
-              d.brand AS device_brand, 
-              d.model AS device_model, 
+            SELECT
+              a.*,
+              d.brand AS device_brand,
+              d.model AS device_model,
               d.serial_number AS device_serial_number,
               CASE WHEN d.brand IS NOT NULL OR d.model IS NOT NULL THEN TRIM(COALESCE(d.brand, '') || ' ' || COALESCE(d.model, '')) ELSE NULL END AS device_name,
-              s.name AS service_name, 
+              s.name AS service_name,
               s.description AS service_description,
               s.base_price AS service_base_price,
               b.name AS branch_name,
@@ -1266,9 +1240,9 @@ export default {
               tu.first_name AS technician_first_name,
               tu.last_name AS technician_last_name,
               CASE WHEN tu.first_name IS NOT NULL OR tu.last_name IS NOT NULL THEN TRIM(COALESCE(tu.first_name, '') || ' ' || COALESCE(tu.last_name, '')) ELSE NULL END AS technician_name
-            FROM appointments a 
+            FROM appointments a
             LEFT JOIN devices d ON d.id = a.device_id
-            LEFT JOIN services s ON s.id = a.service_id 
+            LEFT JOIN services s ON s.id = a.service_id
             LEFT JOIN branches b ON b.id = a.branch_id
             LEFT JOIN users cu ON cu.id = a.customer_id
             LEFT JOIN technicians t ON t.id = a.technician_id
