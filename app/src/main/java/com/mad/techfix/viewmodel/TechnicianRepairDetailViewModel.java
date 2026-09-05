@@ -411,12 +411,12 @@ public class TechnicianRepairDetailViewModel
 
                         new TechnicianRepository
                                 .RepositoryCallback<
-                                List<Object>
+                                List<com.mad.techfix.models.RepairImage>
                                 >() {
 
                             @Override
                             public void onSuccess(
-                                    List<Object> data
+                                    List<com.mad.techfix.models.RepairImage> data
                             ) {
 
                                 repairImages.setValue(
@@ -442,7 +442,7 @@ public class TechnicianRepairDetailViewModel
 
 
     private List<String> extractImageUrls(
-            List<Object> images
+            List<com.mad.techfix.models.RepairImage> images
     ) {
 
         List<String> urls =
@@ -455,46 +455,11 @@ public class TechnicianRepairDetailViewModel
         }
 
 
-        for (Object item :
-                images) {
-
-            if (!(item instanceof Map)) {
-
-                continue;
-            }
-
-
-            Map<?, ?> map =
-                    (Map<?, ?>) item;
-
-
-            Object url =
-                    map.get(
-                            "image_url"
-                    );
-
-
-            if (url == null) {
-
-                continue;
-            }
-
-
-            String value =
-                    String.valueOf(
-                            url
-                    ).trim();
-
-
-            if (!value.isEmpty()) {
-
-                urls.add(
-                        value
-                );
+        for (com.mad.techfix.models.RepairImage item : images) {
+            if (item != null && item.getImage_url() != null && !item.getImage_url().trim().isEmpty()) {
+                urls.add(item.getImage_url().trim());
             }
         }
-
-
         return urls;
     }
 

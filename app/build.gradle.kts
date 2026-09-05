@@ -77,4 +77,9 @@ dependencies {
 
     // ✅ Guava for ListenableFuture (CameraX)
     implementation("com.google.guava:guava:31.1-android")
+
+    // Testing
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.ext.junit)
+    androidTestImplementation(libs.espresso.core)
 }

@@ -23,6 +23,12 @@ public class DashboardResponse {
         @SerializedName("total_technicians")
         private int totalTechnicians;
 
+        @SerializedName("branch_name")
+        private String branchName;
+
+        public String getBranchName() { return branchName; }
+        public void setBranchName(String branchName) { this.branchName = branchName; }
+
         public double getTotalRevenue() { return totalRevenue; }
         public void setTotalRevenue(double totalRevenue) { this.totalRevenue = totalRevenue; }
 

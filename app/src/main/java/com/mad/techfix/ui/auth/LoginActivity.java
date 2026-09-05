@@ -109,7 +109,7 @@ public class LoginActivity extends AppCompatActivity {
                         } else if ("TECHNICIAN".equalsIgnoreCase(userRole)) {
                             intent = new Intent(LoginActivity.this, com.mad.techfix.ui.technician.TechnicianActivity.class);
                         } else {
-                            intent = new Intent(LoginActivity.this, MainActivity.class);
+                            intent = new Intent(LoginActivity.this, com.mad.techfix.ui.customer.CustomerDashboardActivity.class);
                         }
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         startActivity(intent);
@@ -204,7 +204,7 @@ public class LoginActivity extends AppCompatActivity {
                         } else if ("TECHNICIAN".equalsIgnoreCase(userRole)) {
                             intent = new Intent(LoginActivity.this, com.mad.techfix.ui.technician.TechnicianActivity.class);
                         } else {
-                            intent = new Intent(LoginActivity.this, MainActivity.class);
+                            intent = new Intent(LoginActivity.this, com.mad.techfix.ui.customer.CustomerDashboardActivity.class);
                         }
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         startActivity(intent);

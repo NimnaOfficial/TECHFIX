@@ -29,7 +29,7 @@ public class AdminDashboardFragment extends Fragment {
     private AdminViewModel viewModel;
     private DashboardAppointmentAdapter adapter;
 
-    private TextView tvTotalRevenue, tvPendingRequests, tvActiveRepairs, tvAvailableTechs, tvEmpty;
+    private TextView tvTotalRevenue, tvPendingRequests, tvActiveRepairs, tvAvailableTechs, tvEmpty, tvBranchName;
     private SwipeRefreshLayout swipeRefresh;
     private ProgressBar progressBar;
     private RecyclerView recyclerRecentAppointments;
@@ -50,6 +50,7 @@ public class AdminDashboardFragment extends Fragment {
         viewModel = new ViewModelProvider(requireActivity()).get(AdminViewModel.class);
 
         tvTotalRevenue = view.findViewById(R.id.tv_total_revenue);
+        tvBranchName = view.findViewById(R.id.tv_branch_name);
         tvPendingRequests = view.findViewById(R.id.tv_pending_requests);
         tvActiveRepairs = view.findViewById(R.id.tv_active_repairs);
         tvAvailableTechs = view.findViewById(R.id.tv_available_techs);
@@ -60,9 +61,21 @@ public class AdminDashboardFragment extends Fragment {
 
                 ImageButton btnRefresh = view.findViewById(R.id.btn_refresh);
         ImageButton btnLogout = view.findViewById(R.id.btn_logout);
+        ImageButton btnTheme = view.findViewById(R.id.btn_theme);
+
+        SessionManager sessionManager = new SessionManager(requireContext());
+        
+        btnTheme.setOnClickListener(v -> {
+            boolean isDark = sessionManager.isDarkMode();
+            sessionManager.setDarkMode(!isDark);
+            if (!isDark) {
+                androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES);
+            } else {
+                androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO);
+            }
+        });
 
         btnLogout.setOnClickListener(v -> {
-            SessionManager sessionManager = new SessionManager(requireContext());
             sessionManager.clearSession();
             Toast.makeText(requireContext(), "Signed out successfully", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(requireActivity(), LoginActivity.class);
@@ -129,6 +142,13 @@ public class AdminDashboardFragment extends Fragment {
 
         viewModel.getDashboardData().observe(getViewLifecycleOwner(), data -> {
             if (data != null) {
+                if (data.getBranchName() != null && !data.getBranchName().isEmpty()) {
+                    tvBranchName.setText("Branch: " + data.getBranchName());
+                    tvBranchName.setVisibility(View.VISIBLE);
+                } else {
+                    tvBranchName.setVisibility(View.GONE);
+                }
+                
                 animateCurrency(tvTotalRevenue, data.getTotalRevenue(), currentRevenue);
                 currentRevenue = data.getTotalRevenue();
                 
@@ -158,6 +178,16 @@ public class AdminDashboardFragment extends Fragment {
             } else {
                 tvEmpty.setVisibility(View.VISIBLE);
                 recyclerRecentAppointments.setVisibility(View.GONE);
+            }
+        });
+
+        viewModel.getAssignmentSuccess().observe(getViewLifecycleOwner(), success -> {
+            if (Boolean.TRUE.equals(success)) {
+                // Refresh dashboard when assignment succeeds
+                viewModel.loadDashboard();
+                viewModel.loadAllAppointments();
+                // Reset the trigger
+                viewModel.getAssignmentSuccess().setValue(false);
             }
         });
     }

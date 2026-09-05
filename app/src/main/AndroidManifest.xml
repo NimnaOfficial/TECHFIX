@@ -17,6 +17,7 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
+        android:name=".TechFixApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -26,7 +27,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TECHFIX">
 
-        <!-- Set SplashActivity as the Main Starting Activity (Member 1 Entrypoint) -->
         <activity
             android:name=".ui.auth.SplashActivity"
             android:exported="true"
@@ -51,6 +51,11 @@
 
         <activity
             android:name=".MainActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+            
+        <activity
+            android:name=".ui.customer.CustomerDashboardActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
 
