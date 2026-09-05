@@ -78,6 +78,9 @@ dependencies {
     // ✅ Guava for ListenableFuture (CameraX)
     implementation("com.google.guava:guava:31.1-android")
 
+    // WorkManager for Offline Sync
+    implementation("androidx.work:work-runtime:2.9.0")
+
     // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
