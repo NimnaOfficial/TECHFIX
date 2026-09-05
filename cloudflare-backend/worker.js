@@ -1049,6 +1049,15 @@ export default {
             400,
           );
 
+        const apt = await env.DB.prepare(`SELECT branch_id FROM appointments WHERE id = ?`).bind(appointmentId).first();
+        if (!apt) return json({ success: false, message: "Appointment not found" }, 404);
+
+        if (user.role === "MANAGER") {
+            if (!user.managerBranchId) return json({ success: false, message: "Manager branch missing" }, 403);
+            if (apt.branch_id !== user.managerBranchId) return json({ success: false, message: "Access denied: Appointment belongs to another branch" }, 403);
+            if (tech.branch_id !== user.managerBranchId) return json({ success: false, message: "Access denied: Technician belongs to another branch" }, 403);
+        }
+
         await env.DB.prepare(
           `UPDATE appointments SET technician_id = ?, status = 'ASSIGNED', updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
         )
@@ -1102,6 +1111,15 @@ export default {
         )
           .bind(appointmentId)
           .first();
+
+        if (!apt) return json({ success: false, message: "Appointment not found" }, 404);
+
+        if (user.role === "MANAGER") {
+            if (!user.managerBranchId) return json({ success: false, message: "Manager branch missing" }, 403);
+            if (apt.branch_id !== user.managerBranchId) {
+                return json({ success: false, message: "Access denied: Appointment belongs to another branch" }, 403);
+            }
+        }
 
         await env.DB.prepare(
           `UPDATE appointments SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
@@ -1650,12 +1668,19 @@ if (
         const { status } = await request.json();
 
         const existing = await env.DB.prepare(
-          `SELECT p.amount, a.customer_id, a.id AS apt_id FROM payments p JOIN appointments a ON p.appointment_id = a.id WHERE p.id = ?`,
+          `SELECT p.amount, a.customer_id, a.id AS apt_id, a.branch_id FROM payments p JOIN appointments a ON p.appointment_id = a.id WHERE p.id = ?`,
         )
           .bind(paymentId)
           .first();
         if (!existing)
           return json({ success: false, message: "Not found" }, 404);
+
+        if (user.role === "MANAGER") {
+            if (!user.managerBranchId) return json({ success: false, message: "Manager branch missing" }, 403);
+            if (existing.branch_id !== user.managerBranchId) {
+                return json({ success: false, message: "Access denied: Payment belongs to another branch" }, 403);
+            }
+        }
 
         await env.DB.prepare(
           `
@@ -1848,8 +1873,13 @@ if (
         let payBase = "FROM payments";
         let binds = [];
 
+        let branchName = null;
         if (user.role === "MANAGER") {
           if (!user.managerBranchId) return json({ success: true, data: { total_revenue: 0, total_appointments: 0, active_repairs: 0, pending_requests: 0, completed_repairs: 0, available_technicians: 0, busy_technicians: 0 } });
+          
+          const branchInfo = await env.DB.prepare(`SELECT name FROM branches WHERE id = ?`).bind(user.managerBranchId).first();
+          if (branchInfo) branchName = branchInfo.name;
+
           aptBase = "FROM appointments WHERE branch_id = ?";
           techBase = "FROM technicians WHERE branch_id = ?";
           payBase = "FROM payments p JOIN appointments a ON p.appointment_id = a.id WHERE a.branch_id = ?";
@@ -1872,6 +1902,7 @@ if (
         return json({
           success: true,
           data: {
+            branch_name: branchName,
             total_revenue: revenue.total || 0,
             total_appointments: totalAppointments.count || 0,
             active_repairs: activeRepairs.count || 0,
