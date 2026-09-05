@@ -139,6 +139,23 @@ async function authenticate(request, env) {
   return user;
 }
 
+async function generateUniqueAppointmentId(env) {
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const id = crypto.randomUUID();
+    const existing = await env.DB.prepare(
+      `SELECT id FROM appointments WHERE id = ? LIMIT 1`,
+    )
+      .bind(id)
+      .first();
+
+    if (!existing) {
+      return id;
+    }
+  }
+
+  throw new Error("Unable to generate a unique appointment ID");
+}
+
 export default {
   async fetch(request, env, ctx) {
     if (request.method === "OPTIONS") {
@@ -841,7 +858,7 @@ export default {
         )
           .bind(service_id)
           .first();
-        const aptId = crypto.randomUUID();
+        const aptId = await generateUniqueAppointmentId(env);
         const aptNum =
           "TF-" +
           Date.now() +
@@ -1192,6 +1209,24 @@ export default {
 
         if (request.method === "POST") {
           const { image_url, image_type } = await request.json();
+          const allowedImageTypes = [
+            "CUSTOMER_PROBLEM",
+            "BEFORE_REPAIR",
+            "DURING_REPAIR",
+            "AFTER_REPAIR",
+          ];
+
+          if (!image_url || !allowedImageTypes.includes(image_type)) {
+            return json(
+              {
+                success: false,
+                message:
+                  "image_url is required and image_type must be one of CUSTOMER_PROBLEM, BEFORE_REPAIR, DURING_REPAIR, or AFTER_REPAIR",
+              },
+              400,
+            );
+          }
+
           const imageId = crypto.randomUUID();
           await env.DB.prepare(
             `INSERT INTO repair_images (id, appointment_id, image_url, image_type, uploaded_by) VALUES (?, ?, ?, ?, ?)`,

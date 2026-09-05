@@ -11,6 +11,7 @@ import com.mad.techfix.data.local.database.TechFixDao;
 import com.mad.techfix.models.ApiResponse;
 import com.mad.techfix.models.Appointment;
 import com.mad.techfix.models.AppointmentDetail;
+import com.mad.techfix.models.RepairImage;
 import com.mad.techfix.network.ApiService;
 import com.mad.techfix.network.RetrofitClient;
 
@@ -755,11 +756,14 @@ public class TechnicianRepository {
                 )
                 .enqueue(
                         new Callback<
+                                ApiResponse<List<RepairImage>>
                                 ApiResponse<List<com.mad.techfix.models.RepairImage>>
                                 >() {
 
                             @Override
                             public void onResponse(
+                                    Call<ApiResponse<List<RepairImage>>> call,
+                                    Response<ApiResponse<List<RepairImage>>> response
                                     Call<ApiResponse<List<com.mad.techfix.models.RepairImage>>> call,
                                     Response<ApiResponse<List<com.mad.techfix.models.RepairImage>>> response
                             ) {
@@ -768,20 +772,21 @@ public class TechnicianRepository {
                                         && response.body() != null
                                         && response.body().isSuccess()) {
 
+                                    List<RepairImage> repairImages =
                                     List<com.mad.techfix.models.RepairImage> images =
                                             response.body()
                                                     .getData();
 
 
-                                    if (images == null) {
+                                    if (repairImages == null) {
 
-                                        images =
+                                        repairImages =
                                                 new ArrayList<>();
                                     }
 
 
                                     callback.onSuccess(
-                                            images
+                                            new ArrayList<Object>(repairImages)
                                     );
 
                                 } else {
@@ -795,6 +800,7 @@ public class TechnicianRepository {
 
                             @Override
                             public void onFailure(
+                                    Call<ApiResponse<List<RepairImage>>> call,
                                     Call<ApiResponse<List<com.mad.techfix.models.RepairImage>>> call,
                                     Throwable throwable
                             ) {
@@ -830,7 +836,7 @@ public class TechnicianRepository {
 
         body.put(
                 "image_type",
-                "REPAIR"
+                "DURING_REPAIR"
         );
 
 

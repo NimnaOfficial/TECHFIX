@@ -162,7 +162,6 @@ public interface ApiService {
     Call<CloudinarySignatureResponse> getCloudinarySignature(@Header("Authorization") String auth);
 
     // 2. Save image URL to the TechFix database (JSON body)
-    @Multipart
     @POST("api/appointments/{id}/images")
     Call<ApiResponse<Object>> uploadImage(
             @Header("Authorization") String auth,
