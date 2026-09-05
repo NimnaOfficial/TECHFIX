@@ -17,7 +17,6 @@ import com.mad.techfix.models.AuthResponse;
 import com.mad.techfix.models.User;
 import com.mad.techfix.network.ApiService;
 import com.mad.techfix.network.RetrofitClient;
-import com.mad.techfix.ui.admin.branches.BranchListFragment;
 import com.mad.techfix.ui.admin.dashboard.AdminDashboardFragment;
 import com.mad.techfix.ui.admin.technicians.TechnicianListFragment;
 import com.mad.techfix.data.SessionManager;
@@ -45,9 +44,6 @@ public class AdminActivity extends AppCompatActivity {
                 return true;
                         } else if (id == R.id.nav_appointments) {
                 loadFragment(new com.mad.techfix.ui.admin.appointments.AppointmentsFragment());
-                return true;
-            } else if (id == R.id.nav_branches) {
-                loadFragment(new BranchListFragment());
                 return true;
             } else if (id == R.id.nav_technicians) {
                 loadFragment(new TechnicianListFragment());

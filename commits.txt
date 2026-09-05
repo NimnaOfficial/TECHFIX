@@ -1,0 +1,84 @@
+0a8973c | SANDANIMNE K G L | 2026-09-02 | Merge pull request #23 from NimnaOfficial/member01/managments
+df18fbf | NimnaOfficial | 2026-09-02 | Implement 1:1 Manager-to-Branch security isolation
+88c5697 | NimnaOfficial | 2026-09-02 | move branch mgr to admin
+cf3baa1 | NimnaOfficial | 2026-09-02 | Add Stripe Payment Intent endpoint for team integration
+f47f00a | NimnaOfficial | 2026-09-02 | Move Branches management strictly to Admin and remove from Manager
+8d61d09 | SANDANIMNE K G L | 2026-08-31 | Merge pull request #22 from NimnaOfficial/feature/member4-inventory-media
+e5fd244 | Dulan Dhanush | 2026-08-31 | completed the payment method
+ce02ff1 | SANDANIMNE K G L | 2026-08-31 | Merge pull request #21 from NimnaOfficial/member01/managments
+a31146a | NimnaOfficial | 2026-08-31 | Implement Dashboard navigation flows for Managers and System Logs
+94237a5 | NimnaOfficial | 2026-08-31 | Fix Admin file save & backend backup logic, and clean temp scripts
+a17272f | NimnaOfficial | 2026-08-30 | fix theme mode isssue
+5b40c52 | NimnaOfficial | 2026-08-30 | fix admin settings fetching issues
+0b71596 | SANDANIMNE K G L | 2026-08-30 | Merge pull request #20 from NimnaOfficial/member01/managments
+b5c3bb7 | SANDANIMNE K G L | 2026-08-30 | Merge branch 'main' into member01/managments
+c5859f7 | SANDANIMNE K G L | 2026-08-30 | Delete mem3 directory
+1627d0f | NimnaOfficial | 2026-08-30 | implement admin settings option
+4284624 | NimnaOfficial | 2026-08-30 | implement user managemnet options and api issues
+47ffa31 | NimnaOfficial | 2026-08-30 | implements manager mgr ui
+bcf2fa6 | NimnaOfficial | 2026-08-30 | fix admin data fetching issues
+1874ede | SANDANIMNE K G L | 2026-08-30 | Merge pull request #18 from NimnaOfficial/member01/managments
+a97b70c | SANDANIMNE K G L | 2026-08-30 | Delete .idea directory
+1666960 | NimnaOfficial | 2026-08-30 | resolve admin dashboard issue and gitignore
+2ffff80 | SANDANIMNE K G L | 2026-08-30 | Delete mem3 directory
+1857ba5 | SANDANIMNE K G L | 2026-08-30 | Delete member1 directory
+76b9db5 | SANDANIMNE K G L | 2026-08-30 | Merge pull request #17 from NimnaOfficial/feature/member4-inventory-media
+6206e4d | SANDANIMNE K G L | 2026-08-30 | Merge branch 'main' into feature/member4-inventory-media
+9e22f3e | SANDANIMNE K G L | 2026-08-30 | Merge pull request #16 from NimnaOfficial/member01/managments
+3afdd33 | Dulan Dhanush | 2026-08-30 | Resolved merge conflict by removing IDE file
+51aae79 | Dulan Dhanush | 2026-08-30 | complted the repair history and tested the spare parts and all the APIs that relevent to that
+8dc192a | NimnaOfficial | 2026-08-30 | role base login fixed
+c3ef239 | NimnaOfficial | 2026-08-29 | implement admin dashboard
+5aaaf26 | NimnaOfficial | 2026-08-29 | add logout option in manager dashboard
+182e0e7 | Dulan Dhanush | 2026-08-29 | 29
+763edc1 | NimnaOfficial | 2026-08-29 | connect manager with splash screen
+ca762d3 | SANDANIMNE K G L | 2026-08-29 | Merge pull request #15 from NimnaOfficial/feature/member4-inventory-media
+575b9c5 | SANDANIMNE K G L | 2026-08-29 | Merge pull request #14 from NimnaOfficial/my-dev-branch
+73043f8 | Dulan Dhanush | 2026-08-28 | feat: add networking dependencies for Member 4 (Retrofit, OkHttp logging)
+ed89298 | Huwinfenando | 2026-08-28 | built the splash screen,register and login page backend development part
+f6e509a | SANDANIMNE K G L | 2026-08-28 | Merge pull request #13 from NimnaOfficial/member01/managments
+52b4d60 | NimnaOfficial | 2026-08-28 | optimize mgr ui
+7b0de88 | NimnaOfficial | 2026-08-28 | Update admin activity
+5e370aa | NimnaOfficial | 2026-08-28 | add view appointment option
+d27d2ea | SANDANIMNE K G L | 2026-08-28 | Merge pull request #12 from NimnaOfficial/member01/managments
+ce0ec9a | SANDANIMNE K G L | 2026-08-28 | Delete .artifacts/60725d9a-7de7-4d18-8b14-095566887163 directory
+409d105 | SANDANIMNE K G L | 2026-08-28 | Delete .idea directory
+3f7cdca | NimnaOfficial | 2026-08-28 | fix dark mode crashing issue
+6dedf84 | NimnaOfficial | 2026-08-28 | fix text fields ui issues
+79a6450 | NimnaOfficial | 2026-08-28 | fix tech adding button crash
+e2ee561 | SANDANIMNE K G L | 2026-08-28 | Delete .idea directory
+7e889d2 | SANDANIMNE K G L | 2026-08-28 | Merge pull request #10 from NimnaOfficial/member01/managments
+e45d872 | NimnaOfficial | 2026-08-28 | impove ui smoothness
+7909fa3 | NimnaOfficial | 2026-08-28 | fix bugs in dashboard
+eef8353 | SANDANIMNE K G L | 2026-08-28 | Merge pull request #9 from NimnaOfficial/member01/managments
+70f2f73 | SANDANIMNE K G L | 2026-08-28 | Merge branch 'main' into member01/managments
+be1c3d3 | NimnaOfficial | 2026-08-28 | fix tech deleting issue
+0f929b8 | NimnaOfficial | 2026-08-28 | fix tech adding issues
+d7122e4 | NimnaOfficial | 2026-08-28 | fix dummy issues
+d5fbd18 | NimnaOfficial | 2026-08-28 | review implementation
+297aa23 | SANDANIMNE K G L | 2026-08-27 | Merge pull request #8 from NimnaOfficial/my-dev-branch
+853da85 | SANDANIMNE K G L | 2026-08-27 | Merge pull request #7 from NimnaOfficial/main
+eb1d135 | SANDANIMNE K G L | 2026-08-27 | Merge pull request #6 from NimnaOfficial/my-dev-branch
+c1ba6cd | SANDANIMNE K G L | 2026-08-27 | Merge branch 'main' into my-dev-branch
+54e9d99 | SANDANIMNE K G L | 2026-08-27 | Merge pull request #5 from NimnaOfficial/member01/managments
+d4fe8aa | NimnaOfficial | 2026-08-27 | finish branch/technician ,gr
+747f803 | Huwinfenando | 2026-08-27 | create the login part of the app
+55098ef | NimnaOfficial | 2026-08-27 | implement dashborad
+9983271 | SANDANIMNE K G L | 2026-08-27 | Merge pull request #4 from NimnaOfficial/member01/managments
+cae7215 | SANDANIMNE K G L | 2026-08-27 | Merge branch 'main' into member01/managments
+b4ba66e | NimnaOfficial | 2026-08-27 | verify file structure
+c2dfe33 | SANDANIMNE K G L | 2026-08-27 | Delete mem3 directory
+98525bc | SANDANIMNE K G L | 2026-08-27 | Merge pull request #3 from NimnaOfficial/member01/managments
+0370e68 | NimnaOfficial | 2026-08-27 | Merge branch 'main' of https://github.com/NimnaOfficial/TECHFIX into member01/managments
+7562b07 | NimnaOfficial | 2026-08-27 | update admin project files02
+cf6795c | SANDANIMNE K G L | 2026-08-27 | Delete .idea directory
+4b74235 | NimnaOfficial | 2026-08-27 | update admin project files
+570ea59 | SANDANIMNE K G L | 2026-08-27 | Merge pull request #2 from NimnaOfficial/member01/managments
+0b8501e | SANDANIMNE K G L | 2026-08-27 | Delete .idea directory
+4d46cae | SANDANIMNE K G L | 2026-08-27 | Merge pull request #1 from NimnaOfficial/feature/member4-inventory-media
+46a1598 | Dulan Dhanush | 2026-08-26 | implemented the logic that need to conects with APIs
+2de4d13 | Dulan Dhanush | 2026-08-23 | fix the color grading
+b6a00f5 | Dulan Dhanush | 2026-08-23 | feat: Add Parts Manager module in Java with Room DB
+78f5050 | Dulan Dhanush | 2026-08-23 | feat: Add Parts Manager module in Java with Room DB
+48a491a | NimnaOfficial | 2026-08-22 | add project
+68da419 | NimnaOfficial | 2026-08-22 | first commit

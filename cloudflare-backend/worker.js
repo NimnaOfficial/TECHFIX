@@ -690,34 +690,163 @@ export default {
           return json({ success: true, message: "Device deleted" });
         }
       }
-      // ==========================================
-      // 4. APPOINTMENTS (CORE WORKFLOW)
-      // ==========================================
-      if (path === "/api/appointments" && request.method === "GET") {
-        const user = await authenticate(request, env);
-        if (!user) return json({ success: false, message: "Unauthorized" }, 401);
+   // ==========================================
+   // 4. APPOINTMENTS (CORE WORKFLOW)
+   // ==========================================
 
-        let query;
-        let result;
+   if (path === "/api/appointments" && request.method === "GET") {
+     const user = await authenticate(request, env);
 
-        if (user.role === "CUSTOMER") {
-          query = `SELECT * FROM appointments WHERE customer_id = ? ORDER BY created_at DESC`;
-          result = await env.DB.prepare(query).bind(user.id).all();
-        } else if (user.role === "MANAGER") {
-          if (!user.managerBranchId) {
-             return json({ success: true, data: [] }); // Manager has no branch assigned
-          }
-          query = `SELECT * FROM appointments WHERE branch_id = ? ORDER BY created_at DESC`;
-          result = await env.DB.prepare(query).bind(user.managerBranchId).all();
-        } else {
-          // ADMIN gets everything
-          query = `SELECT * FROM appointments ORDER BY created_at DESC`;
-          result = await env.DB.prepare(query).all();
-        }
+     if (!user) {
+       return json(
+         {
+           success: false,
+           message: "Unauthorized",
+         },
+         401,
+       );
+     }
 
-        return json({ success: true, data: result.results });
-      }
+     const baseQuery = `
+       SELECT
+         a.*,
 
+         d.brand AS device_brand,
+         d.model AS device_model,
+         d.serial_number AS device_serial_number,
+
+         CASE
+           WHEN d.brand IS NOT NULL OR d.model IS NOT NULL
+           THEN TRIM(
+             COALESCE(d.brand, '') || ' ' || COALESCE(d.model, '')
+           )
+           ELSE NULL
+         END AS device_name,
+
+         s.name AS service_name,
+         s.description AS service_description,
+         s.base_price AS service_base_price,
+
+         b.name AS branch_name,
+         b.city AS branch_city,
+         b.address AS branch_address,
+
+         cu.first_name AS customer_first_name,
+         cu.last_name AS customer_last_name,
+
+         CASE
+           WHEN cu.first_name IS NOT NULL OR cu.last_name IS NOT NULL
+           THEN TRIM(
+             COALESCE(cu.first_name, '') || ' ' || COALESCE(cu.last_name, '')
+           )
+           ELSE NULL
+         END AS customer_name,
+
+         tu.first_name AS technician_first_name,
+         tu.last_name AS technician_last_name,
+
+         CASE
+           WHEN tu.first_name IS NOT NULL OR tu.last_name IS NOT NULL
+           THEN TRIM(
+             COALESCE(tu.first_name, '') || ' ' || COALESCE(tu.last_name, '')
+           )
+           ELSE NULL
+         END AS technician_name
+
+       FROM appointments a
+
+       LEFT JOIN devices d
+         ON d.id = a.device_id
+
+       LEFT JOIN services s
+         ON s.id = a.service_id
+
+       LEFT JOIN branches b
+         ON b.id = a.branch_id
+
+       LEFT JOIN users cu
+         ON cu.id = a.customer_id
+
+       LEFT JOIN technicians t
+         ON t.id = a.technician_id
+
+       LEFT JOIN users tu
+         ON tu.id = t.user_id
+     `;
+
+     let result;
+
+     if (user.role === "CUSTOMER") {
+       result = await env.DB.prepare(
+         baseQuery +
+           `
+           WHERE a.customer_id = ?
+           ORDER BY a.created_at DESC
+           `,
+       )
+         .bind(user.id)
+         .all();
+
+     } else if (user.role === "MANAGER") {
+       if (!user.managerBranchId) {
+         return json({
+           success: true,
+           data: [],
+         });
+       }
+
+       result = await env.DB.prepare(
+         baseQuery +
+           `
+           WHERE a.branch_id = ?
+           ORDER BY a.created_at DESC
+           `,
+       )
+         .bind(user.managerBranchId)
+         .all();
+
+     } else {
+       // ADMIN gets everything
+       result = await env.DB.prepare(
+         baseQuery +
+           `
+           ORDER BY a.created_at DESC
+           `,
+       ).all();
+     }
+
+     return json({
+       success: true,
+       data: result.results,
+     });
+   }
+
+
+
+         result = await env.DB.prepare(
+           baseQuery +
+             `
+             WHERE a.branch_id = ?
+             ORDER BY a.created_at DESC
+             `,
+         )
+           .bind(user.managerBranchId)
+           .all();
+
+       } else {
+         result = await env.DB.prepare(
+           baseQuery +
+             `
+             ORDER BY a.created_at DESC
+             `,
+         ).all();
+       }
+
+       return json({
+         success: true,
+         data: result.results,
+       });
+     }
       if (path === "/api/appointments" && request.method === "POST") {
         const user = await authenticate(request, env);
         if (!user || user.role !== "CUSTOMER")
@@ -1088,76 +1217,226 @@ export default {
         return json({ success: true, data: techs.results });
       }
 
-      if (path === "/api/technician/appointments" && request.method === "GET") {
-        const user = await authenticate(request, env);
-        if (!user || !["TECHNICIAN", "MANAGER", "ADMIN"].includes(user.role))
-          return json({ success: false, message: "Access denied" }, 403);
-        const tech = await env.DB.prepare(
-          `SELECT id FROM technicians WHERE user_id = ?`,
-        )
-          .bind(user.id)
-          .first();
-        if (!tech)
-          return json({ success: false, message: "Profile not found" }, 404);
+if (path === "/api/technician/appointments" && request.method === "GET") {
+  const user = await authenticate(request, env);
 
-        const tasks = await env.DB.prepare(
-          `SELECT * FROM appointments WHERE technician_id = ? ORDER BY created_at DESC`,
-        )
-          .bind(tech.id)
-          .all();
-        return json({ success: true, data: tasks.results });
-      }
+  if (!user || !["TECHNICIAN", "MANAGER", "ADMIN"].includes(user.role)) {
+    return json(
+      {
+        success: false,
+        message: "Access denied",
+      },
+      403,
+    );
+  }
 
-      if (
-        path.startsWith("/api/technicians/") &&
-        path.endsWith("/services") &&
-        request.method === "GET"
-      ) {
-        const user = await authenticate(request, env);
-        if (!user)
-          return json({ success: false, message: "Unauthorized" }, 401);
-        const technicianId = path.split("/")[3];
+  const tech = await env.DB.prepare(
+    `
+      SELECT id
+      FROM technicians
+      WHERE user_id = ?
+      LIMIT 1
+    `,
+  )
+    .bind(user.id)
+    .first();
 
-        const services = await env.DB.prepare(
-          `
-            SELECT s.id, s.name, s.base_price, dc.name AS category_name
-            FROM technician_services ts JOIN services s ON ts.service_id = s.id JOIN device_categories dc ON s.category_id = dc.id
-            WHERE ts.technician_id = ? AND s.is_active = 1 ORDER BY dc.name, s.name
-        `,
-        )
-          .bind(technicianId)
-          .all();
-        return json({ success: true, data: services.results });
-      }
+  if (!tech) {
+    return json(
+      {
+        success: false,
+        message: "Profile not found",
+      },
+      404,
+    );
+  }
 
-      if (
-        path.startsWith("/api/technicians/") &&
-        path.endsWith("/services") &&
-        request.method === "PUT"
-      ) {
-        const user = await authenticate(request, env);
-        if (!user || !["ADMIN", "MANAGER"].includes(user.role))
-          return json({ success: false, message: "Access denied" }, 403);
-        const technicianId = path.split("/")[3];
-        const { service_ids } = await request.json();
+  const tasks = await env.DB.prepare(
+    `
+      SELECT
+        a.*,
 
-        await env.DB.prepare(
-          `DELETE FROM technician_services WHERE technician_id = ?`,
-        )
-          .bind(technicianId)
-          .run();
-        for (const serviceId of service_ids) {
-          await env.DB.prepare(
-            `INSERT INTO technician_services (technician_id, service_id) VALUES (?, ?)`,
+        d.brand AS device_brand,
+        d.model AS device_model,
+        d.serial_number AS device_serial_number,
+
+        CASE
+          WHEN d.brand IS NOT NULL OR d.model IS NOT NULL
+          THEN TRIM(
+            COALESCE(d.brand, '') || ' ' || COALESCE(d.model, '')
           )
-            .bind(technicianId, serviceId)
-            .run();
-        }
-        return json({
-          success: true,
-          message: "Technician services updated successfully",
-        });
-      }
+          ELSE NULL
+        END AS device_name,
+
+        s.name AS service_name,
+        s.description AS service_description,
+        s.base_price AS service_base_price,
+
+        b.name AS branch_name,
+        b.city AS branch_city,
+        b.address AS branch_address,
+
+        cu.first_name AS customer_first_name,
+        cu.last_name AS customer_last_name,
+
+        CASE
+          WHEN cu.first_name IS NOT NULL OR cu.last_name IS NOT NULL
+          THEN TRIM(
+            COALESCE(cu.first_name, '') || ' ' || COALESCE(cu.last_name, '')
+          )
+          ELSE NULL
+        END AS customer_name,
+
+        tu.first_name AS technician_first_name,
+        tu.last_name AS technician_last_name,
+
+        CASE
+          WHEN tu.first_name IS NOT NULL OR tu.last_name IS NOT NULL
+          THEN TRIM(
+            COALESCE(tu.first_name, '') || ' ' || COALESCE(tu.last_name, '')
+          )
+          ELSE NULL
+        END AS technician_name
+
+      FROM appointments a
+
+      LEFT JOIN devices d
+        ON d.id = a.device_id
+
+      LEFT JOIN services s
+        ON s.id = a.service_id
+
+      LEFT JOIN branches b
+        ON b.id = a.branch_id
+
+      LEFT JOIN users cu
+        ON cu.id = a.customer_id
+
+      LEFT JOIN technicians t
+        ON t.id = a.technician_id
+
+      LEFT JOIN users tu
+        ON tu.id = t.user_id
+
+      WHERE a.technician_id = ?
+
+      ORDER BY a.created_at DESC
+    `,
+  )
+    .bind(tech.id)
+    .all();
+
+  return json({
+    success: true,
+    data: tasks.results,
+  });
+}
+
+
+if (
+  path.startsWith("/api/technicians/") &&
+  path.endsWith("/services") &&
+  request.method === "GET"
+) {
+  const user = await authenticate(request, env);
+
+  if (!user) {
+    return json(
+      {
+        success: false,
+        message: "Unauthorized",
+      },
+      401,
+    );
+  }
+
+  const technicianId = path.split("/")[3];
+
+  const services = await env.DB.prepare(
+    `
+      SELECT
+        s.id,
+        s.name,
+        s.base_price,
+        dc.name AS category_name
+
+      FROM technician_services ts
+
+      JOIN services s
+        ON ts.service_id = s.id
+
+      JOIN device_categories dc
+        ON s.category_id = dc.id
+
+      WHERE ts.technician_id = ?
+        AND s.is_active = 1
+
+      ORDER BY dc.name, s.name
+    `,
+  )
+    .bind(technicianId)
+    .all();
+
+  return json({
+    success: true,
+    data: services.results,
+  });
+}
+
+
+if (
+  path.startsWith("/api/technicians/") &&
+  path.endsWith("/services") &&
+  request.method === "PUT"
+) {
+  const user = await authenticate(request, env);
+
+  if (!user || !["ADMIN", "MANAGER"].includes(user.role)) {
+    return json(
+      {
+        success: false,
+        message: "Access denied",
+      },
+      403,
+    );
+  }
+
+  const technicianId = path.split("/")[3];
+
+  const { service_ids } =
+    await request.json();
+
+  await env.DB.prepare(
+    `
+      DELETE FROM technician_services
+      WHERE technician_id = ?
+    `,
+  )
+    .bind(technicianId)
+    .run();
+
+  for (const serviceId of service_ids) {
+    await env.DB.prepare(
+      `
+        INSERT INTO technician_services (
+          technician_id,
+          service_id
+        )
+        VALUES (?, ?)
+      `,
+    )
+      .bind(
+        technicianId,
+        serviceId,
+      )
+      .run();
+  }
+
+  return json({
+    success: true,
+    message: "Technician services updated successfully",
+  });
+}
       // ==========================================
       // 6. SPARE PARTS & BRANCH INVENTORY
       // ==========================================
