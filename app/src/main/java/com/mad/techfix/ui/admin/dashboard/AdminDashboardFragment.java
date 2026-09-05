@@ -29,7 +29,7 @@ public class AdminDashboardFragment extends Fragment {
     private AdminViewModel viewModel;
     private DashboardAppointmentAdapter adapter;
 
-    private TextView tvTotalRevenue, tvPendingRequests, tvActiveRepairs, tvAvailableTechs, tvEmpty;
+    private TextView tvTotalRevenue, tvPendingRequests, tvActiveRepairs, tvAvailableTechs, tvEmpty, tvBranchName;
     private SwipeRefreshLayout swipeRefresh;
     private ProgressBar progressBar;
     private RecyclerView recyclerRecentAppointments;
@@ -50,6 +50,7 @@ public class AdminDashboardFragment extends Fragment {
         viewModel = new ViewModelProvider(requireActivity()).get(AdminViewModel.class);
 
         tvTotalRevenue = view.findViewById(R.id.tv_total_revenue);
+        tvBranchName = view.findViewById(R.id.tv_branch_name);
         tvPendingRequests = view.findViewById(R.id.tv_pending_requests);
         tvActiveRepairs = view.findViewById(R.id.tv_active_repairs);
         tvAvailableTechs = view.findViewById(R.id.tv_available_techs);
@@ -141,6 +142,13 @@ public class AdminDashboardFragment extends Fragment {
 
         viewModel.getDashboardData().observe(getViewLifecycleOwner(), data -> {
             if (data != null) {
+                if (data.getBranchName() != null && !data.getBranchName().isEmpty()) {
+                    tvBranchName.setText("Branch: " + data.getBranchName());
+                    tvBranchName.setVisibility(View.VISIBLE);
+                } else {
+                    tvBranchName.setVisibility(View.GONE);
+                }
+                
                 animateCurrency(tvTotalRevenue, data.getTotalRevenue(), currentRevenue);
                 currentRevenue = data.getTotalRevenue();
                 
