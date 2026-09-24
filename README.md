@@ -23,7 +23,6 @@ Built as a **Native Android Application**, it leverages an ultra-fast, serverles
 From real-time GPS tracking and algorithmic appointment routing to multi-tier Role-Based Access Control (RBAC), TechFix removes the friction from technical repair lifecycles.
 
 ---
-
 <p align="center">
   <a href="https://streamable.com/x1kgdd">
     <img src="YOUR_THUMBNAIL_URL" width="300" alt="Watch Project Demo">
