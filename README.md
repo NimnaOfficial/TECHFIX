@@ -24,6 +24,18 @@ From real-time GPS tracking and algorithmic appointment routing to multi-tier Ro
 
 ---
 
+<p align="center">
+  <a href="https://streamable.com/x1kgdd">
+    <img src="YOUR_THUMBNAIL_URL" width="300" alt="Watch Project Demo">
+  </a>
+</p>
+
+<p align="center">
+  ▶️ <b>Click to watch the project demo</b>
+</p>
+
+---
+
 ## 🌟 Advanced System Highlights
 
 * 📍 **Algorithmic Geospatial Auto-Routing:** When customers request a repair, the Cloudflare backend utilizes the **Haversine formula** to calculate the distance from their GPS coordinates to all active branches, instantly auto-assigning them to the nearest available service center and a free technician.
