@@ -1,8 +1,6 @@
 <div align="center">
 
-<img src="https://img.icons8.com/external-flat-icons-inmotus-design/120/000000/external-repair-setting-flat-icons-inmotus-design.png" alt="TechFix Logo" width="100"/>
-<img src="https://img.icons8.com/color/120/000000/android-os.png" alt="Android Logo" width="100"/>
-<img src="https://img.icons8.com/color/120/000000/cloudflare.png" alt="Cloudflare Logo" width="100"/>
+<img src="./docs/app_icon.jpg" alt="TechFix Logo" width="150" style="border-radius: 20%;"/>
 
 # 📱 TechFix - Enterprise Edge-Powered Repair Management System
 
