@@ -1,61 +1,53 @@
 <div align="center">
-  <img src="https://img.icons8.com/color/120/000000/android-os.png" alt="Android Logo" width="80"/>
-  <img src="https://img.icons8.com/color/120/000000/cloudflare.png" alt="Cloudflare Logo" width="80"/>
-  
-  # 📱 TechFix - Enterprise Repair Management System
-  
-  **A scalable, multi-role Android application powered by Cloudflare's serverless edge computing.**
-  
-  [![Android](https://img.shields.io/badge/Android-Java-3DDC84?style=for-the-badge&logo=android&logoColor=white)](#)
-  [![Cloudflare Workers](https://img.shields.io/badge/Cloudflare_Workers-F38020?style=for-the-badge&logo=cloudflare&logoColor=white)](#)
-  [![SQLite D1](https://img.shields.io/badge/Cloudflare_D1-003B57?style=for-the-badge&logo=sqlite&logoColor=white)](#)
-  [![Retrofit](https://img.shields.io/badge/Retrofit-2.9.0-FF4081?style=for-the-badge)](#)
-  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+<img src="https://img.icons8.com/external-flat-icons-inmotus-design/120/000000/external-repair-setting-flat-icons-inmotus-design.png" alt="TechFix Logo" width="100"/>
+<img src="https://img.icons8.com/color/120/000000/android-os.png" alt="Android Logo" width="100"/>
+<img src="https://img.icons8.com/color/120/000000/cloudflare.png" alt="Cloudflare Logo" width="100"/>
+
+# 📱 TechFix - Enterprise Edge-Powered Repair Management System
+
+**A massively scalable, multi-role Android application powered by Cloudflare's serverless edge computing and D1 SQLite.**
+
+[![Android Studio](https://img.shields.io/badge/Android_Studio-3DDC84?style=for-the-badge&logo=android-studio&logoColor=white)](#)
+[![Java/Kotlin](https://img.shields.io/badge/Java_/_Kotlin-0095D5?style=for-the-badge&logo=kotlin&logoColor=white)](#)
+[![Cloudflare Workers](https://img.shields.io/badge/Cloudflare_Workers-F38020?style=for-the-badge&logo=cloudflare&logoColor=white)](#)
+[![SQLite D1](https://img.shields.io/badge/Cloudflare_D1-003B57?style=for-the-badge&logo=sqlite&logoColor=white)](#)
+[![Retrofit](https://img.shields.io/badge/Retrofit-2.9.0-FF4081?style=for-the-badge)](#)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+
+*Bridging the gap between technicians, shop managers, and customers with sub-millisecond edge latency.*
+
 </div>
 
 ---
 
-## 🎯 Overview
-
-**TechFix** is a fully comprehensive mobile platform designed to bridge the gap between repair technicians, shop managers, and customers. 
-Built as a **Native Android Application**, it leverages an ultra-fast, serverless backend via **Cloudflare Workers** and **D1 (SQLite at the edge)**.
-
-From real-time GPS tracking and algorithmic appointment routing to multi-tier Role-Based Access Control (RBAC), TechFix removes the friction from technical repair lifecycles.
-
----
 <p align="center">
   <a href="https://streamable.com/x1kgdd">
-    <img src="YOUR_THUMBNAIL_URL" width="300" alt="Watch Project Demo">
+    <img src="https://img.shields.io/badge/▶_Watch_Project_Demo-FF0000?style=for-the-badge&logo=youtube&logoColor=white" alt="Watch Project Demo">
   </a>
 </p>
 
-<p align="center">
-  ▶️ <b>Click to watch the project demo</b>
-</p>
+## 🎯 Project Overview
+
+**TechFix** is a comprehensive, enterprise-grade mobile platform designed to orchestrate the entire lifecycle of device repairs. Built natively for Android, the application eliminates operational bottlenecks using an ultra-fast, serverless backend via **Cloudflare Workers** and **D1 (SQLite at the Edge)**. 
+
+From **real-time geospatial routing** of customer requests to **multi-tier Role-Based Access Control (RBAC)**, inventory management, and robust financial reporting, TechFix brings modern edge-computing architecture to technical repair chains.
 
 ---
 
 ## 🌟 Advanced System Highlights
 
-* 📍 **Algorithmic Geospatial Auto-Routing:** When customers request a repair, the Cloudflare backend utilizes the **Haversine formula** to calculate the distance from their GPS coordinates to all active branches, instantly auto-assigning them to the nearest available service center and a free technician.
-* 🛡️ **Zero-Trust Technician Onboarding:** Newly created technician accounts utilize auto-generated secure credentials. Upon their very first login, the system forcibly traps them in a mandatory password reset flow before granting dashboard access.
-* ⚡ **Edge-Native Speed:** By utilizing Cloudflare Workers, API routes execute globally within milliseconds of the end user, with the D1 SQLite database distributed at the edge.
-
----
-
-## 👥 Features by Role
-
-TechFix enforces strict RBAC to deliver customized dashboard experiences based on the user's role.
-
-| 🧑‍💻 **Customer** | 🛠️ **Technician** | 🏢 **Manager** | 👑 **Admin** |
-| :--- | :--- | :--- | :--- |
-| 📍 **Smart Auto-Routing**<br>📱 Device Registration & Mgt<br>🔄 Real-time Repair Tracking<br>🧾 View Detailed Invoices<br>⚙️ Profile Customization | 🔒 **Forced 1st-Login Pass Reset**<br>📝 Dynamic Profile Updation<br>📋 View Assigned Tasks<br>📦 Consume Spare Parts<br>📸 Upload Photo Evidence | 📊 Full Branch Management<br>📦 Global Inventory Ledger<br>🧑‍🔧 Manual Tech Assignment<br>💰 Revenue & Sales Reports<br>🔍 Monitor Branch Activity | 👥 Manage All Users<br>⚙️ System-wide Settings<br>🛠️ High-level Diagnostics<br>🗄️ Database Administration |
+- 📍 **Algorithmic Geospatial Auto-Routing:** Integrates the **Haversine formula** on the backend to dynamically calculate the distance from a customer's GPS coordinates to all active branches. Automatically assigns repairs to the nearest branch with available technicians and required spare parts.
+- ⚡ **Global Edge-Native Speed:** APIs are executed globally within milliseconds of the end user via Cloudflare Workers. Database queries are distributed and optimized using Cloudflare D1.
+- 🛡️ **Zero-Trust Security & RBAC:** Features auto-generated secure credentials for new staff, forced mandatory password resets upon first login, and strict RBAC enforced via stateless **JWTs** verified at the edge.
+- 📸 **Cloud-Native Media Storage:** Seamless integration with Cloudinary for uploading and tracking device condition images, pre-repair, and post-repair photographic evidence.
+- 📡 **Offline-Ready Mobile Architecture:** Built with modern Android standards utilizing Room Database for intelligent local caching, ensuring technicians can view their tasks even with spotty connectivity.
 
 ---
 
 ## 🏗️ System Architecture
 
-TechFix relies on an Edge-First architecture, ensuring extremely low latency and high availability by executing the backend on Cloudflare's global CDN nodes.
+TechFix embraces an **Edge-First Architecture**. By distributing backend logic directly on Cloudflare's CDN edge nodes, the app guarantees high availability and minimal latency for data-heavy operations.
 
 ```mermaid
 graph TD
@@ -85,6 +77,40 @@ graph TD
 
 ---
 
+## 👥 Comprehensive Role Modules (The Team)
+
+TechFix is a collaborative masterpiece built around four distinct domains, each meticulously crafted to handle a specific facet of the repair business lifecycle.
+
+### 🧠 Member 1: Core Backend, API & Edge Security
+**Domain:** Cloudflare Workers API, D1 Database, JWT Authentication, and Global Business Logic.
+* Orchestrates the serverless **REST API** using Node.js on Cloudflare Workers.
+* Designs and maintains the **Cloudflare D1** SQLite relational database schema ensuring ACID compliance.
+* Implements the **PBKDF2 SHA-256** password hashing and stateless **JWT validation**.
+* Enforces strict **Role-Based Authorization**, API validation, and error handling.
+* Powers the complex business rules for appointment lifecycles and technician assignment tracking.
+
+### 📱 Member 2: Customer Repair Journey
+**Domain:** Customer UI, Appointments, and Repair Tracking.
+* Provides the frontend experience for end-users to register, login, and manage their devices.
+* Drives the **Book a Repair** flow allowing customers to select services, dates, times, and map coordinates.
+* Builds the live **Repair Tracking timeline** (`REQUESTED` → `ASSIGNED` → `DIAGNOSING` → `REPAIRING` → `TESTING` → `COMPLETED`).
+* Manages the complete **Repair History** viewing functionality for transparency.
+
+### 🏢 Member 3: Branch & Technician Administration
+**Domain:** Control Center, Admin Dashboard, Staff Allocation.
+* Creates the **Management Dashboard** to view overall business health and system metrics.
+* Manages **Branch Operations**, including geospatial coordinates and branch status.
+* Administers the **Technician Roster**, assigning skills, specialization, and managing availability states (`AVAILABLE`, `BUSY`, `OFF_DUTY`, `ON_LEAVE`).
+* Handles the manual override **Technician Assignment UI**, pairing pending repairs with the correct staff.
+
+### 💰 Member 4: Inventory, Finances & Reports
+**Domain:** Spare Parts management, Payments processing, Analytics.
+* Constructs the **Spare Parts Ledger**, tracking stock quantity, prices, and low-stock alerts.
+* Integrates **Payment Processing** screens, tracking payment intents (`PAID`, `FAILED`, `REFUNDED`), capturing receipts, and total costs based on parts consumed.
+* Builds dynamic **Management Reports** visualizing Revenue, Active Repairs, Parts utilization, and Branch performance metrics.
+
+---
+
 ## 🗄️ Database Schema Snapshot
 
 The D1 database is highly normalized to ensure data integrity during parallel API transactions and automated routing algorithms.
@@ -92,46 +118,55 @@ The D1 database is highly normalized to ensure data integrity during parallel AP
 ```mermaid
 erDiagram
     USERS ||--o| CUSTOMERS : "has profile"
-    USERS ||--o{ APPOINTMENTS : "technician assigned"
+    USERS ||--o| TECHNICIANS : "has profile"
     CUSTOMERS ||--o{ APPOINTMENTS : "books"
     CUSTOMERS ||--o{ DEVICES : "owns"
-    BRANCHES ||--o{ BRANCH_SPARE_PARTS : "stocks"
-    APPOINTMENTS ||--o{ REPAIR_STATUS_HISTORY : "tracks"
-    APPOINTMENTS ||--o{ APPOINTMENT_PARTS : "consumes"
+    BRANCHES ||--o{ INVENTORY : "stocks parts"
+    BRANCHES ||--o{ TECHNICIANS : "employs"
+    APPOINTMENTS ||--o{ REPAIR_HISTORY : "tracks status"
+    APPOINTMENTS ||--o{ REPAIR_PARTS : "consumes"
+    APPOINTMENTS ||--o| PAYMENTS : "generates invoice"
 
     USERS {
         string id PK
-        string role
+        string role "Admin, Manager, Tech, Customer"
         string email
         string password_hash
     }
     APPOINTMENTS {
         string id PK
-        string device_id FK
-        string branch_id FK
-        string status
-        float customer_latitude
-        float customer_longitude
+        string status "Requested, Diagnosing, Completed"
+        float customer_lat
+        float customer_lng
     }
-    BRANCHES {
+    INVENTORY {
         string id PK
-        string name
-        float latitude
-        float longitude
+        string part_name
+        int stock_level
+        float price
     }
 ```
 
 ---
 
-## 🚀 Complete Setup Guide
+## 🔐 Advanced Security Implementations
 
-Follow these steps to deploy both the backend and frontend locally or to production.
+- **PBKDF2 Edge Hashing:** Passwords are never stored in plaintext. They are salted and hashed natively inside the V8 engine on the Cloudflare Edge using high-iteration PBKDF2 (SHA-256).
+- **Stateless JWT Authorization:** API tokens are generated and signed with Web Crypto API HMAC. The Worker middleware validates claims natively without requiring a database lookup for every request.
+- **Strict Role Boundaries:** All endpoints utilize granular interceptors to match the exact role claim `(Admin, Manager, Technician, Customer)` required before routing transactions.
+- **SQL Injection Prevention:** 100% parameterized queries via D1 SQLite Bindings natively prevent payload injection. Case-insensitive routing enforces email collision checks via `LOWER()` SQL.
 
-### 1️⃣ Backend Setup (Cloudflare Workers + D1)
+---
+
+## 🚀 Complete Deployment Guide
+
+Follow these steps to deploy both the highly-available backend and the native Android frontend.
+
+### 1️⃣ Serverless Edge Backend (Cloudflare Workers + D1)
 
 **Prerequisites:** 
 - Install [Node.js](https://nodejs.org/) and NPM.
-- Install Wrangler CLI: `npm install -g wrangler`
+- Install Wrangler CLI globally: `npm install -g wrangler`
 
 <details>
 <summary><b>Click to expand backend deployment steps</b></summary>
@@ -158,15 +193,15 @@ Follow these steps to deploy both the backend and frontend locally or to product
    ```bash
    npx wrangler d1 execute techfix-db --remote --file=./schema.sql
    ```
-6. **Deploy the Worker**
+6. **Deploy the Worker globally**
    ```bash
    npx wrangler deploy
    ```
-   *This will output a live URL (e.g., `https://techfix-backend.<your-subdomain>.workers.dev`)*.
+   *This will output a live CDN URL (e.g., `https://techfix-backend.<your-subdomain>.workers.dev`)*.
 
 </details>
 
-### 2️⃣ Frontend Setup (Android Studio)
+### 2️⃣ Mobile Frontend (Android Studio)
 
 **Prerequisites:**
 - Install [Android Studio](https://developer.android.com/studio) (Giraffe or later).
@@ -178,13 +213,13 @@ Follow these steps to deploy both the backend and frontend locally or to product
 
 1. **Open the Project**
    Open the root `TECHFIX` folder inside Android Studio.
-2. **Connect the Backend API**
+2. **Connect the Edge Backend**
    Open the following file:
    `app/src/main/java/com/mad/techfix/network/RetrofitClient.java`
    
    Replace the `BASE_URL` with your fully unified Cloudflare Worker deployment URL:
    ```java
-   private static final String BASE_URL = "https://techfix-backend.codse251f-003.workers.dev/";
+   private static final String BASE_URL = "https://techfix-backend.<your-subdomain>.workers.dev/";
    ```
 3. **Sync and Build**
    - Wait for Gradle to sync dependencies.
@@ -194,24 +229,18 @@ Follow these steps to deploy both the backend and frontend locally or to product
 
 ---
 
-## 🔐 Security & Authentication
-* **PBKDF2 Hashing:** Passwords are never stored in plaintext. They are salted and hashed using 100k iterations of PBKDF2 (SHA-256) inside the V8 engine natively on the Cloudflare Edge.
-* **JWT (JSON Web Tokens):** Secure, stateless session management. Tokens include expiration claims and strict signature validation using HMAC Web Crypto API.
-* **Case-Insensitive Constraints:** Email collision checks and logins are strictly evaluated via `LOWER()` SQL queries to ensure case-insensitive routing.
-* **Granular API Interceptors:** All API endpoints automatically validate the user's role claim against the required permissions before executing queries.
+## 📸 Application Gallery
 
----
+*(Add your application screenshots here in an organized grid)*
 
-## 🤝 Meet the Team (Contributors)
-
-* **Member 1 (System Admin & Customer Features):** Role assignments, Device management, Location services, Main Dashboard configurations.
-* **Member 2 (Manager & Core Logic):** Branch handling, Global Inventory ledgers, High-level Reporting, Data visualization.
-* **Member 3 (Android Architecture):** Auth (Login/Register) workflows, UI layouts, Retrofit abstractions, Application foundation.
-* **Member 4 (Technician & Repair Lifecycles):** Payment intents, Status history chronologies, Camera image evidence modules.
+| Customer Dashboard | Repair Tracking | Admin Analytics | Parts Ledger |
+|:---:|:---:|:---:|:---:|
+| <img src="https://placehold.co/200x400/000000/FFF?text=Dashboard" width="200"/> | <img src="https://placehold.co/200x400/000000/FFF?text=Tracking" width="200"/> | <img src="https://placehold.co/200x400/000000/FFF?text=Analytics" width="200"/> | <img src="https://placehold.co/200x400/000000/FFF?text=Ledger" width="200"/> |
 
 ---
 
 <div align="center">
-  <i>Built with ☕ for the Mobile Application Development Module.</i><br>
-  <b>Licensed under the MIT License</b>
+  <p><i>Developed dynamically for the Mobile Application Development Module.</i></p>
+  <b>Licensed under the MIT License</b><br>
+  ⭐⭐⭐ If you find this project useful, don't forget to star the repository! ⭐⭐⭐
 </div>
